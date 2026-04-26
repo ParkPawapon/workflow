@@ -668,7 +668,7 @@ ob_start();
                         $head_note_b64 = base64_encode((string) ($memo['headNote'] ?? ''));
                         $deputy_note_b64 = base64_encode((string) ($memo['deputyNote'] ?? ''));
                         $director_note_b64 = base64_encode((string) ($memo['directorNote'] ?? ''));
-                        $can_preview_pdf = in_array($status, [MEMO_STATUS_SIGNED, MEMO_STATUS_REJECTED], true);
+                        $can_preview_pdf = in_array($status, [MEMO_STATUS_APPROVED_UNSIGNED, MEMO_STATUS_SIGNED, MEMO_STATUS_REJECTED], true);
                         $can_edit_and_submit = $status === 'DRAFT' || !empty($memo['ownerCanEditBeforeHeadForward']);
                         $memo_pdf_preview_href = $memo_id > 0
                             ? ('memo-pdf.php?memo_id=' . rawurlencode((string) $memo_id))
@@ -1303,7 +1303,7 @@ ob_start();
         });
 
         tinymce.init({
-            selector: '#memo_editor_view',
+            selector: '#memo_editor_view, #memoViewHeadNote, #memoViewDeputyNote, #memoViewDirectorNote',
             height: 500,
             menubar: false,
             language: 'th_TH',
@@ -2530,6 +2530,31 @@ ob_start();
         textarea.style.overflowY = 'hidden';
     };
 
+    const setMemoReadonlyEditorContent = (textarea, value) => {
+        if (!textarea) {
+            return;
+        }
+
+        const content = String(value || '').trim();
+        textarea.value = content;
+
+        if (!window.tinymce || typeof window.tinymce.get !== 'function' || textarea.id === '') {
+            return;
+        }
+
+        const editor = tinymce.get(textarea.id);
+
+        if (!editor) {
+            return;
+        }
+
+        const html = content !== '' && content !== '-'
+            ? content.replace(/\n/g, '<br>')
+            : content;
+        editor.setContent(html);
+        editor.mode.set('readonly');
+    };
+
     const formatMemoViewSignatureName = (value) => {
         const cleanValue = String(value || '').replace(/^\(|\)$/g, '').trim();
         return '(' + (cleanValue || '-') + ')';
@@ -2537,8 +2562,11 @@ ob_start();
 
     const formatMemoViewPosition = (value) => {
         const cleanValue = String(value || '').trim();
+        const normalizedValue = typeof cleanValue.normalize === 'function'
+            ? cleanValue.normalize('NFC')
+            : cleanValue.replace('อํานวย', 'อำนวย');
 
-        if (cleanValue === 'ผู้อำนวยการโรงเรียน') {
+        if (normalizedValue === 'ผู้อำนวยการโรงเรียน') {
             return 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
         }
 
@@ -2547,7 +2575,7 @@ ob_start();
 
     const memoViewActionLabelMap = {
         FORWARD: 'เสนอผู้อำนวยการ',
-        APPROVE_UNSIGNED: 'ลงนาม(ป)',
+        APPROVE_UNSIGNED: 'ลงนามแล้ว',
         RETURN: 'กลับไปแก้ไข',
         REJECT: 'ไม่อนุมัติ',
         SIGN: 'ลงนามแล้ว',
@@ -2596,14 +2624,13 @@ ob_start();
     const setMemoViewTextarea = (row, textarea, value, forceVisible = false) => {
         const normalized = normalizeMemoDetailText(value);
         const shouldShow = normalized !== '' || forceVisible;
+        const displayValue = normalized !== '' ? normalized : '-';
 
-        if (textarea) {
-            textarea.value = normalized !== '' ? normalized : '-';
-        }
+        setMemoReadonlyEditorContent(textarea, displayValue);
 
         setMemoViewVisible(row, shouldShow);
 
-        if (shouldShow) {
+        if (shouldShow && (!window.tinymce || typeof window.tinymce.get !== 'function' || !textarea || !tinymce.get(textarea.id))) {
             autoResizeTextarea(textarea);
         }
     };
@@ -2769,7 +2796,7 @@ ob_start();
                 memoViewToLabel.textContent = toText !== '' ? toText : memoDirectorLabel;
             }
             if (memoViewDetailInput) {
-                memoViewDetailInput.value = detailText;
+                setMemoReadonlyEditorContent(memoViewDetailInput, detailText);
             }
 
             if (window.tinymce && typeof window.tinymce.get === 'function') {

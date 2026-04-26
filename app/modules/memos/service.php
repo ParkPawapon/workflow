@@ -313,6 +313,63 @@ if (!function_exists('memo_is_chain_mode')) {
     }
 }
 
+if (!function_exists('memo_chain_skips_head_stage')) {
+    function memo_chain_skips_head_stage(array $memo): bool
+    {
+        $headPID = trim((string) ($memo['headPID'] ?? ''));
+        $deputyPID = trim((string) ($memo['deputyPID'] ?? ''));
+        $toPID = trim((string) ($memo['toPID'] ?? ''));
+
+        $creatorPID = trim((string) ($memo['createdByPID'] ?? ''));
+
+        if ($headPID === '' && $deputyPID !== '') {
+            return true;
+        }
+
+        if ($creatorPID === '') {
+            return false;
+        }
+
+        try {
+            $chain = memo_resolve_chain_approvers($creatorPID);
+        } catch (Throwable $ignored) {
+            return false;
+        }
+
+        $resolvedHeadPID = trim((string) ($chain['headPID'] ?? ''));
+        $resolvedDeputyPID = trim((string) ($chain['deputyPID'] ?? ''));
+
+        if ($resolvedHeadPID !== '' || $resolvedDeputyPID === '') {
+            return false;
+        }
+
+        return $headPID === ''
+            || $headPID === $resolvedDeputyPID
+            || ($toPID !== '' && $headPID === $toPID);
+    }
+}
+
+if (!function_exists('memo_normalize_chain_stage')) {
+    function memo_normalize_chain_stage(array $memo, string $stage, string $actorPID = ''): string
+    {
+        $stage = strtoupper(trim($stage));
+
+        if ($stage !== 'HEAD' || !memo_chain_skips_head_stage($memo)) {
+            return $stage;
+        }
+
+        $actorPID = trim($actorPID);
+        $deputyPID = trim((string) ($memo['deputyPID'] ?? ''));
+        $toPID = trim((string) ($memo['toPID'] ?? ''));
+
+        if ($actorPID === '' || $actorPID === $deputyPID || $actorPID === $toPID) {
+            return 'DEPUTY';
+        }
+
+        return $stage;
+    }
+}
+
 if (!function_exists('memo_infer_chain_stage_by_actor')) {
     function memo_infer_chain_stage_by_actor(array $memo, string $actorPID): string
     {
@@ -320,7 +377,7 @@ if (!function_exists('memo_infer_chain_stage_by_actor')) {
         $stage = strtoupper(trim((string) ($memo['flowStage'] ?? '')));
 
         if ($stage !== '' && $stage !== 'OWNER') {
-            return $stage;
+            return memo_normalize_chain_stage($memo, $stage, $actorPID);
         }
 
         if ($actorPID !== '' && $actorPID === trim((string) ($memo['headPID'] ?? ''))) {
@@ -944,6 +1001,7 @@ if (!function_exists('memo_forward')) {
             $directorPID = trim((string) ($memo['directorPID'] ?? ''));
             $flowStage = strtoupper(trim((string) ($memo['flowStage'] ?? '')));
             $currentToPID = trim((string) ($memo['toPID'] ?? ''));
+            $flowStage = memo_normalize_chain_stage($memo, $flowStage, $currentToPID !== '' ? $currentToPID : $actorPID);
 
             if ($currentToPID !== '' && in_array($flowStage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true)) {
                 if ($flowStage === 'HEAD') {
@@ -979,6 +1037,8 @@ if (!function_exists('memo_forward')) {
             }
 
             $is_chain_mode = memo_is_chain_mode($memo);
+            $actor_is_deputy = memo_is_valid_deputy_candidate($actorPID);
+            $target_is_director = $directorPID !== '' && ($targetPID === '' || $targetPID === $directorPID);
             $memo = [
                 ...$memo,
                 'headPID' => $headPID,
@@ -993,6 +1053,17 @@ if (!function_exists('memo_forward')) {
                     throw new RuntimeException('ส่งต่อได้เฉพาะหัวหน้ากลุ่ม/รองผู้อำนวยการ');
                 }
 
+                if ($currentStage === 'HEAD' && $actor_is_deputy && $target_is_director) {
+                    $currentStage = 'DEPUTY';
+                    $deputyPID = $actorPID;
+                    $memo['deputyPID'] = $deputyPID;
+
+                    if ($headPID === $actorPID) {
+                        $headPID = '';
+                        $memo['headPID'] = '';
+                    }
+                }
+
                 if ($currentStage === 'HEAD' && $targetPID !== '') {
                     if (!preg_match('/^\d{1,13}$/', $targetPID) || !memo_is_valid_deputy_candidate($targetPID, $actorPID)) {
                         throw new RuntimeException('ไม่พบรองผู้อำนวยการที่เลือก');
@@ -1002,16 +1073,28 @@ if (!function_exists('memo_forward')) {
                     $memo['deputyPID'] = $deputyPID;
                 }
             } else {
-                if (!preg_match('/^\d{1,13}$/', $targetPID) || !memo_is_valid_deputy_candidate($targetPID, $actorPID)) {
-                    throw new RuntimeException('ไม่พบรองผู้อำนวยการที่เลือก');
-                }
+                if ($actor_is_deputy && $target_is_director) {
+                    $currentStage = 'DEPUTY';
+                    $deputyPID = $actorPID;
+                    $memo['flowMode'] = 'CHAIN';
+                    $memo['deputyPID'] = $deputyPID;
 
-                $currentStage = 'HEAD';
-                $headPID = $actorPID;
-                $deputyPID = $targetPID;
-                $memo['flowMode'] = 'CHAIN';
-                $memo['headPID'] = $headPID;
-                $memo['deputyPID'] = $deputyPID;
+                    if ($headPID === $actorPID) {
+                        $headPID = '';
+                        $memo['headPID'] = '';
+                    }
+                } else {
+                    if (!preg_match('/^\d{1,13}$/', $targetPID) || !memo_is_valid_deputy_candidate($targetPID, $actorPID)) {
+                        throw new RuntimeException('ไม่พบรองผู้อำนวยการที่เลือก');
+                    }
+
+                    $currentStage = 'HEAD';
+                    $headPID = $actorPID;
+                    $deputyPID = $targetPID;
+                    $memo['flowMode'] = 'CHAIN';
+                    $memo['headPID'] = $headPID;
+                    $memo['deputyPID'] = $deputyPID;
+                }
             }
 
             [$nextPID, $nextStage] = memo_resolve_next_chain_reviewer($memo, $currentStage);
@@ -1322,7 +1405,7 @@ if (!function_exists('memo_approve_unsigned')) {
         }
 
         if ($note === '') {
-            $note = 'อนุมัติ รอแนบไฟล์ฉบับลงนาม';
+            $note = 'ลงนามแล้ว';
         }
 
         db_begin();
@@ -1359,12 +1442,15 @@ if (!function_exists('memo_approve_unsigned')) {
                 $stage = memo_infer_chain_stage_by_actor($memo, $actorPID);
 
                 if ($stage !== 'DEPUTY') {
-                    throw new RuntimeException('โหมดเสนอแฟ้มตามลำดับรองรับสถานะ "ลงนาม(ป)" เฉพาะรองผู้อำนวยการ');
+                    throw new RuntimeException('โหมดเสนอแฟ้มตามลำดับรองรับสถานะ "ลงนามแล้ว" เฉพาะรองผู้อำนวยการ');
                 }
 
                 $updates['flowStage'] = 'OWNER';
                 $updates['toType'] = 'PERSON';
                 $updates['toPID'] = $ownerPID;
+                $updates['deputyPID'] = trim((string) ($memo['deputyPID'] ?? '')) !== ''
+                    ? trim((string) $memo['deputyPID'])
+                    : $actorPID;
             }
 
             if (empty($memo['firstReadAt'])) {

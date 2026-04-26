@@ -20,7 +20,7 @@ if (!function_exists('memo_pdf_render_html')) {
         $logo_data_uri = trim((string) ($data['logo_data_uri'] ?? ''));
         $owner_signature = trim((string) ($data['owner_signature'] ?? ''));
         $owner_name = trim((string) ($data['owner_name'] ?? '-'));
-        $owner_position = trim((string) ($data['owner_position'] ?? '-'));
+        $owner_position = app_format_position_label(trim((string) ($data['owner_position'] ?? '-')));
         $review_blocks = $data['review_blocks'] ?? [];
         $body_paragraphs = $data['body_paragraphs'] ?? [];
         $section_line = $section_name !== '' ? $section_name : '-';
@@ -271,7 +271,7 @@ if (!function_exists('memo_pdf_render_html')) {
             $review_note = trim((string) ($block['note'] ?? ''));
             $review_signature = trim((string) ($block['signature'] ?? ''));
             $reviewer_name = trim((string) ($block['name'] ?? '-'));
-            $reviewer_position = trim((string) ($block['position'] ?? '-'));
+            $reviewer_position = app_format_position_label(trim((string) ($block['position'] ?? '-')));
             ?>
             <div class="review-block">
                 <p class="review-title"><?= h($review_title) ?></p>
