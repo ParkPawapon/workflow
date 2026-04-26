@@ -277,6 +277,10 @@ ob_start();
         background-color: rgba(var(--rgb-neutral-medium), 0.25);
         cursor: not-allowed;
     }
+
+    .sender-row.margin {
+        margin: 20px 0 0;
+    }
 </style>
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
@@ -520,7 +524,7 @@ ob_start();
                                 <td><button class="urgency-status <?= h((string) ($item['urgency_class'] ?? 'normal')) ?>">
                                         <p><?= h($priority_label) ?></p>
                                     </button></td>
-                                <td><?= h((string) ($item['status_label'] ?? '-')) ?></td>
+                                <td><span class="status-pill pending"><?= h((string) ($item['status_label'] ?? '-')) ?></span></td>
                                 <td>
                                     <div class="circular-action-stack">
                                         <button
@@ -570,7 +574,7 @@ ob_start();
                 </div>
 
                 <div class="content-modal">
-                    <form method="" enctype="" data-validate class="container-circular-notice-sending" id="" style="box-shadow:none; padding: 0;">
+                    <form method="" enctype="" data-validate class="container-circular-notice-sending" id="">
                         <?= csrf_field() ?>
                         <input type="hidden" name="edit_circular_id" id="editTargetCircularId" value="">
 
@@ -742,41 +746,110 @@ ob_start();
                         <input type="hidden" name="circular_id" data-send-circular-id value="">
                         <input type="hidden" name="action" value="forward">
                         <input type="hidden" name="edit_circular_id" id="editTargetCircularId" value="">
-
-                        <div class="form-group">
-                            <label for="edit_subject"><b>หัวเรื่อง</b></label>
-                            <input type="text" name="subject" id="edit_subject" placeholder="กรุณากรอกหัวเรื่อง" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="edit_detail"><b>รายละเอียด</b></label>
-                            <textarea name="detail" id="edit_detail" rows="4" placeholder="กรุณากรอกรายละเอียด"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label><b>อัปโหลดไฟล์เอกสารใหม่</b></label>
-                            <section class="upload-layout">
-                                <input type="file" id="edit_fileInput" name="attachments[]" multiple accept="application/pdf,image/png,image/jpeg" style="display: none;" />
-                                <div class="upload-box" id="edit_dropzone">
-                                    <i class="fa-solid fa-upload"></i>
-                                    <p>ลากไฟล์มาวางที่นี่</p>
-                                </div>
-                                <div class="file-list" id="edit_fileListContainer"></div>
-                            </section>
-                        </div>
-
-                        <div class="row form-group">
-                            <button class="btn btn-upload-small" type="button" id="edit_btnAddFiles">
-                                <p>เพิ่มไฟล์</p>
-                            </button>
-                            <div class="file-hint">
-                                <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) *</p>
+                        <div class="type-urgent">
+                            <p>ประเภท</p>
+                            <div class="radio-group-urgent">
+                                <input type="radio" name="priority" value="normal" id="outgoingPriorityNormal" checked disabled>
+                                <label for="outgoingPriorityNormal">ปกติ</label>
+                                <input type="radio" name="priority" value="urgent" id="outgoingPriorityUrgent" disabled>
+                                <label for="outgoingPriorityUrgent">ด่วน</label>
+                                <input type="radio" name="priority" value="high" id="outgoingPriorityHigh" disabled>
+                                <label for="outgoingPriorityHigh">ด่วนมาก</label>
+                                <input type="radio" name="priority" value="highest" id="outgoingPriorityHighest" disabled>
+                                <label for="outgoingPriorityHighest">ด่วนที่สุด</label>
                             </div>
                         </div>
 
+                        <div class="sender-row">
+                            <div class="form-group sender-field">
+                                <label><b>เลขที่หนังสือ</b></label>
+                                <input type="text" value="ศธ 1045.2/2567" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label><b>ลงวันที่</b></label>
+                                <input type="text" value="26 เมษายน 2567" disabled>
+                            </div>
+                        </div>
+
+                        <div class="sender-row">
+                            <div class="form-group">
+                                <label><b>เรื่อง</b></label>
+                                <input type="text" value="ขอเชิญร่วมประชุมคณะกรรมการบริหารสถานศึกษา ประจำเดือนพฤษภาคม" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label><b>จาก</b></label>
+                                <input type="text" value="ขอเชิญร่วมประชุมคณะกรรมการบริหารสถานศึกษา ประจำเดือนพฤษภาคม" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group sender-field">
+                            <label><b>ถึงกลุ่ม</b></label>
+                            <input type="text" value="ศธ 1045.2/2567" disabled>
+                        </div>
+
                         <div class="form-group">
-                            <label for="edit_linkURL"><b>แนบลิ้งก์</b></label>
-                            <input type="text" id="edit_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง" />
+                            <label><b>เกษียณหนังสือ</b></label>
+                            <textarea rows="5" disabled>เรียน คณะกรรมการบริหารสถานศึกษาทุกท่าน ด้วยทางโรงเรียนจะจัดการประชุมเพื่อสรุปผลการดำเนินงานประจำเดือน และวางแผนกิจกรรมในเดือนถัดไป จึงขอเรียนเชิญทุกท่านเข้าร่วมประชุมตามวันและเวลาที่ระบุไว้ในเอกสารแนบ</textarea>
+                        </div>
+
+                        <div class="content-file-sec">
+                            <p><strong>ไฟล์หนังสือนำ</strong></p>
+                            <div class="file-section">
+                                <div class="file-banner">
+                                    <div class="file-info">
+                                        <div class="file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                                        <div class="file-text">
+                                            <div class="file-name">cover_letter_signed_01.pdf</div>
+                                            <div class="file-type">application/pdf</div>
+                                        </div>
+                                    </div>
+                                    <div class="file-actions">
+                                        <a href="#" target="_blank"><i class="fa-solid fa-eye"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="content-file-sec">
+                            <p><strong>ไฟล์เอกสารแนบเพิ่มเติม</strong></p>
+                            <div class="file-section">
+                                <div class="file-banner">
+                                    <div class="file-info">
+                                        <div class="file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                                        <div class="file-text">
+                                            <div class="file-name">meeting_agenda_may.pdf</div>
+                                            <div class="file-type">application/pdf</div>
+                                        </div>
+                                    </div>
+                                    <div class="file-actions">
+                                        <a href="#" target="_blank"><i class="fa-solid fa-eye"></i></a>
+                                    </div>
+                                </div>
+                                <div class="file-banner">
+                                    <div class="file-info">
+                                        <div class="file-icon"><i class="fa-solid fa-image"></i></div>
+                                        <div class="file-text">
+                                            <div class="file-name">reference_schedule.png</div>
+                                            <div class="file-type">image/png</div>
+                                        </div>
+                                    </div>
+                                    <div class="file-actions">
+                                        <a href="#" target="_blank"><i class="fa-solid fa-eye"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sender-row margin">
+                            <div class="form-group">
+                                <label><b>แนบลิ้งก์</b></label>
+                                <input type="text" value="https://drive.google.com/drive/folders/mock-folder-id" disabled />
+                            </div>
+
+                            <div class="form-group">
+                                <label><b>ผู้เสนอ</b></label>
+                                <input type="text" value="นางสาวทิพยรัตน์ บุญมณี" disabled>
+                            </div>
                         </div>
 
                         <div class="sender-row">
@@ -791,315 +864,10 @@ ob_start();
                             </div>
                         </div>
 
-                        <div class="form-group receive" data-recipients-section>
-                            <label><b>ส่งถึง :</b></label>
-                            <div class="dropdown-container">
-                                <div class="search-input-wrapper" id="edit_recipientToggle">
-                                    <input type="text" id="edit_mainInput" class="search-input" placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </div>
-
-                                <div class="dropdown-content" id="edit_dropdownContent">
-                                    <div class="dropdown-header">
-                                        <label class="select-all-box" for="edit_selectAll">
-                                            <input type="checkbox" id="edit_selectAll">เลือกทั้งหมด
-                                        </label>
-                                    </div>
-
-                                    <div class="dropdown-list">
-                                        <?php if (!empty($factions)) : ?>
-                                            <div class="category-group">
-                                                <div class="category-title">
-                                                    <span>หน่วยงาน</span>
-                                                </div>
-                                                <div class="category-items">
-                                                    <?php foreach ($factions as $faction) : ?>
-                                                        <?php
-                                                        $fid = (int) ($faction['fID'] ?? 0);
-                                                        if ($fid <= 0) continue;
-
-                                                        $fid_value = (string) $fid;
-                                                        $faction_name = trim((string) ($faction['fName'] ?? ''));
-
-                                                        if ($faction_name === '') continue;
-
-                                                        $members = $faction_members[$fid] ?? [];
-                                                        $member_payload = [];
-
-                                                        foreach ($members as $member) {
-                                                            $member_payload[] = [
-                                                                'pID' => (string) ($member['pID'] ?? ''),
-                                                                'name' => (string) ($member['name'] ?? ''),
-                                                                'faction' => $faction_name,
-                                                            ];
-                                                        }
-                                                        $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
-                                                        $member_total = count($members);
-                                                        $has_selected_member = false;
-
-                                                        foreach ($members as $member) {
-                                                            $member_pid = (string) ($member['pID'] ?? '');
-                                                            if ($member_pid !== '' && $is_selected($member_pid, $selected_people)) {
-                                                                $has_selected_member = true;
-                                                                break;
-                                                            }
-                                                        }
-                                                        $expanded_by_default = $is_selected($fid_value, $selected_factions) || $has_selected_member;
-
-                                                        // สร้าง key พิเศษสำหรับ edit
-                                                        $edit_group_key = 'edit-faction-' . $fid_value;
-                                                        ?>
-                                                        <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>" data-faction-id="<?= h($fid_value) ?>">
-                                                            <div class="group-header">
-                                                                <label class="item-main" for="edit_group_faction_<?= h($fid_value) ?>">
-                                                                    <input type="checkbox" id="edit_group_faction_<?= h($fid_value) ?>" class="item-checkbox group-item-checkbox faction-item-checkbox" data-group="faction"
-                                                                        data-group-key="<?= h($edit_group_key) ?>"
-                                                                        data-group-label="<?= h($faction_name) ?>"
-                                                                        data-members="<?= h($member_payload_json) ?>"
-                                                                        name="faction_ids[]" value="<?= h($fid_value) ?>" <?= h($is_selected($fid_value, $selected_factions) ? 'checked' : '') ?>>
-                                                                    <span class="item-title"><?= h($faction_name) ?></span>
-                                                                    <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
-                                                                </label>
-                                                                <button type="button" class="group-toggle" aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
-                                                                    <i class="fa-solid fa-chevron-down"></i>
-                                                                </button>
-                                                            </div>
-
-                                                            <ol class="member-sublist">
-                                                                <?php if ($member_total === 0) : ?>
-                                                                    <li><span class="item-subtext">ไม่มีสมาชิกในฝ่ายนี้</span></li>
-                                                                <?php else : ?>
-                                                                    <?php foreach ($members as $member) : ?>
-                                                                        <?php
-                                                                        $member_pid = (string) ($member['pID'] ?? '');
-                                                                        $member_name = (string) ($member['name'] ?? '');
-                                                                        if ($member_pid === '' || $member_name === '') continue;
-                                                                        ?>
-                                                                        <li>
-                                                                            <label class="item member-item" for="edit_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>">
-                                                                                <input type="checkbox" id="edit_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>" class="member-checkbox"
-                                                                                    data-member-group-key="<?= h($edit_group_key) ?>"
-                                                                                    data-member-name="<?= h($member_name) ?>"
-                                                                                    data-group-label="<?= h($faction_name) ?>"
-                                                                                    name="person_ids[]" value="<?= h($member_pid) ?>" <?= h($is_selected($member_pid, $selected_people) ? 'checked' : '') ?>>
-                                                                                <span class="member-name"><?= h($member_name) ?></span>
-                                                                            </label>
-                                                                        </li>
-                                                                    <?php endforeach; ?>
-                                                                <?php endif; ?>
-                                                            </ol>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($department_groups)) : ?>
-                                            <div class="category-group">
-                                                <div class="category-title">
-                                                    <span>กลุ่มสาระ</span>
-                                                </div>
-                                                <div class="category-items">
-                                                    <?php foreach ($department_groups as $department_group) : ?>
-                                                        <?php
-                                                        $did = (int) ($department_group['dID'] ?? 0);
-                                                        $department_name = trim((string) ($department_group['name'] ?? ''));
-                                                        $members = (array) ($department_group['members'] ?? []);
-
-                                                        if ($did <= 0 || $department_name === '' || empty($members)) continue;
-
-                                                        $member_payload = [];
-                                                        $has_selected_member = false;
-
-                                                        foreach ($members as $member) {
-                                                            $member_pid = (string) ($member['pID'] ?? '');
-                                                            $member_name = (string) ($member['name'] ?? '');
-                                                            if ($member_pid === '' || $member_name === '') continue;
-
-                                                            if ($is_selected($member_pid, $selected_people)) {
-                                                                $has_selected_member = true;
-                                                            }
-                                                            $member_payload[] = [
-                                                                'pID' => $member_pid,
-                                                                'name' => $member_name,
-                                                                'faction' => $department_name,
-                                                            ];
-                                                        }
-
-                                                        if (empty($member_payload)) continue;
-
-                                                        $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
-                                                        $member_total = count($member_payload);
-
-                                                        $group_key = 'department-' . $did;
-                                                        // สร้าง key พิเศษสำหรับ edit
-                                                        $edit_group_key = 'edit-department-' . $did;
-                                                        ?>
-                                                        <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
-                                                            <div class="group-header">
-                                                                <label class="item-main" for="edit_group_dept_<?= h($did) ?>">
-                                                                    <input type="checkbox" id="edit_group_dept_<?= h($did) ?>" class="item-checkbox group-item-checkbox department-item-checkbox" data-group="department"
-                                                                        data-group-key="<?= h($edit_group_key) ?>"
-                                                                        data-group-label="<?= h($department_name) ?>"
-                                                                        data-members="<?= h($member_payload_json) ?>"
-                                                                        value="<?= h($group_key) ?>">
-                                                                    <span class="item-title"><?= h($department_name) ?></span>
-                                                                    <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
-                                                                </label>
-                                                                <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
-                                                                    <i class="fa-solid fa-chevron-down"></i>
-                                                                </button>
-                                                            </div>
-
-                                                            <ol class="member-sublist">
-                                                                <?php foreach ($member_payload as $member) : ?>
-                                                                    <li>
-                                                                        <label class="item member-item" for="edit_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
-                                                                            <input type="checkbox" id="edit_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
-                                                                                data-member-group-key="<?= h($edit_group_key) ?>"
-                                                                                data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
-                                                                                data-group-label="<?= h($department_name) ?>"
-                                                                                name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
-                                                                            <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
-                                                                        </label>
-                                                                    </li>
-                                                                <?php endforeach; ?>
-                                                            </ol>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <?php if (!empty($special_groups)) : ?>
-                                            <div class="category-group">
-                                                <div class="category-title">
-                                                    <span>อื่นๆ</span>
-                                                </div>
-                                                <div class="category-items">
-                                                    <?php foreach ($special_groups as $special_group) : ?>
-                                                        <?php
-                                                        $group_key = trim((string) ($special_group['key'] ?? ''));
-                                                        $group_name = trim((string) ($special_group['name'] ?? ''));
-                                                        $members = (array) ($special_group['members'] ?? []);
-
-                                                        if ($group_key === '' || $group_name === '' || empty($members)) continue;
-
-                                                        $member_payload = [];
-                                                        $has_selected_member = false;
-
-                                                        foreach ($members as $member) {
-                                                            $member_pid = (string) ($member['pID'] ?? '');
-                                                            $member_name = (string) ($member['name'] ?? '');
-                                                            if ($member_pid === '' || $member_name === '') continue;
-
-                                                            if ($is_selected($member_pid, $selected_people)) {
-                                                                $has_selected_member = true;
-                                                            }
-                                                            $member_payload[] = [
-                                                                'pID' => $member_pid,
-                                                                'name' => $member_name,
-                                                                'faction' => $group_name,
-                                                            ];
-                                                        }
-
-                                                        if (empty($member_payload)) continue;
-
-                                                        $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
-                                                        $member_total = count($member_payload);
-
-                                                        // สร้าง key พิเศษสำหรับ edit
-                                                        $edit_group_key = 'edit-special-' . $group_key;
-                                                        ?>
-                                                        <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
-                                                            <div class="group-header">
-                                                                <label class="item-main" for="edit_group_special_<?= h($group_key) ?>">
-                                                                    <input type="checkbox" id="edit_group_special_<?= h($group_key) ?>" class="item-checkbox group-item-checkbox" data-group="special"
-                                                                        data-group-key="<?= h($edit_group_key) ?>"
-                                                                        data-group-label="<?= h($group_name) ?>"
-                                                                        data-members="<?= h($member_payload_json) ?>"
-                                                                        value="<?= h($group_key) ?>">
-                                                                    <span class="item-title"><?= h($group_name) ?></span>
-                                                                    <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
-                                                                </label>
-                                                                <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
-                                                                    <i class="fa-solid fa-chevron-down"></i>
-                                                                </button>
-                                                            </div>
-
-                                                            <ol class="member-sublist">
-                                                                <?php foreach ($member_payload as $member) : ?>
-                                                                    <li>
-                                                                        <label class="item member-item" for="edit_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
-                                                                            <input type="checkbox" id="edit_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
-                                                                                data-member-group-key="<?= h($edit_group_key) ?>"
-                                                                                data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
-                                                                                data-group-label="<?= h($group_name) ?>"
-                                                                                name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
-                                                                            <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
-                                                                        </label>
-                                                                    </li>
-                                                                <?php endforeach; ?>
-                                                            </ol>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-
-                                </div>
-
-
-                            </div>
-                            <div class="sent-notice-selected">
-                                <button id="edit_btnShowRecipients" type="button">
-                                    <p>แสดงผู้รับทั้งหมด</p>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="edit_confirmModal" class="modal-overlay-confirm">
-                            <div class="confirm-box">
-                                <div class="confirm-header">
-                                    <div class="icon-circle"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                                </div>
-                                <div class="confirm-body">
-                                    <h3>ยืนยันการแก้ไขและส่งใหม่</h3>
-                                    <div class="confirm-actions">
-                                        <button id="edit_btnConfirmYes" class="btn-yes" type="button">ยืนยัน</button>
-                                        <button id="edit_btnConfirmNo" class="btn-no" type="button">ยกเลิก</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="edit_recipientModal" class="modal-overlay-recipient">
-                            <div class="modal-container">
-                                <div class="modal-header">
-                                    <div class="modal-title">
-                                        <i class="fa-solid fa-users"></i><span>รายชื่อผู้รับหนังสือเวียน</span>
-                                    </div>
-                                    <button class="modal-close" id="edit_closeModalBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
-                                </div>
-                                <div class="modal-body">
-                                    <table class="recipient-table">
-                                        <thead>
-                                            <tr>
-                                                <th>ลำดับ</th>
-                                                <th>ชื่อจริง-นามสกุล</th>
-                                                <th>กลุ่ม/ฝ่าย</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="edit_recipientTableBody"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </form>
                 </div>
-
             </div>
+
         </div>
         <?php endif; ?>
 
@@ -1120,34 +888,120 @@ ob_start();
                     <input type="hidden" name="action" value="forward">
                     <input type="hidden" name="edit_circular_id" id="forwardTargetCircularId" value="">
 
-                    <div class="form-group">
-                        <label for="forward_subject"><b>หัวเรื่อง</b></label>
-                        <input type="text" name="subject" id="forward_subject" placeholder="กรุณากรอกหัวเรื่อง" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="forward_detail"><b>รายละเอียด</b></label>
-                        <textarea name="detail" id="forward_detail" rows="4" placeholder="กรุณากรอกรายละเอียด" disabled></textarea>
-                    </div>
-
-                    <div class="content-file-sec">
-                        <p><strong>ไฟล์แนบจากต้นฉบับ</strong></p>
-                        <div class="file-section" id="forwardModalFileSection"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="forward_linkURL"><b>แนบลิ้งก์</b></label>
-                        <input type="text" id="forward_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง" disabled />
+                    <div class="type-urgent">
+                        <p>ประเภท</p>
+                        <div class="radio-group-urgent">
+                            <input type="radio" name="priority" value="normal" id="outgoingPriorityNormal" checked disabled>
+                            <label for="outgoingPriorityNormal">ปกติ</label>
+                            <input type="radio" name="priority" value="urgent" id="outgoingPriorityUrgent" disabled>
+                            <label for="outgoingPriorityUrgent">ด่วน</label>
+                            <input type="radio" name="priority" value="high" id="outgoingPriorityHigh" disabled>
+                            <label for="outgoingPriorityHigh">ด่วนมาก</label>
+                            <input type="radio" name="priority" value="highest" id="outgoingPriorityHighest" disabled>
+                            <label for="outgoingPriorityHighest">ด่วนที่สุด</label>
+                        </div>
                     </div>
 
                     <div class="sender-row">
                         <div class="form-group sender-field">
-                            <label for="forward_senderDisplay"><b>ผู้ส่ง</b></label>
-                            <input id="forward_senderDisplay" type="text" value="<?= h($sender_name) ?>" disabled>
+                            <label><b>เลขที่หนังสือ</b></label>
+                            <input type="text" value="ศธ 1045.2/2567" disabled>
                         </div>
                         <div class="form-group">
-                            <label for="forward_fromFIDDisplay"><b>ในนามของ</b></label>
-                            <input id="forward_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
+                            <label><b>ลงวันที่</b></label>
+                            <input type="text" value="26 เมษายน 2567" disabled>
+                        </div>
+                    </div>
+
+                    <div class="sender-row">
+                        <div class="form-group">
+                            <label><b>เรื่อง</b></label>
+                            <input type="text" value="ขอเชิญร่วมประชุมคณะกรรมการบริหารสถานศึกษา ประจำเดือนพฤษภาคม" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label><b>จาก</b></label>
+                            <input type="text" value="ขอเชิญร่วมประชุมคณะกรรมการบริหารสถานศึกษา ประจำเดือนพฤษภาคม" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group sender-field">
+                        <label><b>ถึงกลุ่ม</b></label>
+                        <input type="text" value="ศธ 1045.2/2567" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label><b>เกษียณหนังสือ</b></label>
+                        <textarea rows="5" disabled>เรียน คณะกรรมการบริหารสถานศึกษาทุกท่าน ด้วยทางโรงเรียนจะจัดการประชุมเพื่อสรุปผลการดำเนินงานประจำเดือน และวางแผนกิจกรรมในเดือนถัดไป จึงขอเรียนเชิญทุกท่านเข้าร่วมประชุมตามวันและเวลาที่ระบุไว้ในเอกสารแนบ</textarea>
+                    </div>
+
+                    <div class="content-file-sec">
+                        <p><strong>ไฟล์หนังสือนำ</strong></p>
+                        <div class="file-section">
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                                    <div class="file-text">
+                                        <div class="file-name">cover_letter_signed_01.pdf</div>
+                                        <div class="file-type">application/pdf</div>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="#" target="_blank"><i class="fa-solid fa-eye"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-file-sec">
+                        <p><strong>ไฟล์เอกสารแนบเพิ่มเติม</strong></p>
+                        <div class="file-section">
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                                    <div class="file-text">
+                                        <div class="file-name">meeting_agenda_may.pdf</div>
+                                        <div class="file-type">application/pdf</div>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="#" target="_blank"><i class="fa-solid fa-eye"></i></a>
+                                </div>
+                            </div>
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-image"></i></div>
+                                    <div class="file-text">
+                                        <div class="file-name">reference_schedule.png</div>
+                                        <div class="file-type">image/png</div>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="#" target="_blank"><i class="fa-solid fa-eye"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sender-row margin">
+                        <div class="form-group">
+                            <label><b>แนบลิ้งก์</b></label>
+                            <input type="text" value="https://drive.google.com/drive/folders/mock-folder-id" disabled />
+                        </div>
+
+                        <div class="form-group">
+                            <label><b>ผู้เสนอ</b></label>
+                            <input type="text" value="นางสาวทิพยรัตน์ บุญมณี" disabled>
+                        </div>
+                    </div>
+
+                    <div class="sender-row">
+                        <div class="form-group sender-field">
+                            <label for="edit_senderDisplay"><b>ผู้ส่ง</b></label>
+                            <input id="edit_senderDisplay" type="text" value="<?= h($sender_name) ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_fromFIDDisplay"><b>ในนามของ</b></label>
+                            <input id="edit_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
                             <input type="hidden" name="fromFID" value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
                         </div>
                     </div>
@@ -1420,7 +1274,7 @@ ob_start();
                         </div>
                     </div>
 
-                    <div class="content-read-sec" id="forwardReceiptStatusSection" style="display:none;">
+                    <div class="content-read-sec" id="forwardReceiptStatusSection">
                         <p><strong>สถานะการอ่านรายบุคคล</strong></p>
                         <div class="table-responsive">
                             <table class="custom-table">
@@ -1478,6 +1332,7 @@ ob_start();
                         </div>
                     </div>
                 </form>
+
             </div>
 
             <div class="footer-modal">
