@@ -328,13 +328,16 @@ if (!function_exists('memo_count_by_reviewer')) {
 }
 
 if (!function_exists('memo_list_by_reviewer_page')) {
-    function memo_list_by_reviewer_page(string $pID, ?string $status, ?string $search, int $limit, int $offset, ?int $dh_year = null): array
+    function memo_list_by_reviewer_page(string $pID, ?string $status, ?string $search, int $limit, int $offset, ?int $dh_year = null, ?string $sort = null): array
     {
         $connection = db_connection();
         $creator_position = system_position_join($connection, 'c', 'cp');
         $limit = max(1, $limit);
         $offset = max(0, $offset);
         $status = trim((string) $status);
+        $sort = strtolower(trim((string) $sort));
+        $timeline_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
+        $memo_id_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
 
         // Reviewer inbox must not expose drafts or "cancelled-before-submit" records.
         // `submittedAt` may be NULL for legacy rows, so we also allow canonical workflow statuses.
@@ -381,7 +384,7 @@ if (!function_exists('memo_list_by_reviewer_page')) {
             ' . $creator_position['join'] . '
             LEFT JOIN teacher AS a ON m.toPID = a.pID
             WHERE ' . $where . '
-            ORDER BY m.submittedAt DESC, m.memoID DESC
+            ORDER BY COALESCE(m.submittedAt, m.reviewedAt, m.createdAt) ' . $timeline_direction . ', m.memoID ' . $memo_id_direction . '
             LIMIT ? OFFSET ?';
 
         return db_fetch_all($sql, $types . 'ii', ...array_merge($params, [$limit, $offset]));

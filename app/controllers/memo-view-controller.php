@@ -191,7 +191,7 @@ if (!function_exists('memo_view_index')) {
                         memo_approve_unsigned($memo_id, $current_pid, $note);
                         $alert = [
                             'type' => 'success',
-                            'title' => 'อนุมัติ (รอแนบไฟล์เซ็น) แล้ว',
+                            'title' => 'ลงนามแล้วเรียบร้อย',
                             'message' => '',
                         ];
                     } elseif ($action === 'sign_upload') {

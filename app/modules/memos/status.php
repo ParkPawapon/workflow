@@ -39,9 +39,9 @@ if (!function_exists('memo_status_definitions')) {
                 'priority' => 5,
             ],
             MEMO_STATUS_APPROVED_UNSIGNED => [
-                'label' => 'อนุมัติ (รอแนบไฟล์)',
-                'pill_variant' => 'pending',
-                'badge_variant' => 'warning',
+                'label' => 'ลงนามแล้ว',
+                'pill_variant' => 'approved',
+                'badge_variant' => 'success',
                 'priority' => 6,
             ],
             MEMO_STATUS_SIGNED => [

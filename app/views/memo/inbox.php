@@ -19,13 +19,12 @@ $dh_year_options = array_values(array_filter(array_map('intval', (array) ($dh_ye
 $selected_dh_year = (int) ($selected_dh_year ?? ($dh_year_options[0] ?? 0));
 $dh_year_label = $selected_dh_year > 0 ? (string) $selected_dh_year : '-';
 $filter_search = $search;
-$filter_read = trim((string) ($_GET['read'] ?? 'all'));
+$status_options = memo_status_options();
+unset($status_options[MEMO_STATUS_DRAFT]);
+$filter_status = array_key_exists($status_filter, $status_options) ? $status_filter : 'all';
+$filter_status_label = (string) ($status_options[$filter_status] ?? 'ทั้งหมด');
 $filter_sort = trim((string) ($_GET['sort'] ?? 'newest'));
 $filter_view = trim((string) ($_GET['view'] ?? 'table1'));
-
-if (!in_array($filter_read, ['all', 'read', 'unread'], true)) {
-    $filter_read = 'all';
-}
 
 if (!in_array($filter_sort, ['newest', 'oldest'], true)) {
     $filter_sort = 'newest';
@@ -151,7 +150,7 @@ ob_start();
 
 <form id="circularFilterForm" method="GET">
     <input type="hidden" name="dh_year" id="filterYearInput" value="<?= h((string) $selected_dh_year) ?>">
-    <input type="hidden" name="read" id="filterReadInput" value="<?= h($filter_read) ?>">
+    <input type="hidden" name="status" id="filterStatusInput" value="<?= h($filter_status) ?>">
     <input type="hidden" name="sort" id="filterSortInput" value="<?= h($filter_sort) ?>">
     <input type="hidden" name="view" id="filterViewInput" value="<?= h($filter_view) ?>">
 </form>
@@ -181,15 +180,15 @@ ob_start();
 
         <div class="page-selector">
             <p>แสดงตามสถานะหนังสือ</p>
-            <div class="custom-select-wrapper" data-target="filterReadInput">
+            <div class="custom-select-wrapper" data-target="filterStatusInput">
                 <div class="custom-select-trigger">
-                    <p class="select-value"><?= h($filter_read === 'read' ? 'อ่านแล้ว' : ($filter_read === 'unread' ? 'ยังไม่อ่าน' : 'ทั้งหมด')) ?></p>
+                    <p class="select-value"><?= h($filter_status_label) ?></p>
                     <i class="fa-solid fa-chevron-down"></i>
                 </div>
                 <div class="custom-options">
-                    <div class="custom-option<?= $filter_read === 'read' ? ' selected' : '' ?>" data-value="read">อ่านแล้ว</div>
-                    <div class="custom-option<?= $filter_read === 'unread' ? ' selected' : '' ?>" data-value="unread">ยังไม่อ่าน</div>
-                    <div class="custom-option<?= $filter_read === 'all' ? ' selected' : '' ?>" data-value="all">ทั้งหมด</div>
+                    <?php foreach ($status_options as $status_value => $status_label) : ?>
+                        <div class="custom-option<?= $filter_status === (string) $status_value ? ' selected' : '' ?>" data-value="<?= h((string) $status_value) ?>"><?= h((string) $status_label) ?></div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -267,6 +266,7 @@ ob_start();
 
                             $creator_position = trim((string) ($item['creatorPositionName'] ?? ''));
                             $reviewer_role = strtoupper(trim((string) ($item['reviewerRole'] ?? '')));
+                            $effective_flow_stage = strtoupper(trim((string) ($item['effectiveFlowStage'] ?? ($item['flowStage'] ?? ''))));
                             $status = (string) ($item['status'] ?? '');
                             $status_meta = memo_status_meta($status);
                             $status_class = (string) ($status_meta['pill_variant'] ?? 'pending');
@@ -301,7 +301,7 @@ ob_start();
                                         data-detail="<?= h($detail) ?>"
                                         data-to-pid="<?= h((string) ($item['toPID'] ?? '')) ?>"
                                         data-flow-mode="<?= h((string) ($item['flowMode'] ?? '')) ?>"
-                                        data-flow-stage="<?= h((string) ($item['flowStage'] ?? '')) ?>"
+                                        data-flow-stage="<?= h($effective_flow_stage !== '' ? $effective_flow_stage : (string) ($item['flowStage'] ?? '')) ?>"
                                         data-to-type="<?= h((string) ($item['toType'] ?? '')) ?>"
                                         data-section="<?= h($creator_section !== '' ? $creator_section : ($selected_faction_name !== '' ? $selected_faction_name : 'กลุ่ม')) ?>"
                                         data-name="<?= h($creator_name !== '' ? $creator_name : '-') ?>"
@@ -526,6 +526,52 @@ ob_start();
             editor.on('change input keyup undo redo blur SetContent', syncEditorValue);
         }
     });
+
+    const memoInboxFilterForm = document.getElementById('circularFilterForm');
+
+    if (memoInboxFilterForm) {
+        const submitMemoInboxFilter = () => {
+            const pageInput = memoInboxFilterForm.querySelector('input[name="page"]');
+
+            if (pageInput) {
+                pageInput.value = '1';
+            }
+
+            if (typeof memoInboxFilterForm.requestSubmit === 'function') {
+                memoInboxFilterForm.requestSubmit();
+                return;
+            }
+
+            memoInboxFilterForm.submit();
+        };
+
+        document.querySelectorAll('.header-circular-notice-keep .custom-select-wrapper[data-target]').forEach((wrapper) => {
+            const targetId = wrapper.getAttribute('data-target') || '';
+            const targetInput = targetId !== '' ? document.getElementById(targetId) : null;
+
+            if (!targetInput) {
+                return;
+            }
+
+            wrapper.querySelectorAll('.custom-option').forEach((option) => {
+                option.addEventListener('click', () => {
+                    const selectedValue = option.getAttribute('data-value') || '';
+                    targetInput.value = selectedValue;
+                    submitMemoInboxFilter();
+                });
+            });
+        });
+
+        document.querySelectorAll('[form="circularFilterForm"][data-auto-submit="true"]').forEach((field) => {
+            let filterTimer = null;
+            const delay = Number(field.getAttribute('data-auto-submit-delay') || 450);
+
+            field.addEventListener('input', () => {
+                window.clearTimeout(filterTimer);
+                filterTimer = window.setTimeout(submitMemoInboxFilter, Number.isFinite(delay) ? delay : 450);
+            });
+        });
+    }
 
     const editModal = document.getElementById('modalEditOverlay');
     const closeEditBtn = editModal?.querySelector('#closeModalEdit');
@@ -888,8 +934,11 @@ ob_start();
 
     const formatSignaturePosition = (value) => {
         const cleanValue = String(value || '').trim();
+        const normalizedValue = typeof cleanValue.normalize === 'function'
+            ? cleanValue.normalize('NFC')
+            : cleanValue.replace('อํานวย', 'อำนวย');
 
-        if (cleanValue === 'ผู้อำนวยการโรงเรียน') {
+        if (normalizedValue === 'ผู้อำนวยการโรงเรียน') {
             return 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
         }
 
@@ -1022,12 +1071,35 @@ ob_start();
             return deputyForwardOptions;
         }
 
+        if (reviewerRole === 'DEPUTY') {
+            return [{
+                    key: 'return',
+                    value: 'return',
+                    label: 'ตีกลับไปแก้ไข',
+                    submitLabel: 'ตีกลับไปแก้ไข',
+                },
+                {
+                    key: 'approve_unsigned',
+                    value: 'approve_unsigned',
+                    label: 'ลงนาม(ป)',
+                    submitLabel: 'ลงนาม(ป)',
+                },
+                {
+                    key: 'forward:' + (directorPid || 'director'),
+                    value: 'forward',
+                    label: 'เสนอผู้อำนวยการ',
+                    submitLabel: 'เสนอผู้อำนวยการ',
+                    targetPid: directorPid || '',
+                },
+            ];
+        }
+
         if (flowMode === 'DIRECT') {
             return [{
                     key: 'approve_unsigned',
                     value: 'approve_unsigned',
-                    label: 'อนุมัติรอแนบไฟล์',
-                    submitLabel: 'อนุมัติรอแนบไฟล์',
+                    label: 'ลงนามแล้ว',
+                    submitLabel: 'ลงนามแล้ว',
                 },
                 {
                     key: 'reject',
@@ -1040,29 +1112,6 @@ ob_start();
                     value: 'return',
                     label: 'ตีกลับแก้ไข',
                     submitLabel: 'ตีกลับแก้ไข',
-                },
-            ];
-        }
-
-        if (reviewerRole === 'DEPUTY') {
-            return [{
-                    key: 'forward:' + (directorPid || 'director'),
-                    value: 'forward',
-                    label: 'เสนอผู้อำนวยการ',
-                    submitLabel: 'เสนอผู้อำนวยการ',
-                    targetPid: directorPid || '',
-                },
-                {
-                    key: 'approve_unsigned',
-                    value: 'approve_unsigned',
-                    label: 'ลงนาม(ป)',
-                    submitLabel: 'ลงนาม(ป)',
-                },
-                {
-                    key: 'return',
-                    value: 'return',
-                    label: 'กลับไปแก้ไข',
-                    submitLabel: 'กลับไปแก้ไข',
                 },
             ];
         }
@@ -1148,6 +1197,11 @@ ob_start();
         ).trim().toUpperCase();
 
         if (reviewerRole === 'DEPUTY') {
+            if (savedAction === 'FORWARD') {
+                const directorPid = String(trigger.dataset.directorPid || '').trim();
+                return directorPid !== '' ? 'forward:' + directorPid : 'forward:director';
+            }
+
             if (savedAction === 'APPROVE_UNSIGNED') {
                 return 'approve_unsigned';
             }
@@ -1183,6 +1237,12 @@ ob_start();
         }
 
         if (reviewerRole === 'HEAD') {
+            const savedHeadAction = String(trigger.dataset.headAction || '').trim().toUpperCase();
+
+            if (savedHeadAction !== 'FORWARD') {
+                return '';
+            }
+
             const deputyPid = String(trigger.dataset.deputyPid || '').trim();
 
             if (deputyPid !== '') {
@@ -1190,11 +1250,19 @@ ob_start();
             }
         }
 
-        if (reviewerRole === 'DEPUTY') {
-            const directorPid = String(trigger.dataset.directorPid || '').trim();
+        return '';
+    };
 
-            if (directorPid !== '') {
-                return 'forward:' + directorPid;
+    const resolveDisplayActionRole = (reviewerRole, reviewedStageSequence) => {
+        if (reviewerRole !== '') {
+            return reviewerRole;
+        }
+
+        for (let index = reviewedStageSequence.length - 1; index >= 0; index -= 1) {
+            const stage = reviewedStageSequence[index];
+
+            if (['HEAD', 'DEPUTY', 'DIRECTOR'].includes(stage)) {
+                return stage;
             }
         }
 
@@ -1397,20 +1465,22 @@ ob_start();
             }
         });
 
-        currentActionOptions = buildActionOptions(reviewerRole, trigger);
+        const actionRole = resolveDisplayActionRole(reviewerRole, reviewedStageSequence);
+        const isActionEditable = actionRole === reviewerRole && isCurrentReviewer;
+        currentActionOptions = buildActionOptions(actionRole, trigger);
         currentCommentTemplateOptions = buildCommentTemplateOptions(reviewerRole);
 
         if (modalActionLabel) {
-            modalActionLabel.textContent = reviewerRole === 'DIRECTOR' ? 'ผู้บริหารดำเนินการต่อ :' : 'เสนอ :';
+            modalActionLabel.textContent = actionRole === 'DIRECTOR' ? 'ผู้บริหารดำเนินการต่อ :' : 'เสนอ :';
         }
 
-        const savedActionKey = resolveSavedActionKey(reviewerRole, trigger);
+        const savedActionKey = resolveSavedActionKey(actionRole, trigger);
         const hasSavedAction = savedActionKey !== '' && currentActionOptions.some((option) => option.key === savedActionKey);
         const savedCommentTemplateKey = resolveSavedCommentTemplateKey(reviewerRole, trigger);
         const hasSavedCommentTemplate = savedCommentTemplateKey !== '' && currentCommentTemplateOptions.some((option) => option.key === savedCommentTemplateKey);
         const hasDeputyNote = normalizeEditorText(trigger.dataset.deputyNote || '') !== '';
 
-        if (currentActionOptions.length > 0 && (isCurrentReviewer || hasSavedAction)) {
+        if (currentActionOptions.length > 0 && (isActionEditable || hasSavedAction)) {
             if (modalActionRow) {
                 modalActionRow.style.display = '';
             }
@@ -1426,12 +1496,12 @@ ob_start();
             applySelectedAction(hasSavedAction ? savedActionKey : currentActionOptions[0].key);
 
             if (modalActionWrapper) {
-                modalActionWrapper.classList.toggle('is-disabled', !isCurrentReviewer);
-                modalActionWrapper.style.pointerEvents = isCurrentReviewer ? 'auto' : 'none';
+                modalActionWrapper.classList.toggle('is-disabled', !isActionEditable);
+                modalActionWrapper.style.pointerEvents = isActionEditable ? 'auto' : 'none';
             }
 
             if (modalFooterButton) {
-                modalFooterButton.style.display = isCurrentReviewer ? '' : 'none';
+                modalFooterButton.style.display = isActionEditable ? '' : 'none';
             }
         }
 
@@ -1457,7 +1527,7 @@ ob_start();
         }
 
         if ((modalActionRow && modalActionRow.style.display !== 'none') || (modalCommentRow && modalCommentRow.style.display !== 'none')) {
-            moveReviewRowsAfterStage(reviewerRole);
+            moveReviewRowsAfterStage(modalActionRow && modalActionRow.style.display !== 'none' ? actionRole : reviewerRole);
         }
 
         editModal.style.display = 'flex';

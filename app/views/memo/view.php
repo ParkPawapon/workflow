@@ -582,13 +582,13 @@ ob_start();
                         <?php component_render('textarea', [
                     'id' => 'approve_unsigned_note',
                     'name' => 'note',
-                    'label' => 'ความเห็น (อนุมัติแต่รอแนบไฟล์เซ็น)',
+                    'label' => 'ความเห็น (ลงนามแล้ว)',
                     'value' => '',
                     'rows' => 3,
                 ]); ?>
                         <div class="booking-actions">
                             <?php component_render('button', [
-                        'label' => 'อนุมัติ (รอแนบไฟล์เซ็น)',
+                        'label' => 'ลงนามแล้ว',
                         'variant' => 'secondary',
                         'type' => 'submit',
                     ]); ?>

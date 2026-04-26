@@ -54,6 +54,7 @@ if (!function_exists('memo_inbox_resolve_chain_reviewer_pids')) {
         $created_by_pid = trim((string) ($item['createdByPID'] ?? ''));
         $flow_stage = strtoupper(trim((string) ($item['flowStage'] ?? '')));
         $to_pid = trim((string) ($item['toPID'] ?? ''));
+        $skips_head_stage = false;
 
         $chain = [
             'HEAD' => trim((string) ($item['headPID'] ?? '')),
@@ -64,13 +65,20 @@ if (!function_exists('memo_inbox_resolve_chain_reviewer_pids')) {
         if ($created_by_pid !== '') {
             try {
                 $resolved = memo_resolve_chain_approvers($created_by_pid);
+                $resolved_head_pid = trim((string) ($resolved['headPID'] ?? ''));
+                $resolved_deputy_pid = trim((string) ($resolved['deputyPID'] ?? ''));
+                $skips_head_stage = $resolved_head_pid === '' && $resolved_deputy_pid !== '';
+
+                if ($skips_head_stage) {
+                    $chain['HEAD'] = '';
+                }
 
                 if ($chain['HEAD'] === '') {
-                    $chain['HEAD'] = trim((string) ($resolved['headPID'] ?? ''));
+                    $chain['HEAD'] = $resolved_head_pid;
                 }
 
                 if ($chain['DEPUTY'] === '') {
-                    $chain['DEPUTY'] = trim((string) ($resolved['deputyPID'] ?? ''));
+                    $chain['DEPUTY'] = $resolved_deputy_pid;
                 }
 
                 if ($chain['DIRECTOR'] === '') {
@@ -81,7 +89,11 @@ if (!function_exists('memo_inbox_resolve_chain_reviewer_pids')) {
         }
 
         if (in_array($flow_stage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true) && $to_pid !== '') {
-            $chain[$flow_stage] = $to_pid;
+            if ($flow_stage === 'HEAD' && $skips_head_stage) {
+                $chain['DEPUTY'] = $to_pid;
+            } else {
+                $chain[$flow_stage] = $to_pid;
+            }
         }
 
         if ($chain['DIRECTOR'] === '') {
@@ -105,6 +117,14 @@ if (!function_exists('memo_inbox_resolve_current_reviewer_role')) {
         $to_pid = trim((string) ($item['toPID'] ?? ''));
 
         if ($current_pid === $to_pid && in_array($flow_stage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true)) {
+            if (
+                $flow_stage === 'HEAD'
+                && trim((string) ($chain['HEAD'] ?? '')) !== $to_pid
+                && trim((string) ($chain['DEPUTY'] ?? '')) === $to_pid
+            ) {
+                return 'DEPUTY';
+            }
+
             return $flow_stage;
         }
 
@@ -115,6 +135,25 @@ if (!function_exists('memo_inbox_resolve_current_reviewer_role')) {
         }
 
         return '';
+    }
+}
+
+if (!function_exists('memo_inbox_resolve_effective_flow_stage')) {
+    function memo_inbox_resolve_effective_flow_stage(array $item, array $chain): string
+    {
+        $flow_stage = strtoupper(trim((string) ($item['flowStage'] ?? '')));
+        $to_pid = trim((string) ($item['toPID'] ?? ''));
+
+        if (
+            $flow_stage === 'HEAD'
+            && $to_pid !== ''
+            && trim((string) ($chain['HEAD'] ?? '')) !== $to_pid
+            && trim((string) ($chain['DEPUTY'] ?? '')) === $to_pid
+        ) {
+            return 'DEPUTY';
+        }
+
+        return $flow_stage;
     }
 }
 
@@ -499,6 +538,7 @@ if (!function_exists('memo_inbox_enrich_items')) {
             $chain_map[$memo_id] = $chain;
             $routes_map[$memo_id] = $routes;
 
+            $items[$index]['effectiveFlowStage'] = memo_inbox_resolve_effective_flow_stage($item, $chain);
             $items[$index]['reviewerRole'] = memo_inbox_resolve_current_reviewer_role($item, $current_pid, $chain);
             $profile_pids[] = trim((string) ($item['createdByPID'] ?? ''));
             $profile_pids[] = $chain['HEAD'] ?? '';
@@ -571,6 +611,12 @@ if (!function_exists('memo_inbox_index')) {
 
         if (!in_array($status_filter, $allowed, true)) {
             $status_filter = 'all';
+        }
+
+        $filter_sort = strtolower(trim((string) ($_GET['sort'] ?? 'newest')));
+
+        if (!in_array($filter_sort, ['newest', 'oldest'], true)) {
+            $filter_sort = 'newest';
         }
 
         $page = (int) ($_GET['page'] ?? 1);
@@ -675,7 +721,7 @@ if (!function_exists('memo_inbox_index')) {
                         memo_approve_unsigned($memo_id, $current_pid, $note);
                         $alert = [
                             'type' => 'success',
-                            'title' => 'อนุมัติรอแนบไฟล์เรียบร้อย',
+                            'title' => 'ลงนามแล้วเรียบร้อย',
                             'message' => '',
                         ];
                     } elseif ($post_action === 'reject') {
@@ -729,7 +775,7 @@ if (!function_exists('memo_inbox_index')) {
                 $page = $total_pages;
             }
             $offset = ($page - 1) * $per_page;
-            $items = memo_list_by_reviewer_page($current_pid, $status_filter, $search, $per_page, $offset, $selected_dh_year);
+            $items = memo_list_by_reviewer_page($current_pid, $status_filter, $search, $per_page, $offset, $selected_dh_year, $filter_sort);
             $items = memo_inbox_enrich_items($connection, $items, $current_pid);
         }
 
@@ -746,6 +792,11 @@ if (!function_exists('memo_inbox_index')) {
         if ($selected_dh_year > 0) {
             $base_params['dh_year'] = (string) $selected_dh_year;
         }
+
+        if ($filter_sort !== 'newest') {
+            $base_params['sort'] = $filter_sort;
+        }
+
         $pagination_base_url = 'memo-inbox.php';
 
         if (!empty($base_params)) {
@@ -759,6 +810,7 @@ if (!function_exists('memo_inbox_index')) {
             'total_pages' => $total_pages,
             'search' => $search,
             'status_filter' => $status_filter,
+            'filter_sort' => $filter_sort,
             'dh_year_options' => $dh_year_options,
             'selected_dh_year' => $selected_dh_year,
             'filtered_total' => $filtered_total,

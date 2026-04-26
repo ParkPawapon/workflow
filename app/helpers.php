@@ -88,6 +88,25 @@ if (!function_exists('h')) {
     }
 }
 
+if (!function_exists('app_format_position_label')) {
+    function app_format_position_label(?string $value): string
+    {
+        $label = trim((string) $value);
+
+        if ($label === '') {
+            return '';
+        }
+
+        $normalized_label = str_replace('อํานวย', 'อำนวย', $label);
+
+        if ($normalized_label === 'ผู้อำนวยการโรงเรียน') {
+            return 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
+        }
+
+        return $label;
+    }
+}
+
 if (!function_exists('redirect_to')) {
     function redirect_to(string $path, int $status = 302): void
     {
