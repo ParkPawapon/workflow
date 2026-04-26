@@ -39,18 +39,13 @@ if (!function_exists('outgoing_notice_index')) {
         }
         $can_manage_external = $is_registry || $is_admin;
 
+        $acting_pid = system_get_acting_director_pid();
         $director_pid = system_get_current_director_pid();
         $is_director_box = $director_pid !== null && $director_pid === $current_pid;
-        $is_reviewer_box = $is_director_box || $is_deputy_reviewer;
+        $is_acting_director = $acting_pid !== null && $acting_pid !== '' && $acting_pid === $current_pid;
+        $is_reviewer_box = $is_director_box || $is_acting_director || $is_deputy_reviewer;
 
         $default_box = 'normal';
-
-        if (!$can_manage_external && !$is_reviewer_box) {
-            http_response_code(403);
-            require __DIR__ . '/../views/errors/403.php';
-
-            return;
-        }
 
         if ($can_manage_external) {
             $default_box = 'clerk';
@@ -61,12 +56,11 @@ if (!function_exists('outgoing_notice_index')) {
         $box = (string) ($_GET['box'] ?? $default_box);
         $archived = isset($_GET['archived']) && $_GET['archived'] === '1';
 
-        $acting_pid = system_get_acting_director_pid();
         $director_inbox_type = ($acting_pid !== null && $acting_pid !== '' && $acting_pid === $current_pid)
             ? INBOX_TYPE_ACTING_PRINCIPAL
             : INBOX_TYPE_SPECIAL_PRINCIPAL;
 
-        $allowed_boxes = $is_internal_only_notice_page ? ['normal'] : [];
+        $allowed_boxes = ['normal'];
 
         if (!$is_internal_only_notice_page) {
             if ($can_manage_external) {
@@ -727,6 +721,13 @@ if (!function_exists('outgoing_notice_index')) {
             ];
         }
 
+        $page_box_label = match ($box_key) {
+            'director' => 'กล่องรอพิจารณา',
+            'clerk_return' => 'กล่องพิจารณาแล้ว',
+            'clerk' => 'กล่องกำลังเสนอ',
+            default => $archived ? 'หนังสือเวียนที่จัดเก็บ' : 'กล่องหนังสือเวียน',
+        };
+
         view_render('outgoing/notice', [
             'alert' => $alert,
             'items' => $display_items,
@@ -748,8 +749,9 @@ if (!function_exists('outgoing_notice_index')) {
             'forward_open_inbox_id' => $forward_open_inbox_id,
             'show_type_filter' => false,
             'show_book_type_column' => false,
+            'detail_workflow_page' => 'outgoing-view.php',
             'page_section_label' => 'หนังสือเวียนภายนอก',
-            'page_box_label' => $box_key === 'director' ? 'กล่องรอพิจารณา' : ($box_key === 'clerk_return' ? 'กล่องพิจารณาแล้ว' : 'กล่องกำลังเสนอ'),
+            'page_box_label' => $page_box_label,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../../app/db/db.php';
 require_once __DIR__ . '/../../../app/rbac/roles.php';
 require_once __DIR__ . '/../../../app/modules/dashboard/metrics.php';
+require_once __DIR__ . '/../../../app/modules/system/system.php';
 require_once __DIR__ . '/../../../src/Services/teacher/teacher-profile.php';
 require_once __DIR__ . '/../../../src/Services/system/exec-duty-current.php';
 
@@ -35,7 +36,9 @@ if ($actor_pid !== '') {
 
 $is_director_or_acting = $position_id === 1 || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_manage_external_circular = $is_admin_user || $is_registry_user;
-$can_access_external_circular_menu = $can_manage_external_circular || $is_director_or_acting;
+$is_deputy_user = in_array($position_id, system_position_deputy_ids($sidebar_connection), true);
+$can_review_external_circular = $is_director_or_acting || $is_deputy_user;
+$can_access_external_circular_menu = $actor_pid !== '';
 $can_approve_room_module = $is_admin_user || $is_facility_user;
 $can_manage_room_module = $is_admin_user;
 $can_manage_vehicle_module = $is_admin_user || $is_vehicle_user;
@@ -56,6 +59,7 @@ $sidebar_access = [
     'is_repair_staff_user' => $is_repair_staff_user,
     'is_director_or_acting' => $is_director_or_acting,
     'can_manage_external_circular' => $can_manage_external_circular,
+    'can_review_external_circular' => $can_review_external_circular,
     'can_approve_room_module' => $can_approve_room_module,
     'can_manage_room_module' => $can_manage_room_module,
     'can_manage_vehicle_module' => $can_manage_vehicle_module,
@@ -72,7 +76,8 @@ $sidebar_alerts = [
     'home' => false,
     'news' => false,
     'internal_circular' => (int) ($sidebar_counts['unread_internal_circulars'] ?? 0) > 0,
-    'external_circular' => (int) ($sidebar_counts['external_circular_notifications'] ?? 0) > 0,
+    'external_circular' => (int) ($sidebar_counts['external_circular_notifications'] ?? 0) > 0
+        || (int) ($sidebar_counts['unread_external_circulars'] ?? 0) > 0,
     'memo' => (int) ($sidebar_counts['unread_memos'] ?? 0) > 0,
     'orders' => (int) ($sidebar_counts['unread_orders'] ?? 0) > 0,
     'room' => (int) ($sidebar_counts['room_notifications'] ?? 0) > 0,
@@ -122,12 +127,13 @@ $sidebar_alerts['home'] = (int) ($sidebar_counts['unread_external_circulars'] ??
                     <i class="fa-solid fa-caret-down"></i>
                 </div>
                 <ul class="navigation-links-sub-menu">
+                    <li><a href="outgoing-notice.php?box=normal&type=external&read=all&sort=newest&view=table1">กล่องหนังสือเวียน</a></li>
                     <?php if ($can_manage_external_circular): ?>
                         <li><a href="outgoing-receive.php">ลงทะเบียนรับหนังสือ</a></li>
                         <li><a href="outgoing-notice.php?box=clerk&type=external&read=all&sort=newest&view=table1">กล่องกำลังเสนอ</a></li>
                         <li><a href="outgoing-notice.php?box=clerk_return&type=external&read=all&sort=newest&view=table1">กล่องพิจารณาแล้ว</a></li>
                     <?php endif; ?>
-                    <?php if ($is_director_or_acting): ?>
+                    <?php if ($can_review_external_circular): ?>
                         <li><a href="outgoing-notice.php?box=director&type=external&read=all&sort=newest&view=table1">กล่องรอพิจารณา</a></li>
                     <?php endif; ?>
                 </ul>
