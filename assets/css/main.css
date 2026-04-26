@@ -3652,15 +3652,9 @@ select {
   background-color: rgba(var(--rgb-danger), 0.08);
 }
 
-/* Ensure approval modal sizing overrides generic booking modal */
 .booking-detail-modal.approval-detail-modal {
-  /* background-color: var(--color-neutral-lightest); */
-  /* width: calc(100vw - 40px);
-    max-height: calc(100vh - 40px);
-    max-width: none; */
   width: 90%;
   height: 90%;
-  /* padding: 20px; */
 }
 
 .booking-detail-section .file-list {
@@ -16602,7 +16596,7 @@ label {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    font-size: calc(1px + 1.2vw);
+    font-size: var(--font-size-desc-1);
     font-weight: bold;
     color: var(--color-secondary);
     margin: 0 0 calc(3px + 0.7vw) 0;
@@ -16610,7 +16604,7 @@ label {
 
   .container-calendar .calendar .header-calendar .interact-button-calendar i {
     color: var(--color-secondary);
-    font-size: calc(1px + 1vw);
+    font-size: var(--font-size-desc-1);
     margin: 0 0 0 32px;
   }
 
@@ -16733,7 +16727,7 @@ label {
   }
 
   .modal-header {
-    min-height: 40px;
+    min-height: 60px;
     margin: 0 20px !important;
   }
 
@@ -16764,14 +16758,14 @@ label {
     color: var(--color-secondary);
     font-size: var(--font-size-desc-1);
     font-weight: bold;
-    margin: 10px 0 0 0;
+    margin: 0;
   }
 
   .table-responsive {
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
 
@@ -18257,7 +18251,8 @@ label {
   }
 
   .booking-form .form-input {
-    height: 36px;
+    height: 30px;
+    font-size: var(--font-size-desc-1);
   }
 
   .booking-form .booking-textarea {
@@ -18303,9 +18298,9 @@ label {
   .booking-actions .btn-confirm {
     width: auto;
     max-width: none;
-    height: 36px;
+    height: 30px;
     margin: 0;
-    padding: 0 18px;
+    padding: 0 12px;
   }
 
   .booking-actions .btn-outline {
@@ -18315,7 +18310,7 @@ label {
     border: 1px solid var(--color-secondary);
     background-color: transparent;
     color: var(--color-secondary);
-    font-size: var(--font-size-desc-2);
+    font-size: var(--font-size-desc-1);
     font-family: "THSarabunNew";
     cursor: pointer;
     transition: 0.3s;
@@ -18678,8 +18673,6 @@ label {
     max-width: 720px;
     height: auto;
     max-height: 85vh;
-    padding: 20px;
-    /* background: linear-gradient(180deg, #f9fbff 0%, #f2f6ff 100%); */
     border: 1px solid rgba(var(--rgb-secondary), 0.18);
     border-radius: 18px;
     box-shadow: 0 16px 30px rgba(var(--rgb-secondary), 0.2);
@@ -18689,7 +18682,7 @@ label {
     border-bottom: 1px solid rgba(var(--rgb-secondary), 0.15);
     padding: 0 20px;
     background-color: transparent;
-    min-height: 40px;
+    min-height: 60px;
     margin: 0 !important;
   }
 
@@ -18703,7 +18696,34 @@ label {
 
   .booking-detail-modal .booking-detail-body {
     background-color: transparent;
+    padding: 20px;
   }
+
+  .booking-detail-content label {
+    font-size: var(--font-size-desc-1);
+  }
+
+  .booking-detail-content {
+    gap: 0px;
+  }
+
+  .booking-detail-content input:disabled {
+    min-height: 30px;
+    font-size: var(--font-size-desc-1);
+    padding: 0 10px;
+  }
+
+  .booking-detail-row {
+    gap: 10px;
+    margin: 0 0 0px 0;
+  }
+
+  .booking-detail-content textarea:disabled {
+    padding: 5px 10px;
+    font-size: var(--font-size-desc-1);
+  }
+
+
 
   .booking-detail-body {
     display: flex;
@@ -25248,7 +25268,20 @@ label {
 
   .tp-input {
     height: 30px;
+    font-size: var(--font-size-desc-1);
+    padding: 0 10px;
   }
+
+  .tp-wrapper i {
+    font-size: var(--font-size-desc-1);
+
+  }
+
+  .tp-item {
+    font-size: var(--font-size-desc-2);
+    padding: 4px;
+  }
+
 
   .booking-detail-modal .modal-header {
     background-color: var(--color-secondary);
@@ -25258,7 +25291,10 @@ label {
     font-size: var(--font-size-desc-3);
   }
 
-
+  .custom-option {
+    padding: 5px 10px;
+    font-size: var(--font-size-desc-1);
+  }
 }
 
 /* =========================================
@@ -25970,7 +26006,7 @@ label {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    font-size: calc(10px + 0.5vw);
+    font-size: var(--font-size-desc-3);
     font-weight: bold;
     color: var(--color-secondary);
     margin: 0 0 calc(3px + 0.7vw) 0;
@@ -25978,7 +26014,7 @@ label {
 
   .container-calendar .calendar .header-calendar .interact-button-calendar i {
     color: var(--color-secondary);
-    font-size: var(--font-size-desc-1);
+    font-size: var(--font-size-desc-3);
     margin: 0 0 0 32px;
   }
 
@@ -26105,13 +26141,14 @@ label {
 
   .section-title {
     font-size: var(--font-size-desc-3);
+    margin: 0;
   }
 
   .table-responsive {
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
 
@@ -27558,7 +27595,7 @@ label {
 
   .booking-card-title {
     margin: 0;
-    font-size: var(--font-size-desc-3);
+    font-size: var(--font-size-desc-2);
     color: var(--color-secondary);
   }
 
@@ -27593,15 +27630,15 @@ label {
 
   .booking-form .form-label {
     width: auto;
-    margin: 0 0 4px;
+    margin: 0;
     font-weight: bold;
-    font-size: var(--font-size-desc-2);
+    font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
   }
 
   .booking-form .form-input {
-    height: 32px;
-    font-size: var(--font-size-desc-2);
+    height: 25px;
+    font-size: var(--font-size-desc-3);
   }
 
   .booking-form .booking-textarea {
@@ -27648,21 +27685,21 @@ label {
   .booking-actions .btn-confirm {
     width: 100%;
     max-width: none;
-    height: 32px;
+    height: 25px;
     margin: 0;
-    padding: 0 16px;
-    font-size: var(--font-size-desc-2);
+    padding: 0 12px;
+    font-size: var(--font-size-desc-3);
   }
 
   .booking-actions .btn-outline {
     width: 100%;
-    height: 32px;
+    height: 25px;
     padding: 0 16px;
     border-radius: 8px;
     border: 1px solid var(--color-secondary);
     background-color: transparent;
     color: var(--color-secondary);
-    font-size: var(--font-size-desc-2);
+    font-size: var(--font-size-desc-3);
     font-family: "THSarabunNew";
     cursor: pointer;
     transition: 0.3s;
@@ -27960,8 +27997,7 @@ label {
     max-width: 94vw;
     height: auto;
     max-height: 85vh;
-    padding: 18px;
-    /* background: linear-gradient(180deg, #f9fbff 0%, #f2f6ff 100%); */
+    padding: 0;
     border: 1px solid rgba(var(--rgb-secondary), 0.18);
     border-radius: 16px;
     box-shadow: 0 12px 24px rgba(var(--rgb-secondary), 0.2);
@@ -27986,6 +28022,33 @@ label {
     background-color: transparent;
     padding: 10px;
   }
+
+  .booking-detail-content label {
+    font-size: var(--font-size-desc-3);
+  }
+
+  .booking-detail-content {
+    gap: 0px;
+  }
+
+  .booking-detail-content input:disabled {
+    min-height: 25px;
+    font-size: var(--font-size-desc-3);
+    padding: 0 10px;
+  }
+
+  .booking-detail-row {
+    gap: 10px;
+    margin: 0 0 0px 0;
+  }
+
+  .booking-detail-content textarea:disabled {
+    padding: 5px 10px;
+    font-size: var(--font-size-desc-3);
+  }
+
+
+
 
   .booking-detail-body {
     display: flex;
@@ -28196,7 +28259,7 @@ label {
     width: 100%;
     height: 25px;
     border-radius: 6px;
-    padding: 0 20px;
+    padding: 0 10px;
     font-size: var(--font-size-desc-3);
   }
 
@@ -35043,13 +35106,32 @@ label {
     font-size: var(--font-size-desc-4);
   }
 
+
   .tp-input {
     height: 25px;
+    font-size: var(--font-size-desc-3);
+    padding: 0 10px;
+  }
+
+  .tp-wrapper i {
+    font-size: var(--font-size-desc-3);
+
+  }
+
+  .tp-item {
+    font-size: var(--font-size-desc-4);
+    padding: 4px;
+  }
+
+  .custom-option {
+    padding: 0px 10px;
+    font-size: var(--font-size-desc-3);
   }
 
 }
 
 @media screen and (max-width: 768px) {
+
   .room-admin-actions,
   .approval-filter-group {
     display: grid !important;
