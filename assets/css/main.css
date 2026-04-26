@@ -18668,12 +18668,26 @@ label {
     height: var(--booking-modal-row-height);
   }
 
+  .booking-detail-row.consider-section h1 {
+    padding: 20px 0 0;
+    border-top-width: 2px;
+    font-size: var(--font-size-desc-1);
+  }
+
+  .booking-detail-row.consider-section {
+    gap: 10px;
+  }
+
+  .booking-detail-row.consider-section .custom-select-trigger {
+    min-height: 0 !important;
+    height: 30px;
+  }
+
   .booking-detail-modal {
     width: 90vw;
     max-width: 720px;
     height: auto;
     max-height: 85vh;
-    border: 1px solid rgba(var(--rgb-secondary), 0.18);
     border-radius: 18px;
     box-shadow: 0 16px 30px rgba(var(--rgb-secondary), 0.2);
   }
@@ -18696,7 +18710,7 @@ label {
 
   .booking-detail-modal .booking-detail-body {
     background-color: transparent;
-    padding: 20px;
+    padding: 10px 20px;
   }
 
   .booking-detail-content label {
@@ -27998,9 +28012,18 @@ label {
     height: auto;
     max-height: 85vh;
     padding: 0;
-    border: 1px solid rgba(var(--rgb-secondary), 0.18);
     border-radius: 16px;
     box-shadow: 0 12px 24px rgba(var(--rgb-secondary), 0.2);
+  }
+
+  .booking-detail-row.consider-section {
+    gap: 0;
+  }
+
+  .booking-detail-row.consider-section h1 {
+    border-top-width: 1px;
+    padding: 10px 0 0;
+    font-size: var(--font-size-desc-3);
   }
 
   .booking-detail-modal .modal-header {
