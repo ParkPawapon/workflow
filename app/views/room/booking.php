@@ -161,6 +161,22 @@ ob_start();
             margin: 0;
         }
     }
+
+    @media screen and (max-width: 1440px) {
+        .content-area .tab-content.active {
+            grid-template-columns: 1fr;
+            gap: 0px;
+        }
+    }
+
+    @media screen and (min-width: 769px) and (max-width: 1023px) {
+        .modal-body {
+            padding: 0 20px;
+        }
+        .custom-table {
+            min-width: 900px;
+        }
+    }
 </style>
 
 <div class="content-header">

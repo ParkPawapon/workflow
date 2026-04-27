@@ -82,6 +82,15 @@ $room_management_post_action = 'room-management.php?' . http_build_query($room_m
 
 ob_start();
 ?>
+
+<style>
+    @media screen and (max-width: 768px) {
+        .room-admin-search .form-input {
+            padding: 0 10px 0 20px;
+        }
+    }
+</style>
+
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
     <p>จัดการสถานที่/ห้อง</p>
