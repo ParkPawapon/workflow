@@ -94,6 +94,37 @@ $format_thai_received_datetime = static function (?string $datetime_value) use (
 ob_start();
 ?>
 
+<style>
+    .table-circular-notice-index table thead th:nth-child(2) {
+        min-width: 140px;
+    }
+
+    .circular-track-modal-host {
+        width: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    @media screen and (min-width: 769px) and (max-width: 1023px) {
+        .table-circular-notice-index table {
+            border: 0;
+        }
+        .button-circular-notice-index {
+            min-height: 40px;
+            max-height: 40px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .table-circular-notice-index table {
+            border: 0;
+        }
+    }
+</style>
+
 <div class="content-header">
     <h1><?= h($page_title) ?></h1>
     <p><?= h($page_subtitle) ?></p>
@@ -164,7 +195,7 @@ ob_start();
                 <input type="hidden" name="sort" id="filterSortInput" value="<?= h($sort) ?>" form="circularFilterForm">
             </div>
         </div>
-        
+
     </div>
 </header>
 
@@ -276,10 +307,10 @@ ob_start();
 <div class="content-circular-notice-index circular-track-modal-host">
     <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
         <div class="modal-content">
-                <div class="header-modal">
-                    <div class="first-header">
-                        <p>รายละเอียดเกี่ยวกับคำสั่ง</p>
-                    </div>
+            <div class="header-modal">
+                <div class="first-header">
+                    <p>รายละเอียดเกี่ยวกับคำสั่ง</p>
+                </div>
                 <div class="sec-header">
                     <i class="fa-solid fa-xmark" id="closeModalOrderView"></i>
                 </div>
