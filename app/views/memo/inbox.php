@@ -488,8 +488,22 @@ ob_start();
         </div>
     </div>
 </section>
-<div class="button-circular-notice-keep"></div>
 
+<div class="button-circular-notice-index">
+    <button
+        class="button-keep"
+        type="submit"
+        form="bulkActionForm"
+        data-confirm="<? //= h($archived ? 'ต้องการย้ายหนังสือเวียนที่เลือกกลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนที่เลือกหรือไม่') 
+                        ?>"
+        data-confirm-title="<? //= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') 
+                            ?>"
+        data-confirm-ok="ยืนยัน"
+        data-confirm-cancel="ยกเลิก">
+        <i class="fa-solid fa-file-import"></i>
+        <p>จัดเก็บ</p>
+    </button>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
 <script>
@@ -520,12 +534,12 @@ ob_start();
         nonbreaking_force_tab: true,
         promotion: false,
         branding: false,
-        setup: function (editor) {
+        setup: function(editor) {
             if (editor.id === 'memo_detail_editor') {
                 return;
             }
 
-            const syncEditorValue = function () {
+            const syncEditorValue = function() {
                 const field = document.getElementById(editor.id);
 
                 if (!field) {
@@ -535,11 +549,11 @@ ob_start();
                 const content = String(editor.getContent() || '');
                 field.value = content;
 
-                if (typeof currentEditableReviewField !== 'undefined'
-                    && typeof modalMemoNoteInput !== 'undefined'
-                    && currentEditableReviewField
-                    && modalMemoNoteInput
-                    && field === currentEditableReviewField) {
+                if (typeof currentEditableReviewField !== 'undefined' &&
+                    typeof modalMemoNoteInput !== 'undefined' &&
+                    currentEditableReviewField &&
+                    modalMemoNoteInput &&
+                    field === currentEditableReviewField) {
                     modalMemoNoteInput.value = content;
                 }
             };
@@ -645,8 +659,7 @@ ob_start();
         },
     };
     const stageKeys = ['HEAD', 'DEPUTY', 'DIRECTOR'];
-    const deputyCommentTemplates = [
-        {
+    const deputyCommentTemplates = [{
             key: 'proceed_as_proposed',
             label: 'เห็นควร ดำเนินการตามเสนอ',
             content: '<p>เห็นควร ดำเนินการตามเสนอ</p>',
@@ -667,8 +680,7 @@ ob_start();
             content: '<p>เห็นควรอนุญาติ</p>',
         },
     ];
-    const directorManagementActions = [
-        {
+    const directorManagementActions = [{
             key: 'director_signed',
             value: 'director_signed',
             label: 'ลงนามแล้ว',
@@ -955,9 +967,9 @@ ob_start();
 
     const formatSignaturePosition = (value) => {
         const cleanValue = String(value || '').trim();
-        const normalizedValue = typeof cleanValue.normalize === 'function'
-            ? cleanValue.normalize('NFC')
-            : cleanValue.replace('อํานวย', 'อำนวย');
+        const normalizedValue = typeof cleanValue.normalize === 'function' ?
+            cleanValue.normalize('NFC') :
+            cleanValue.replace('อํานวย', 'อำนวย');
 
         if (normalizedValue === 'ผู้อำนวยการโรงเรียน') {
             return 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
@@ -1072,15 +1084,15 @@ ob_start();
         const deputyPid = String(trigger.dataset.deputyPid || '').trim();
         const directorName = String(trigger.dataset.directorName || '').trim();
         const directorPid = String(trigger.dataset.directorPid || '').trim();
-        const deputyForwardOptions = deputyCandidates.length > 0
-            ? deputyCandidates.map((candidate) => ({
+        const deputyForwardOptions = deputyCandidates.length > 0 ?
+            deputyCandidates.map((candidate) => ({
                 key: 'forward:' + candidate.pID,
                 value: 'forward',
                 label: candidate.name,
                 submitLabel: 'เสนอแฟ้ม',
                 targetPid: candidate.pID,
-            }))
-            : [{
+            })) :
+            [{
                 key: 'forward:' + (deputyPid || directorPid || 'fallback'),
                 value: 'forward',
                 label: deputyName || directorName || 'รองผู้อำนวยการ',
@@ -1657,10 +1669,10 @@ ob_start();
         }
 
         if (
-            modalActionWrapper
-            && modalCommentWrapper
-            && !modalActionWrapper.contains(event.target)
-            && !modalCommentWrapper.contains(event.target)
+            modalActionWrapper &&
+            modalCommentWrapper &&
+            !modalActionWrapper.contains(event.target) &&
+            !modalCommentWrapper.contains(event.target)
         ) {
             closeReviewDropdowns();
         }

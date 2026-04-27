@@ -25,11 +25,31 @@ ob_start();
         min-height: 50px;
     }
 
-        .booking-table td:nth-child(2),
+    .booking-table td:nth-child(2),
     .booking-table td:nth-child(3) {
         text-align: start;
     }
 
+    .booking-detail-modal .modal-header,
+    .approval-detail-modal .modal-header div {
+        color: var(--color-neutral-lightest);
+    }
+
+    @media screen and (max-width: 768px) {
+        .booking-detail-row.split {
+            grid-template-columns: 1fr;
+            grid-auto-flow: dense;
+        }
+
+        .booking-detail-row.consider-section .custom-select-trigger {
+            height: 25px;
+            min-height: 25px;
+        }
+
+        .booking-detail-row.consider-section .booking-detail-content-group {
+            gap: 10px;
+        }
+    }
 </style>
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
@@ -162,7 +182,7 @@ ob_start();
             </div>
         </header>
 
-        <form method="POST" action="room-booking-approval.php" class="orders-send-form" id="roomBookingApprovalForm" data-approval-form>
+        <form method="POST" action="room-booking-approval.php" class="orders-send-form" id="roomBookingApprovalForm" data-approval-form style="display: flex;flex-direction: column;flex-grow:1;">
             <?= csrf_field() ?>
             <input type="hidden" name="room_booking_id" value="">
             <input type="hidden" name="approval_action" value="">
@@ -191,7 +211,7 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="booking-detail-row">
+                <div class="booking-detail-row split">
                     <div class="booking-detail-content">
                         <label>ห้อง/สถานที่</label>
                         <input type="text" data-approval-detail="room" placeholder="-" disabled>
