@@ -181,7 +181,12 @@ if (!function_exists('memo_count_by_creator')) {
         $types = 'si';
         $params = [$pID, $archivedFlag];
 
-        if ($status !== '' && $status !== 'all') {
+        if ($status === 'signed_all') {
+            $where .= ' AND status IN (?, ?)';
+            $types .= 'ss';
+            $params[] = MEMO_STATUS_APPROVED_UNSIGNED;
+            $params[] = MEMO_STATUS_SIGNED;
+        } elseif ($status !== '' && $status !== 'all') {
             $where .= ' AND status = ?';
             $types .= 's';
             $params[] = $status;
@@ -221,7 +226,12 @@ if (!function_exists('memo_list_by_creator_page')) {
         $types = 'si';
         $params = [$pID, $archivedFlag];
 
-        if ($status !== '' && $status !== 'all') {
+        if ($status === 'signed_all') {
+            $where .= ' AND m.status IN (?, ?)';
+            $types .= 'ss';
+            $params[] = MEMO_STATUS_APPROVED_UNSIGNED;
+            $params[] = MEMO_STATUS_SIGNED;
+        } elseif ($status !== '' && $status !== 'all') {
             $where .= ' AND m.status = ?';
             $types .= 's';
             $params[] = $status;
@@ -248,9 +258,9 @@ if (!function_exists('memo_list_by_creator_page')) {
         $memo_id_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
         $order_by = $status_order_sql . ' ASC, ' . $timeline_order_sql . ' ' . $timeline_direction . ', m.memoID ' . $memo_id_direction;
 
-        $sql = 'SELECT m.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.status, m.toType, m.toPID, m.firstReadAt, m.submittedAt, m.updatedAt, m.createdAt,
+        $sql = 'SELECT m.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt, m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt,
                 m.createdByPID, m.flowMode, m.flowStage,
-                m.headPID, m.deputyPID, m.directorPID,
+                m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
                 t.fName AS approverName
             FROM dh_memos AS m
             LEFT JOIN teacher AS t ON m.toPID = t.pID
@@ -300,7 +310,12 @@ if (!function_exists('memo_count_by_reviewer')) {
         $types = 'sss';
         $params = [$pID, $pID, $pID];
 
-        if ($status !== '' && $status !== 'all') {
+        if ($status === 'signed_all') {
+            $where .= ' AND status IN (?, ?)';
+            $types .= 'ss';
+            $params[] = MEMO_STATUS_APPROVED_UNSIGNED;
+            $params[] = MEMO_STATUS_SIGNED;
+        } elseif ($status !== '' && $status !== 'all') {
             $where .= ' AND status = ?';
             $types .= 's';
             $params[] = $status;
@@ -347,7 +362,12 @@ if (!function_exists('memo_list_by_reviewer_page')) {
         $types = 'sss';
         $params = [$pID, $pID, $pID];
 
-        if ($status !== '' && $status !== 'all') {
+        if ($status === 'signed_all') {
+            $where .= ' AND m.status IN (?, ?)';
+            $types .= 'ss';
+            $params[] = MEMO_STATUS_APPROVED_UNSIGNED;
+            $params[] = MEMO_STATUS_SIGNED;
+        } elseif ($status !== '' && $status !== 'all') {
             $where .= ' AND m.status = ?';
             $types .= 's';
             $params[] = $status;
@@ -370,7 +390,7 @@ if (!function_exists('memo_list_by_reviewer_page')) {
 
         $sql = 'SELECT m.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status,
                 m.createdAt, m.firstReadAt, m.submittedAt, m.reviewedAt, m.toType, m.toPID, m.flowMode, m.flowStage,
-                m.createdByPID, m.headPID, m.deputyPID, m.directorPID,
+                m.createdByPID, m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
                 c.fName AS creatorName,
                 COALESCE(c.signature, "") AS creatorSignature,
                 COALESCE(cf.fName, "") AS creatorFactionName,

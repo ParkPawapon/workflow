@@ -10475,10 +10475,12 @@ label {
 
 .table-circular-notice-index.outside-person table thead th:nth-child(1) {
   min-width: 170px;
+  text-align: start;
 }
 
 .table-circular-notice-index.outside-person table thead th:nth-child(2) {
   min-width: 320px;
+  text-align: start;
 }
 
 .table-circular-notice-index.outside-person table thead th:nth-child(3) {
@@ -10498,6 +10500,7 @@ label {
   text-align: center;
 }
 
+.table-circular-notice-index.outside-person table tbody td:nth-child(1),
 .table-circular-notice-index.outside-person table tbody td:nth-child(2) {
   text-align: start;
 }
@@ -35106,4 +35109,11 @@ label {
   .tabs-container .button-container .tab-btn {
     border-radius: 6px;
   }
+}
+
+.table-circular-notice-index.outside-person table thead th:nth-child(1),
+.table-circular-notice-index.outside-person table thead th:nth-child(2),
+.table-circular-notice-index.outside-person table tbody td:nth-child(1),
+.table-circular-notice-index.outside-person table tbody td:nth-child(2) {
+  text-align: start;
 }

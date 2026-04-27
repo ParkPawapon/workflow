@@ -300,6 +300,62 @@ if (!function_exists('memo_resolve_first_reviewer')) {
     }
 }
 
+if (!function_exists('memo_latest_return_actor_pid')) {
+    function memo_latest_return_actor_pid(array $routes): string
+    {
+        $latestActorPID = '';
+
+        foreach ($routes as $route) {
+            $action = strtoupper(trim((string) ($route['action'] ?? '')));
+
+            if ($action !== 'RETURN') {
+                continue;
+            }
+
+            $actorPID = trim((string) ($route['actorPID'] ?? ''));
+
+            if ($actorPID !== '') {
+                $latestActorPID = $actorPID;
+            }
+        }
+
+        return $latestActorPID;
+    }
+}
+
+if (!function_exists('memo_resolve_return_reviewer_stage')) {
+    function memo_resolve_return_reviewer_stage(array $memo, string $reviewerPID): string
+    {
+        $reviewerPID = trim($reviewerPID);
+
+        if ($reviewerPID === '') {
+            return '';
+        }
+
+        $stage = memo_infer_chain_stage_by_actor($memo, $reviewerPID);
+
+        if (in_array($stage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true)) {
+            return $stage;
+        }
+
+        $directorPID = trim((string) ($memo['directorPID'] ?? ''));
+
+        if ($directorPID === '') {
+            $directorPID = trim((string) (system_get_current_director_pid() ?? ''));
+        }
+
+        if ($directorPID !== '' && $reviewerPID === $directorPID) {
+            return 'DIRECTOR';
+        }
+
+        if (memo_is_valid_deputy_candidate($reviewerPID)) {
+            return 'DEPUTY';
+        }
+
+        return 'HEAD';
+    }
+}
+
 if (!function_exists('memo_is_chain_mode')) {
     function memo_is_chain_mode(array $memo): bool
     {
@@ -599,7 +655,7 @@ if (!function_exists('memo_update_draft')) {
                 $update_payload['writeDate'] = $data['writeDate'] ?? null;
             }
 
-            if (!$canOwnerEditBeforeHeadForward) {
+            if (!$canOwnerEditBeforeHeadForward && (array_key_exists('toType', $data) || array_key_exists('toPID', $data))) {
                 $update_payload['toType'] = $data['toType'] ?? null;
                 $update_payload['toPID'] = $data['toPID'] ?? null;
             }
@@ -690,6 +746,12 @@ if (!function_exists('memo_submit')) {
             $deputyPID = trim((string) ($memo['deputyPID'] ?? ''));
             $directorPID = trim((string) ($memo['directorPID'] ?? ''));
 
+            $returnReviewerPID = '';
+
+            if ($fromStatus === MEMO_STATUS_RETURNED) {
+                $returnReviewerPID = memo_latest_return_actor_pid(memo_list_routes($memoID));
+            }
+
             if ($flowMode === 'CHAIN') {
                 $chain = [
                     'headPID' => $headPID,
@@ -705,13 +767,42 @@ if (!function_exists('memo_submit')) {
                     }
                 }
 
-                [$toPID, $flowStage] = memo_resolve_first_reviewer($chain);
-                $toType = $flowStage === 'DIRECTOR' ? 'DIRECTOR' : 'PERSON';
                 $headPID = trim((string) ($chain['headPID'] ?? ''));
                 $deputyPID = trim((string) ($chain['deputyPID'] ?? ''));
                 $directorPID = trim((string) ($chain['directorPID'] ?? ''));
+                $stageMemo = [
+                    ...$memo,
+                    'headPID' => $headPID,
+                    'deputyPID' => $deputyPID,
+                    'directorPID' => $directorPID,
+                    'flowStage' => 'OWNER',
+                ];
+
+                if ($returnReviewerPID !== '' && preg_match('/^\d{1,13}$/', $returnReviewerPID)) {
+                    $flowStage = memo_resolve_return_reviewer_stage($stageMemo, $returnReviewerPID);
+                    $toPID = $returnReviewerPID;
+
+                    if ($flowStage === 'HEAD') {
+                        $headPID = $returnReviewerPID;
+                    } elseif ($flowStage === 'DEPUTY') {
+                        $deputyPID = $returnReviewerPID;
+                    } elseif ($flowStage === 'DIRECTOR') {
+                        $directorPID = $returnReviewerPID;
+                    }
+                } else {
+                    [$toPID, $flowStage] = memo_resolve_first_reviewer($chain);
+                }
+
+                $toType = $flowStage === 'DIRECTOR' ? 'DIRECTOR' : 'PERSON';
             } else {
-                if ($toType === 'DIRECTOR') {
+                if ($returnReviewerPID !== '' && preg_match('/^\d{1,13}$/', $returnReviewerPID)) {
+                    $returnDirectorPID = trim((string) ($directorPID !== '' ? $directorPID : (system_get_current_director_pid() ?? '')));
+                    $toPID = $returnReviewerPID;
+                    $flowStage = $returnDirectorPID !== '' && $returnReviewerPID === $returnDirectorPID
+                        ? 'DIRECTOR'
+                        : (memo_is_valid_deputy_candidate($returnReviewerPID) ? 'DEPUTY' : 'HEAD');
+                    $toType = $flowStage === 'DIRECTOR' ? 'DIRECTOR' : 'PERSON';
+                } elseif ($toType === 'DIRECTOR') {
                     $resolved = system_get_current_director_pid();
                     $toPID = $resolved ? trim((string) $resolved) : '';
                 } elseif ($toType !== 'PERSON') {

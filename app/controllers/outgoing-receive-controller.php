@@ -68,6 +68,7 @@ if (!function_exists('outgoing_receive_index')) {
             'values' => $state['values'] ?? outgoing_receive_default_values(),
             'factions' => $state['factions'] ?? [],
             'reviewers' => $state['reviewers'] ?? [],
+            'current_user_name' => trim((string) ($current_user['fName'] ?? '')),
             'is_edit_mode' => (bool) ($state['is_edit_mode'] ?? false),
             'edit_circular_id' => (int) ($state['edit_circular_id'] ?? 0),
             'editable_circular' => $state['editable_circular'] ?? null,

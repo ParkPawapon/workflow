@@ -668,8 +668,11 @@ ob_start();
                         $head_note_b64 = base64_encode((string) ($memo['headNote'] ?? ''));
                         $deputy_note_b64 = base64_encode((string) ($memo['deputyNote'] ?? ''));
                         $director_note_b64 = base64_encode((string) ($memo['directorNote'] ?? ''));
+                        $returned_reviewer_pid = trim((string) ($memo['returnedReviewerPID'] ?? ''));
+                        $returned_reviewer_name = trim((string) ($memo['returnedReviewerName'] ?? ''));
                         $can_preview_pdf = in_array($status, [MEMO_STATUS_APPROVED_UNSIGNED, MEMO_STATUS_SIGNED, MEMO_STATUS_REJECTED], true);
-                        $can_edit_and_submit = $status === 'DRAFT' || !empty($memo['ownerCanEditBeforeHeadForward']);
+                        $can_edit_and_submit = in_array($status, ['DRAFT', MEMO_STATUS_RETURNED], true)
+                            || !empty($memo['ownerCanEditBeforeHeadForward']);
                         $memo_pdf_preview_href = $memo_id > 0
                             ? ('memo-pdf.php?memo_id=' . rawurlencode((string) $memo_id))
                             : '';
@@ -706,6 +709,42 @@ ob_start();
                                 <?php if ($can_edit_and_submit) : ?>
                                     <button
                                         type="button"
+                                        class="booking-action-btn secondary js-open-view-modal"
+                                        data-type="INTERNAL"
+                                        data-circular-id="<?= h((string) $memo_id) ?>"
+                                        data-detail="<?= h($detail_for_attr) ?>"
+                                        data-detail-b64="<?= h($detail_b64) ?>"
+                                        data-subject="<?= h($subject !== '' ? $subject : '-') ?>"
+                                        data-bookno="<?= h($book_no_display) ?>"
+                                        data-issued="<?= h((string) ($memo['writeDate'] ?? '-')) ?>"
+                                        data-from="<?= h($current_name !== '' ? $current_name : '-') ?>"
+                                        data-sender="<?= h($current_sender_faction_name !== '' ? $current_sender_faction_name : '-') ?>"
+                                        data-to="<?= h($to_label) ?>"
+                                        data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
+                                        data-consider="considering"
+                                        data-received-time="<?= h(trim($date_line . ' ' . $time_line)) ?>"
+                                        data-read-stats="[]"
+                                        data-head-name="<?= h((string) ($memo['headName'] ?? '')) ?>"
+                                        data-head-position="<?= h((string) ($memo['headPositionName'] ?? '')) ?>"
+                                        data-head-signature="<?= h((string) ($memo['headSignature'] ?? '')) ?>"
+                                        data-head-note-b64="<?= h($head_note_b64) ?>"
+                                        data-head-action="<?= h((string) ($memo['headAction'] ?? '')) ?>"
+                                        data-deputy-name="<?= h((string) ($memo['deputyName'] ?? '')) ?>"
+                                        data-deputy-position="<?= h((string) ($memo['deputyPositionName'] ?? '')) ?>"
+                                        data-deputy-signature="<?= h((string) ($memo['deputySignature'] ?? '')) ?>"
+                                        data-deputy-note-b64="<?= h($deputy_note_b64) ?>"
+                                        data-deputy-action="<?= h((string) ($memo['deputyAction'] ?? '')) ?>"
+                                        data-director-name="<?= h((string) ($memo['directorName'] ?? '')) ?>"
+                                        data-director-position="<?= h((string) ($memo['directorPositionName'] ?? '')) ?>"
+                                        data-director-signature="<?= h((string) ($memo['directorSignature'] ?? '')) ?>"
+                                        data-director-note-b64="<?= h($director_note_b64) ?>"
+                                        data-director-action="<?= h((string) ($memo['directorAction'] ?? '')) ?>"
+                                        data-files="<?= h($memo_files_json) ?>">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                        <span class="tooltip">ดูรายละเอียด</span>
+                                    </button>
+                                    <button
+                                        type="button"
                                         class="booking-action-btn secondary js-open-suggest-modal"
                                         data-memo-id="<?= h((string) $memo_id) ?>"
                                         data-memo-subject="<?= h($subject !== '' ? $subject : '-') ?>"
@@ -713,6 +752,9 @@ ob_start();
                                         data-memo-attachments="<?= h((string) $attachment_count) ?>"
                                         data-memo-to="<?= h($to_label) ?>"
                                         data-memo-owner-edit-before-head-forward="<?= !empty($memo['ownerCanEditBeforeHeadForward']) ? '1' : '0' ?>"
+                                        data-memo-is-returned="<?= $status === MEMO_STATUS_RETURNED ? '1' : '0' ?>"
+                                        data-memo-returned-reviewer-pid="<?= h($returned_reviewer_pid) ?>"
+                                        data-memo-returned-reviewer-name="<?= h($returned_reviewer_name) ?>"
                                         data-files="<?= h($memo_files_json) ?>">
                                         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
                                         <span class="tooltip">แก้ไข / เสนอแฟ้ม</span>
@@ -842,7 +884,7 @@ ob_start();
 <div class="modal-overlay-memo details" id="modalViewOverlay" style="display: none;">
     <div class="modal-content">
         <div class="header-modal">
-            <p id="modalTypeLabel">รายละเอียด</p>
+            <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ</p>
             <i class="fa-solid fa-xmark" id="closeModalView" aria-hidden="true"></i>
         </div>
 
@@ -2338,12 +2380,13 @@ ob_start();
     const syncSuggestRecipientSelection = () => {
         const selectedRadio = suggestRecipientRadios.find((radio) => radio.checked) || null;
         const selectedPid = selectedRadio ? String(selectedRadio.value || '').trim() : '';
+        const selectedName = selectedRadio ? String(selectedRadio.getAttribute('data-member-name') || '').trim() : '';
 
         if (suggestToChoiceInput) {
             suggestToChoiceInput.value = selectedPid !== '' ? `PERSON:${selectedPid}` : 'DIRECTOR';
         }
         if (suggestToText) {
-            suggestToText.textContent = memoDirectorLabel;
+            suggestToText.textContent = selectedName !== '' ? selectedName : memoDirectorLabel;
         }
     };
 
@@ -2660,9 +2703,6 @@ ob_start();
 
     const hasMemoViewStagePayload = (payload) => {
         return Boolean(
-            String(payload?.name || '').trim() ||
-            String(payload?.position || '').trim() ||
-            String(payload?.signature || '').trim() ||
             String(payload?.action || '').trim() ||
             normalizeMemoDetailText(payload?.note || '')
         );
@@ -2883,6 +2923,9 @@ ob_start();
             const memoDetail = String(btn.getAttribute('data-memo-detail') || '').trim();
             const memoAttachmentCount = Number(btn.getAttribute('data-memo-attachments') || '0');
             const isOwnerEditBeforeHeadForward = String(btn.getAttribute('data-memo-owner-edit-before-head-forward') || '') === '1';
+            const isReturnedResubmit = String(btn.getAttribute('data-memo-is-returned') || '') === '1';
+            const returnedReviewerPid = String(btn.getAttribute('data-memo-returned-reviewer-pid') || '').trim();
+            const returnedReviewerName = String(btn.getAttribute('data-memo-returned-reviewer-name') || '').trim();
             let memoFiles = [];
             const detailValue = memoDetail !== '' ? memoDetail : '-';
 
@@ -2916,12 +2959,35 @@ ob_start();
                     : (Number.isFinite(memoAttachmentCount) && memoAttachmentCount > 0 ? memoAttachmentCount : 0);
                 suggestForm.dataset.existingAttachmentCount = String(normalizedAttachmentCount);
                 suggestForm.dataset.ownerEditBeforeHeadForward = isOwnerEditBeforeHeadForward ? '1' : '0';
+                suggestForm.dataset.returnedResubmit = isReturnedResubmit ? '1' : '0';
             }
             if (suggestAttachmentInput) {
                 suggestAttachmentInput.value = '';
             }
             refreshSuggestAttachmentList(memoFiles, memoId, true);
+            suggestRecipientRadios.forEach((radio) => {
+                radio.checked = false;
+            });
+
+            let returnedReviewerRadio = null;
+
+            if (isReturnedResubmit && returnedReviewerPid !== '') {
+                returnedReviewerRadio = suggestRecipientRadios.find((radio) => String(radio.value || '').trim() === returnedReviewerPid) || null;
+
+                if (returnedReviewerRadio) {
+                    returnedReviewerRadio.checked = true;
+                }
+            }
             resetSuggestRecipientDropdownUi();
+
+            const suggestSearchInput = suggModal ? suggModal.querySelector('#mainInput') : null;
+            const selectedReturnedName = returnedReviewerName !== ''
+                ? returnedReviewerName
+                : String(returnedReviewerRadio?.getAttribute('data-member-name') || '').trim();
+
+            if (isReturnedResubmit && selectedReturnedName !== '' && suggestSearchInput) {
+                suggestSearchInput.value = selectedReturnedName;
+            }
 
             if (window.tinymce) {
                 const suggestEditor = tinymce.get('memo_editor_suggest');
@@ -2930,6 +2996,15 @@ ob_start();
                 }
             }
             syncSuggestRecipientSelection();
+
+            if (isReturnedResubmit && returnedReviewerPid !== '' && !returnedReviewerRadio) {
+                if (suggestToChoiceInput) {
+                    suggestToChoiceInput.value = `PERSON:${returnedReviewerPid}`;
+                }
+                if (suggestToText) {
+                    suggestToText.textContent = selectedReturnedName !== '' ? selectedReturnedName : memoDirectorLabel;
+                }
+            }
 
             if (suggModal) suggModal.style.display = 'flex';
         });
@@ -2946,8 +3021,9 @@ ob_start();
     suggestForm?.addEventListener('submit', (event) => {
         const selectedRadio = suggestRecipientRadios.find((radio) => radio.checked) || null;
         const isOwnerEditBeforeHeadForward = suggestForm.dataset.ownerEditBeforeHeadForward === '1';
+        const isReturnedResubmit = suggestForm.dataset.returnedResubmit === '1';
 
-        if (!isOwnerEditBeforeHeadForward && !selectedRadio) {
+        if (!isOwnerEditBeforeHeadForward && !isReturnedResubmit && !selectedRadio) {
             event.preventDefault();
             showSuggestValidationAlert('กรุณาเลือกผู้รับเอกสารอย่างน้อย 1 คน');
             return;

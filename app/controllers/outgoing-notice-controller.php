@@ -54,6 +54,12 @@ if (!function_exists('outgoing_notice_index')) {
         }
 
         $box = (string) ($_GET['box'] ?? $default_box);
+        $legacy_clerk_return_box = $box === 'clerk_return';
+
+        if ($legacy_clerk_return_box) {
+            $box = 'clerk';
+        }
+
         $archived = isset($_GET['archived']) && $_GET['archived'] === '1';
 
         $director_inbox_type = ($acting_pid !== null && $acting_pid !== '' && $acting_pid === $current_pid)
@@ -65,7 +71,6 @@ if (!function_exists('outgoing_notice_index')) {
         if (!$is_internal_only_notice_page) {
             if ($can_manage_external) {
                 $allowed_boxes[] = 'clerk';
-                $allowed_boxes[] = 'clerk_return';
             }
 
             if ($is_reviewer_box) {
@@ -81,17 +86,16 @@ if (!function_exists('outgoing_notice_index')) {
             'normal' => INBOX_TYPE_NORMAL,
             'director' => $director_inbox_type,
             'clerk' => INBOX_TYPE_NORMAL,
-            'clerk_return' => INBOX_TYPE_SARABAN_RETURN,
         ];
         $box_key = array_key_exists($box, $box_map) ? $box : 'normal';
         $inbox_type = $box_map[$box_key];
 
-        $is_outside_view = !$is_internal_only_notice_page && in_array($box_key, ['director', 'clerk', 'clerk_return'], true);
+        $is_outside_view = !$is_internal_only_notice_page && in_array($box_key, ['director', 'clerk'], true);
         $default_type = $is_internal_only_notice_page ? 'internal' : 'external';
 
         $filter_type = (string) ($_GET['type'] ?? $default_type);
         $filter_sort = (string) ($_GET['sort'] ?? 'newest');
-        $filter_view = (string) ($_GET['view'] ?? 'table1');
+        $filter_view = (string) ($_GET['view'] ?? ($legacy_clerk_return_box ? 'table2' : 'table1'));
         $filter_search = trim((string) ($_GET['q'] ?? ''));
         $selected_dh_year = (int) ($_GET['dh_year'] ?? 0);
 
@@ -115,14 +119,14 @@ if (!function_exists('outgoing_notice_index')) {
             $filter_view = 'table1';
         }
 
+        if ($legacy_clerk_return_box && $can_manage_external) {
+            $filter_view = 'table2';
+        }
+
         $table_status_map = [
             'director' => [
                 'table1' => [EXTERNAL_STATUS_PENDING_REVIEW],
                 'table2' => [EXTERNAL_STATUS_REVIEWED, EXTERNAL_STATUS_FORWARDED, EXTERNAL_STATUS_SUBMITTED],
-            ],
-            'clerk_return' => [
-                'table1' => [EXTERNAL_STATUS_REVIEWED],
-                'table2' => [EXTERNAL_STATUS_FORWARDED, EXTERNAL_STATUS_PENDING_REVIEW, EXTERNAL_STATUS_SUBMITTED],
             ],
             'clerk' => [
                 'table1' => [EXTERNAL_STATUS_PENDING_REVIEW],
@@ -227,8 +231,128 @@ if (!function_exists('outgoing_notice_index')) {
                     }, (array) ($_POST['person_ids'] ?? [])), static function (string $value): bool {
                         return $value !== '';
                     }));
+                    $can_reviewer_return_to_registry = $box_key === 'director' && $is_reviewer_box && !$archived;
+                    $can_registry_forward_to_deputies = $can_manage_external && $box_key === 'clerk' && !$archived;
 
-                    if ($is_outside_view || $archived) {
+                    if ($can_reviewer_return_to_registry) {
+                        $inbox_row = db_fetch_one(
+                            'SELECT i.inboxID, i.circularID, i.inboxType, c.circularType, c.status
+                             FROM dh_circular_inboxes AS i
+                             INNER JOIN dh_circulars AS c ON c.circularID = i.circularID
+                             WHERE i.inboxID = ? AND i.pID = ? AND i.isArchived = 0
+                             LIMIT 1',
+                            'is',
+                            $inbox_id,
+                            $current_pid
+                        );
+
+                        if (
+                            !$inbox_row
+                            || (int) ($inbox_row['circularID'] ?? 0) !== $circular_id
+                            || (string) ($inbox_row['circularType'] ?? '') !== CIRCULAR_TYPE_EXTERNAL
+                            || (string) ($inbox_row['status'] ?? '') !== EXTERNAL_STATUS_PENDING_REVIEW
+                            || !in_array((string) ($inbox_row['inboxType'] ?? ''), [INBOX_TYPE_SPECIAL_PRINCIPAL, INBOX_TYPE_ACTING_PRINCIPAL], true)
+                        ) {
+                            $alert = [
+                                'type' => 'danger',
+                                'title' => 'ไม่มีสิทธิ์ดำเนินการ',
+                                'message' => 'ไม่พบรายการที่ต้องการส่งต่อ',
+                            ];
+                        } else {
+                            $comment = trim((string) ($_POST['comment'] ?? ''));
+                            $new_fid = (int) ($_POST['extGroupFID'] ?? 0);
+
+                            try {
+                                circular_director_review($circular_id, $current_pid, $comment !== '' ? $comment : null, $new_fid > 0 ? $new_fid : null);
+
+                                flash_set('circular_notice_alert', [
+                                    'type' => 'success',
+                                    'title' => 'พิจารณาเรียบร้อย',
+                                    'message' => '',
+                                ]);
+                                header('Location: ' . (string) ($_SERVER['REQUEST_URI'] ?? 'outgoing-notice.php'));
+                                exit;
+                            } catch (Throwable $exception) {
+                                $alert = [
+                                    'type' => 'danger',
+                                    'title' => $exception->getMessage(),
+                                    'message' => '',
+                                ];
+                            }
+                        }
+                    } elseif ($can_registry_forward_to_deputies) {
+                        $inbox_row = db_fetch_one(
+                            'SELECT i.inboxID, i.circularID, c.circularType, c.status
+                             FROM dh_circular_inboxes AS i
+                             INNER JOIN dh_circulars AS c ON c.circularID = i.circularID
+                             WHERE i.inboxID = ? AND i.pID = ? AND i.isArchived = 0
+                             LIMIT 1',
+                            'is',
+                            $inbox_id,
+                            $current_pid
+                        );
+
+                        if (
+                            !$inbox_row
+                            || (int) ($inbox_row['circularID'] ?? 0) !== $circular_id
+                            || (string) ($inbox_row['circularType'] ?? '') !== CIRCULAR_TYPE_EXTERNAL
+                            || (string) ($inbox_row['status'] ?? '') !== EXTERNAL_STATUS_REVIEWED
+                        ) {
+                            $alert = [
+                                'type' => 'danger',
+                                'title' => 'ไม่มีสิทธิ์ดำเนินการ',
+                                'message' => 'ไม่พบรายการที่ต้องการส่งต่อ',
+                            ];
+                        } else {
+                            $allowed_deputy_pids = [];
+
+                            if (!empty($deputy_position_ids)) {
+                                $placeholders = implode(', ', array_fill(0, count($deputy_position_ids), '?'));
+                                $types = str_repeat('i', count($deputy_position_ids));
+                                $rows = db_fetch_all(
+                                    'SELECT pID
+                                     FROM teacher
+                                     WHERE status = 1
+                                       AND positionID IN (' . $placeholders . ')',
+                                    $types,
+                                    ...$deputy_position_ids
+                                );
+                                $acting_pid_value = trim((string) ($acting_pid ?? ''));
+
+                                foreach ($rows as $row) {
+                                    $pid = trim((string) ($row['pID'] ?? ''));
+
+                                    if ($pid === '' || $pid === $current_pid || ($acting_pid_value !== '' && $pid === $acting_pid_value)) {
+                                        continue;
+                                    }
+                                    $allowed_deputy_pids[$pid] = true;
+                                }
+                            }
+
+                            $target_deputy_pids = array_values(array_filter($selected_people, static function (string $pid) use ($allowed_deputy_pids): bool {
+                                return isset($allowed_deputy_pids[$pid]);
+                            }));
+
+                            try {
+                                circular_registry_forward_to_deputies($circular_id, $current_pid, $target_deputy_pids);
+
+                                flash_set('circular_notice_alert', [
+                                    'type' => 'success',
+                                    'title' => 'ส่งต่อเรียบร้อย',
+                                    'message' => '',
+                                ]);
+                                flash_set('circular_notice_forward_open_inbox_id', $inbox_id);
+                                header('Location: ' . (string) ($_SERVER['REQUEST_URI'] ?? 'outgoing-notice.php'));
+                                exit;
+                            } catch (Throwable $exception) {
+                                $alert = [
+                                    'type' => 'danger',
+                                    'title' => $exception->getMessage(),
+                                    'message' => '',
+                                ];
+                            }
+                        }
+                    } elseif ($is_outside_view || $archived) {
                         $alert = [
                             'type' => 'warning',
                             'title' => 'ไม่สามารถส่งต่อได้',
@@ -426,32 +550,51 @@ if (!function_exists('outgoing_notice_index')) {
         $forwarded_recipients_map = [];
 
         if (!empty($items) && db_table_exists($connection, 'dh_file_refs')) {
-            $entity_ids = array_values(array_unique(array_map(static function (array $item): string {
-                return (string) ($item['circularID'] ?? '');
-            }, $items)));
+            $entity_ids = array_values(array_unique(array_filter(array_map(static function (array $item): int {
+                return (int) ($item['circularID'] ?? 0);
+            }, $items), static function (int $id): bool {
+                return $id > 0;
+            })));
 
             if (!empty($entity_ids)) {
                 $placeholders = implode(', ', array_fill(0, count($entity_ids), '?'));
-                $types = 'ss' . str_repeat('s', count($entity_ids));
-                $params = array_merge([CIRCULAR_MODULE_NAME, CIRCULAR_ENTITY_NAME], $entity_ids);
-                $sql = 'SELECT r.entityID, f.fileID, f.fileName, f.mimeType, f.fileSize, r.note AS fileNote
+                $types = str_repeat('i', count($entity_ids));
+                $sql = 'SELECT
+                        CAST(r.entityID AS UNSIGNED) AS circularID,
+                        f.fileID,
+                        f.fileName,
+                        f.filePath,
+                        f.mimeType,
+                        f.fileSize,
+                        r.note AS fileNote
                     FROM dh_file_refs AS r
                     INNER JOIN dh_files AS f ON r.fileID = f.fileID
-                    WHERE r.moduleName = ? AND r.entityName = ? AND r.entityID IN (' . $placeholders . ') AND f.deletedAt IS NULL
+                    WHERE r.moduleName = (\'' . CIRCULAR_MODULE_NAME . '\' COLLATE utf8mb4_general_ci)
+                      AND r.entityName = (\'' . CIRCULAR_ENTITY_NAME . '\' COLLATE utf8mb4_general_ci)
+                      AND CAST(r.entityID AS UNSIGNED) IN (' . $placeholders . ')
+                      AND f.deletedAt IS NULL
                     ORDER BY r.refID ASC';
-                $rows = db_fetch_all($sql, $types, ...$params);
+                $rows = db_fetch_all($sql, $types, ...$entity_ids);
 
                 foreach ($rows as $row) {
-                    $entity_id = (string) ($row['entityID'] ?? '');
+                    $entity_id = (string) ((int) ($row['circularID'] ?? 0));
 
-                    if ($entity_id === '') {
+                    if ($entity_id === '0') {
                         continue;
                     }
 
                     if (!isset($attachments_map[$entity_id])) {
                         $attachments_map[$entity_id] = [];
                     }
-                    $attachments_map[$entity_id][] = $row;
+
+                    $attachments_map[$entity_id][] = [
+                        'fileID' => (int) ($row['fileID'] ?? 0),
+                        'fileName' => trim((string) ($row['fileName'] ?? '')),
+                        'filePath' => trim((string) ($row['filePath'] ?? '')),
+                        'mimeType' => trim((string) ($row['mimeType'] ?? '')),
+                        'fileSize' => (int) ($row['fileSize'] ?? 0),
+                        'fileNote' => trim((string) ($row['fileNote'] ?? '')),
+                    ];
                 }
             }
         }
@@ -672,6 +815,7 @@ if (!function_exists('outgoing_notice_index')) {
             $created_at = $item['createdAt'] ?? '';
             $received_date = $format_thai_date($delivered_at);
             $received_date_long = $format_thai_date_long($delivered_at);
+            $received_date_plain = str_replace('พ.ศ.', '', $received_date_long);
             $received_time = $format_thai_time($delivered_at);
             $created_date_long = $format_thai_date_long($created_at);
             $sender_name = trim((string) ($item['senderName'] ?? ''));
@@ -702,6 +846,7 @@ if (!function_exists('outgoing_notice_index')) {
                 'link_url' => (string) ($item['linkURL'] ?? ''),
                 'delivered_date' => $received_date,
                 'delivered_date_long' => $received_date_long,
+                'delivered_date_plain' => $received_date_plain,
                 'delivered_time' => $received_time,
                 'created_date_long' => $created_date_long,
                 'files_json' => $files_json,
@@ -723,7 +868,6 @@ if (!function_exists('outgoing_notice_index')) {
 
         $page_box_label = match ($box_key) {
             'director' => 'กล่องรอพิจารณา',
-            'clerk_return' => 'กล่องพิจารณาแล้ว',
             'clerk' => 'กล่องกำลังเสนอ',
             default => $archived ? 'หนังสือเวียนที่จัดเก็บ' : 'กล่องหนังสือเวียน',
         };
@@ -746,6 +890,10 @@ if (!function_exists('outgoing_notice_index')) {
             'is_registry' => $is_registry,
             'can_manage_external' => $can_manage_external,
             'is_director_box' => $is_director_box,
+            'is_acting_director' => $is_acting_director,
+            'is_deputy_reviewer' => $is_deputy_reviewer,
+            'acting_pid' => $acting_pid,
+            'deputy_position_ids' => $deputy_position_ids,
             'forward_open_inbox_id' => $forward_open_inbox_id,
             'show_type_filter' => false,
             'show_book_type_column' => false,
