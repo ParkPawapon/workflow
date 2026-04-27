@@ -599,6 +599,138 @@ if (!function_exists('circular_registry_forward_to_deputy')) {
     }
 }
 
+if (!function_exists('circular_reviewer_forward_to_deputies')) {
+    function circular_reviewer_forward_to_deputies(int $circularID, string $reviewerPID, array $deputyPIDs): void
+    {
+        $deputyPIDs = array_values(array_unique(array_filter(array_map(static function ($value): string {
+            return trim((string) $value);
+        }, $deputyPIDs), static function (string $pid) use ($reviewerPID): bool {
+            return $pid !== '' && ctype_digit($pid) && $pid !== $reviewerPID;
+        })));
+
+        if (empty($deputyPIDs)) {
+            throw new RuntimeException('กรุณาเลือกรองผู้อำนวยการอย่างน้อย 1 คน');
+        }
+
+        db_begin();
+
+        try {
+            $current = circular_get($circularID);
+
+            if (
+                !$current
+                || (string) ($current['circularType'] ?? '') !== CIRCULAR_TYPE_EXTERNAL
+                || (string) ($current['status'] ?? '') !== EXTERNAL_STATUS_PENDING_REVIEW
+            ) {
+                throw new RuntimeException('สถานะเอกสารไม่ถูกต้องสำหรับการส่งต่อ');
+            }
+
+            $targets = [];
+
+            foreach ($deputyPIDs as $deputyPID) {
+                $targets[] = [
+                    'targetType' => 'PERSON',
+                    'fID' => null,
+                    'roleID' => null,
+                    'pID' => $deputyPID,
+                    'isCc' => 0,
+                ];
+            }
+
+            circular_add_recipients($circularID, $targets);
+            circular_add_inboxes($circularID, $deputyPIDs, INBOX_TYPE_NORMAL, $reviewerPID);
+            circular_update_record($circularID, [
+                'status' => EXTERNAL_STATUS_FORWARDED,
+                'updatedByPID' => $reviewerPID,
+            ]);
+
+            foreach ($deputyPIDs as $deputyPID) {
+                circular_add_route($circularID, 'FORWARD', $reviewerPID, $deputyPID, null, 'REVIEWER_FORWARD_TO_DEPUTY');
+            }
+
+            $documentID = circular_sync_document($circularID);
+
+            if ($documentID) {
+                document_add_recipients($documentID, $deputyPIDs, INBOX_TYPE_NORMAL);
+            }
+
+            db_commit();
+            audit_log('circulars', 'REVIEWER_FORWARD', 'SUCCESS', 'dh_circulars', $circularID, null, ['deputies' => $deputyPIDs]);
+        } catch (Throwable $e) {
+            db_rollback();
+            error_log('Reviewer forward failed: ' . $e->getMessage());
+            audit_log('circulars', 'REVIEWER_FORWARD', 'FAIL', 'dh_circulars', $circularID, $e->getMessage());
+            throw $e;
+        }
+    }
+}
+
+if (!function_exists('circular_registry_forward_to_deputies')) {
+    function circular_registry_forward_to_deputies(int $circularID, string $registryPID, array $deputyPIDs): void
+    {
+        $deputyPIDs = array_values(array_unique(array_filter(array_map(static function ($value): string {
+            return trim((string) $value);
+        }, $deputyPIDs), static function (string $pid) use ($registryPID): bool {
+            return $pid !== '' && ctype_digit($pid) && $pid !== $registryPID;
+        })));
+
+        if (empty($deputyPIDs)) {
+            throw new RuntimeException('กรุณาเลือกรองผู้อำนวยการอย่างน้อย 1 คน');
+        }
+
+        db_begin();
+
+        try {
+            $current = circular_get($circularID);
+
+            if (
+                !$current
+                || (string) ($current['circularType'] ?? '') !== CIRCULAR_TYPE_EXTERNAL
+                || (string) ($current['status'] ?? '') !== EXTERNAL_STATUS_REVIEWED
+            ) {
+                throw new RuntimeException('สถานะเอกสารไม่ถูกต้องสำหรับการส่งต่อ');
+            }
+
+            $targets = [];
+
+            foreach ($deputyPIDs as $deputyPID) {
+                $targets[] = [
+                    'targetType' => 'PERSON',
+                    'fID' => null,
+                    'roleID' => null,
+                    'pID' => $deputyPID,
+                    'isCc' => 0,
+                ];
+            }
+
+            circular_add_recipients($circularID, $targets);
+            circular_add_inboxes($circularID, $deputyPIDs, INBOX_TYPE_NORMAL, $registryPID);
+            circular_update_record($circularID, [
+                'status' => EXTERNAL_STATUS_FORWARDED,
+                'updatedByPID' => $registryPID,
+            ]);
+
+            foreach ($deputyPIDs as $deputyPID) {
+                circular_add_route($circularID, 'FORWARD', $registryPID, $deputyPID, null, 'CLERK_FORWARD_TO_DEPUTY');
+            }
+
+            $documentID = circular_sync_document($circularID);
+
+            if ($documentID) {
+                document_add_recipients($documentID, $deputyPIDs, INBOX_TYPE_NORMAL);
+            }
+
+            db_commit();
+            audit_log('circulars', 'CLERK_FORWARD', 'SUCCESS', 'dh_circulars', $circularID, null, ['deputies' => $deputyPIDs]);
+        } catch (Throwable $e) {
+            db_rollback();
+            error_log('Registry forward failed: ' . $e->getMessage());
+            audit_log('circulars', 'CLERK_FORWARD', 'FAIL', 'dh_circulars', $circularID, $e->getMessage());
+            throw $e;
+        }
+    }
+}
+
 if (!function_exists('circular_deputy_distribute')) {
     function circular_deputy_distribute(int $circularID, string $deputyPID, array $recipients, ?string $note = null): void
     {

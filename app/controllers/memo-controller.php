@@ -190,7 +190,38 @@ if (!function_exists('memo_owner_resolve_stage_note')) {
             return '';
         }
 
+        if (trim((string) ($memo['approvedByPID'] ?? '')) === $actorPID) {
+            return $reviewNote;
+        }
+
         return memo_owner_latest_review_actor_pid($routes) === $actorPID ? $reviewNote : '';
+    }
+}
+
+if (!function_exists('memo_owner_resolve_stage_action')) {
+    function memo_owner_resolve_stage_action(array $memo, array $routes, string $actorPID, string $stage = ''): string
+    {
+        $actorPID = trim($actorPID);
+
+        if ($actorPID === '') {
+            return '';
+        }
+
+        $action = memo_owner_latest_review_action_by_actor($routes, $actorPID);
+
+        if ($action !== '') {
+            return $action;
+        }
+
+        $status = strtoupper(trim((string) ($memo['status'] ?? '')));
+        $approvedPID = trim((string) ($memo['approvedByPID'] ?? ''));
+        $stage = strtoupper(trim($stage));
+
+        if ($approvedPID === $actorPID && $stage === 'DEPUTY' && $status === MEMO_STATUS_APPROVED_UNSIGNED) {
+            return 'APPROVE_UNSIGNED';
+        }
+
+        return '';
     }
 }
 
@@ -200,6 +231,7 @@ if (!function_exists('memo_owner_resolve_chain_from_routes')) {
         $flowStage = strtoupper(trim((string) ($memo['flowStage'] ?? '')));
         $forwardActors = [];
         $hasDirectorReview = false;
+        $deputyCandidateCache = [];
         $directorActions = [
             'DIRECTOR_APPROVE',
             'DIRECTOR_REJECT',
@@ -215,6 +247,25 @@ if (!function_exists('memo_owner_resolve_chain_from_routes')) {
             'DIRECTOR_REQUEST_MEETING',
             'SIGN',
         ];
+        $deputyActions = [
+            'FORWARD',
+            'RETURN',
+            'APPROVE_UNSIGNED',
+            'REJECT',
+        ];
+        $isDeputyCandidate = static function (string $pid) use (&$deputyCandidateCache): bool {
+            $pid = trim($pid);
+
+            if ($pid === '') {
+                return false;
+            }
+
+            if (!array_key_exists($pid, $deputyCandidateCache)) {
+                $deputyCandidateCache[$pid] = memo_is_valid_deputy_candidate($pid);
+            }
+
+            return $deputyCandidateCache[$pid];
+        };
 
         foreach ($routes as $route) {
             $actorPID = trim((string) ($route['actorPID'] ?? ''));
@@ -226,10 +277,9 @@ if (!function_exists('memo_owner_resolve_chain_from_routes')) {
 
             if ($action === 'FORWARD') {
                 $forwardActors[] = $actorPID;
-                continue;
             }
 
-            if ($action === 'APPROVE_UNSIGNED') {
+            if (in_array($action, $deputyActions, true) && $isDeputyCandidate($actorPID)) {
                 $chain['DEPUTY'] = $actorPID;
                 continue;
             }
@@ -254,6 +304,13 @@ if (!function_exists('memo_owner_resolve_chain_from_routes')) {
                 $chain['DEPUTY'] = $actorPID;
                 break;
             }
+        }
+
+        $approvedPID = trim((string) ($memo['approvedByPID'] ?? ''));
+        $memoStatus = strtoupper(trim((string) ($memo['status'] ?? '')));
+
+        if ($memoStatus === MEMO_STATUS_APPROVED_UNSIGNED && $approvedPID !== '' && $isDeputyCandidate($approvedPID)) {
+            $chain['DEPUTY'] = $approvedPID;
         }
 
         return $chain;
@@ -359,7 +416,28 @@ if (!function_exists('memo_owner_enrich_creator_memos')) {
             $memoStatus = strtoupper(trim((string) ($memo['status'] ?? '')));
             $deputyPID = trim((string) ($chain['DEPUTY'] ?? ''));
             $directorPID = trim((string) ($chain['DIRECTOR'] ?? ''));
-            $deputyAction = memo_owner_latest_review_action_by_actor($routes, $deputyPID);
+            $deputyAction = memo_owner_resolve_stage_action($memo, $routes, $deputyPID, 'DEPUTY');
+            $returnedReviewerPID = $memoStatus === MEMO_STATUS_RETURNED
+                ? memo_latest_return_actor_pid($routes)
+                : '';
+            $returnedReviewerRouteName = '';
+
+            if ($returnedReviewerPID !== '') {
+                for ($routeIndex = count($routes) - 1; $routeIndex >= 0; $routeIndex--) {
+                    $route = $routes[$routeIndex] ?? [];
+
+                    if (strtoupper(trim((string) ($route['action'] ?? ''))) !== 'RETURN') {
+                        continue;
+                    }
+
+                    if (trim((string) ($route['actorPID'] ?? '')) !== $returnedReviewerPID) {
+                        continue;
+                    }
+
+                    $returnedReviewerRouteName = trim((string) ($route['actorName'] ?? ''));
+                    break;
+                }
+            }
             $suppressDirectorStage = $memoStatus === MEMO_STATUS_APPROVED_UNSIGNED
                 || (
                     $deputyPID !== ''
@@ -388,7 +466,7 @@ if (!function_exists('memo_owner_enrich_creator_memos')) {
                 $memos[$index][$prefix . 'Signature'] = trim((string) ($profile['signature'] ?? ''));
                 $memos[$index][$prefix . 'PositionName'] = trim((string) ($profile['positionName'] ?? ''));
                 $memos[$index][$prefix . 'Note'] = memo_owner_resolve_stage_note($memo, $routes, $stagePID);
-                $memos[$index][$prefix . 'Action'] = memo_owner_latest_review_action_by_actor($routes, $stagePID);
+                $memos[$index][$prefix . 'Action'] = memo_owner_resolve_stage_action($memo, $routes, $stagePID, strtoupper($prefix));
             }
 
             $memos[$index]['ownerCanEditBeforeHeadForward'] = memo_owner_can_edit_before_head_forward(
@@ -396,6 +474,15 @@ if (!function_exists('memo_owner_enrich_creator_memos')) {
                 (string) ($memo['createdByPID'] ?? ''),
                 $routes
             );
+            $returnedReviewerProfile = $returnedReviewerPID !== ''
+                ? ($profiles[$returnedReviewerPID] ?? [])
+                : [];
+            $memos[$index]['returnedReviewerPID'] = $returnedReviewerPID;
+            $memos[$index]['returnedReviewerName'] = trim((string) (
+                $returnedReviewerProfile['name']
+                ?? $returnedReviewerRouteName
+                ?? ''
+            ));
         }
 
         return $memos;
@@ -578,6 +665,9 @@ if (!function_exists('memo_index')) {
                             $submit_to_pid = is_string($submit_to_pid_raw) ? trim($submit_to_pid_raw) : '';
                             $uploaded_files = isset($_FILES['attachments']) && is_array($_FILES['attachments']) ? $_FILES['attachments'] : [];
                             $memo_before_submit = memo_get($memo_id);
+                            $is_returned_resubmit = is_array($memo_before_submit)
+                                && strtoupper(trim((string) ($memo_before_submit['status'] ?? ''))) === MEMO_STATUS_RETURNED
+                                && trim((string) ($memo_before_submit['createdByPID'] ?? '')) === $current_pid;
                             $can_edit_before_head_forward = is_array($memo_before_submit)
                                 && memo_owner_can_edit_before_head_forward($memo_before_submit, $current_pid);
                             $allowed_submit_to_pids = array_fill_keys(
@@ -588,7 +678,7 @@ if (!function_exists('memo_index')) {
                                 true
                             );
 
-                            if (!$can_edit_before_head_forward) {
+                            if (!$can_edit_before_head_forward && !$is_returned_resubmit) {
                                 if ($submit_to_pid === '' || !preg_match('/^\\d{1,13}$/', $submit_to_pid)) {
                                     throw new RuntimeException('กรุณาเลือกผู้รับเอกสารอย่างน้อย 1 คน');
                                 }
@@ -605,7 +695,7 @@ if (!function_exists('memo_index')) {
                                 'detail' => $submit_detail,
                             ];
 
-                            if (!$can_edit_before_head_forward) {
+                            if (!$can_edit_before_head_forward && !$is_returned_resubmit) {
                                 $update_data['toType'] = 'PERSON';
                                 $update_data['toPID'] = $submit_to_pid;
                                 $update_data['flowMode'] = 'DIRECT';

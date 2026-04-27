@@ -20,6 +20,7 @@ if (!function_exists('memo_archive_index')) {
         $status_filter = (string) ($_GET['status'] ?? 'all');
         $allowed = [
             'all',
+            'signed_all',
             MEMO_STATUS_DRAFT,
             MEMO_STATUS_SUBMITTED,
             MEMO_STATUS_IN_REVIEW,
@@ -32,6 +33,16 @@ if (!function_exists('memo_archive_index')) {
 
         if (!in_array($status_filter, $allowed, true)) {
             $status_filter = 'all';
+        }
+
+        if (in_array($status_filter, [MEMO_STATUS_APPROVED_UNSIGNED, MEMO_STATUS_SIGNED], true)) {
+            $status_filter = 'signed_all';
+        }
+
+        $filter_sort = strtolower(trim((string) ($_GET['sort'] ?? 'newest')));
+
+        if (!in_array($filter_sort, ['newest', 'oldest'], true)) {
+            $filter_sort = 'newest';
         }
 
         $page = (int) ($_GET['page'] ?? 1);
@@ -113,7 +124,7 @@ if (!function_exists('memo_archive_index')) {
                 $page = $total_pages;
             }
             $offset = ($page - 1) * $per_page;
-            $items = memo_list_by_creator_page($current_pid, true, $status_filter, $search, $per_page, $offset, null, $selected_dh_year);
+            $items = memo_list_by_creator_page($current_pid, true, $status_filter, $search, $per_page, $offset, $filter_sort, $selected_dh_year);
         }
 
         $base_params = [];
@@ -129,6 +140,11 @@ if (!function_exists('memo_archive_index')) {
         if ($selected_dh_year > 0) {
             $base_params['dh_year'] = (string) $selected_dh_year;
         }
+
+        if ($filter_sort !== 'newest') {
+            $base_params['sort'] = $filter_sort;
+        }
+
         $pagination_base_url = 'memo-archive.php';
 
         if (!empty($base_params)) {
@@ -142,6 +158,7 @@ if (!function_exists('memo_archive_index')) {
             'total_pages' => $total_pages,
             'search' => $search,
             'status_filter' => $status_filter,
+            'filter_sort' => $filter_sort,
             'dh_year_options' => $dh_year_options,
             'selected_dh_year' => $selected_dh_year,
             'filtered_total' => $filtered_total,

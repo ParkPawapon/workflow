@@ -558,7 +558,6 @@ if (!function_exists('outgoing_receive_submit')) {
     function outgoing_receive_submit(array $state, array $input, array $attachments, string $current_pid, array $current_user): array
     {
         $state['values'] = outgoing_receive_normalize_values($input, (array) ($state['allowed_faction_ids'] ?? []));
-        $state['values']['reviewerPID'] = outgoing_receive_default_reviewer_pid((array) ($state['reviewers'] ?? []));
 
         if ((int) ($state['edit_circular_id'] ?? 0) > 0 && empty($state['is_edit_mode'])) {
             $state['alert'] = [

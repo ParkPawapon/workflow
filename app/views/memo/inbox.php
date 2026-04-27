@@ -19,8 +19,29 @@ $dh_year_options = array_values(array_filter(array_map('intval', (array) ($dh_ye
 $selected_dh_year = (int) ($selected_dh_year ?? ($dh_year_options[0] ?? 0));
 $dh_year_label = $selected_dh_year > 0 ? (string) $selected_dh_year : '-';
 $filter_search = $search;
-$status_options = memo_status_options();
-unset($status_options[MEMO_STATUS_DRAFT]);
+$status_options = [];
+
+foreach (memo_status_options() as $status_value => $status_label) {
+    if ($status_value === MEMO_STATUS_DRAFT) {
+        continue;
+    }
+
+    if ($status_value === MEMO_STATUS_APPROVED_UNSIGNED) {
+        $status_options['signed_all'] = 'ลงนามแล้ว';
+        continue;
+    }
+
+    if ($status_value === MEMO_STATUS_SIGNED) {
+        continue;
+    }
+
+    $status_options[$status_value] = $status_label;
+}
+
+if (in_array($status_filter, [MEMO_STATUS_APPROVED_UNSIGNED, MEMO_STATUS_SIGNED], true)) {
+    $status_filter = 'signed_all';
+}
+
 $filter_status = array_key_exists($status_filter, $status_options) ? $status_filter : 'all';
 $filter_status_label = (string) ($status_options[$filter_status] ?? 'ทั้งหมด');
 $filter_sort = trim((string) ($_GET['sort'] ?? 'newest'));

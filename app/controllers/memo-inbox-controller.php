@@ -163,6 +163,7 @@ if (!function_exists('memo_inbox_resolve_chain_from_routes')) {
         $flow_stage = strtoupper(trim((string) ($item['flowStage'] ?? '')));
         $forward_actors = [];
         $has_director_review = false;
+        $deputy_candidate_cache = [];
         $director_actions = [
             'DIRECTOR_APPROVE',
             'DIRECTOR_REJECT',
@@ -178,6 +179,25 @@ if (!function_exists('memo_inbox_resolve_chain_from_routes')) {
             'DIRECTOR_REQUEST_MEETING',
             'SIGN',
         ];
+        $deputy_actions = [
+            'FORWARD',
+            'RETURN',
+            'APPROVE_UNSIGNED',
+            'REJECT',
+        ];
+        $is_deputy_candidate = static function (string $pid) use (&$deputy_candidate_cache): bool {
+            $pid = trim($pid);
+
+            if ($pid === '') {
+                return false;
+            }
+
+            if (!array_key_exists($pid, $deputy_candidate_cache)) {
+                $deputy_candidate_cache[$pid] = memo_is_valid_deputy_candidate($pid);
+            }
+
+            return $deputy_candidate_cache[$pid];
+        };
 
         foreach ($routes as $route) {
             $actor_pid = trim((string) ($route['actorPID'] ?? ''));
@@ -189,10 +209,9 @@ if (!function_exists('memo_inbox_resolve_chain_from_routes')) {
 
             if ($action === 'FORWARD') {
                 $forward_actors[] = $actor_pid;
-                continue;
             }
 
-            if ($action === 'APPROVE_UNSIGNED') {
+            if (in_array($action, $deputy_actions, true) && $is_deputy_candidate($actor_pid)) {
                 $chain['DEPUTY'] = $actor_pid;
                 continue;
             }
@@ -217,6 +236,13 @@ if (!function_exists('memo_inbox_resolve_chain_from_routes')) {
                 $chain['DEPUTY'] = $actor_pid;
                 break;
             }
+        }
+
+        $approved_pid = trim((string) ($item['approvedByPID'] ?? ''));
+        $memo_status = strtoupper(trim((string) ($item['status'] ?? '')));
+
+        if ($memo_status === MEMO_STATUS_APPROVED_UNSIGNED && $approved_pid !== '' && $is_deputy_candidate($approved_pid)) {
+            $chain['DEPUTY'] = $approved_pid;
         }
 
         return $chain;
@@ -515,7 +541,38 @@ if (!function_exists('memo_inbox_resolve_stage_note')) {
             return '';
         }
 
+        if (trim((string) ($item['approvedByPID'] ?? '')) === $actor_pid) {
+            return $review_note;
+        }
+
         return memo_inbox_latest_review_actor_pid($routes) === $actor_pid ? $review_note : '';
+    }
+}
+
+if (!function_exists('memo_inbox_resolve_stage_action')) {
+    function memo_inbox_resolve_stage_action(array $item, array $routes, string $actor_pid, string $stage = ''): string
+    {
+        $actor_pid = trim($actor_pid);
+
+        if ($actor_pid === '') {
+            return '';
+        }
+
+        $action = memo_inbox_latest_review_action_by_actor($routes, $actor_pid);
+
+        if ($action !== '') {
+            return $action;
+        }
+
+        $status = strtoupper(trim((string) ($item['status'] ?? '')));
+        $approved_pid = trim((string) ($item['approvedByPID'] ?? ''));
+        $stage = strtoupper(trim($stage));
+
+        if ($approved_pid === $actor_pid && $stage === 'DEPUTY' && $status === MEMO_STATUS_APPROVED_UNSIGNED) {
+            return 'APPROVE_UNSIGNED';
+        }
+
+        return '';
     }
 }
 
@@ -582,7 +639,7 @@ if (!function_exists('memo_inbox_enrich_items')) {
                 }
 
                 $items[$index][$prefix . 'Note'] = memo_inbox_resolve_stage_note($item, $routes, $stage_pid);
-                $items[$index][$prefix . 'Action'] = memo_inbox_latest_review_action_by_actor($routes, $stage_pid);
+                $items[$index][$prefix . 'Action'] = memo_inbox_resolve_stage_action($item, $routes, $stage_pid, $stage);
             }
         }
 
@@ -600,6 +657,7 @@ if (!function_exists('memo_inbox_index')) {
         $status_filter = (string) ($_GET['status'] ?? 'all');
         $allowed = [
             'all',
+            'signed_all',
             MEMO_STATUS_SUBMITTED,
             MEMO_STATUS_IN_REVIEW,
             MEMO_STATUS_RETURNED,
@@ -611,6 +669,10 @@ if (!function_exists('memo_inbox_index')) {
 
         if (!in_array($status_filter, $allowed, true)) {
             $status_filter = 'all';
+        }
+
+        if (in_array($status_filter, [MEMO_STATUS_APPROVED_UNSIGNED, MEMO_STATUS_SIGNED], true)) {
+            $status_filter = 'signed_all';
         }
 
         $filter_sort = strtolower(trim((string) ($_GET['sort'] ?? 'newest')));

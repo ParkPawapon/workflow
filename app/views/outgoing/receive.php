@@ -26,6 +26,7 @@ $filter_sort = outgoing_receive_normalize_track_filter_sort((string) ($filter_so
 $is_track_active = (bool) ($is_track_active ?? false);
 $track_status_map = (array) ($track_status_map ?? outgoing_receive_track_status_map());
 $send_modal_payload_map = (array) ($send_modal_payload_map ?? []);
+$current_user_name = trim((string) ($current_user_name ?? ''));
 
 $priority_options = [
     'ปกติ' => 'ปกติ',
@@ -2403,11 +2404,11 @@ ob_start();
 
         <div class="form-group row">
             <div class="input-group">
-                <p><strong>ผู้เสนอ</strong></p>
+                <p><strong>ผู้รับหนังสือ</strong></p>
                 <input
                     type="text"
                     class="order-no-display"
-                    value="นางสาวทิพยรัตน์ บุญมณี"
+                    value="<?= h($current_user_name !== '' ? $current_user_name : '-') ?>"
                     disabled>
             </div>
             <div class="input-group"></div>
@@ -4668,12 +4669,12 @@ ob_start();
 
                 <div class="content-topic-sec">
                     <div class="more-details">
-                        <p><strong>ผู้เสนอ</strong></p>
+                        <p><strong>ผู้รับหนังสือ</strong></p>
                         <input
                             type="text"
                             class="order-no-display"
-                            value=""
-                            required>
+                            value="<?= h($current_user_name !== '' ? $current_user_name : '-') ?>"
+                            disabled>
                     </div>
                 </div>
 
@@ -4752,26 +4753,6 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="content-read-sec">
-                    <p><strong>สถานะการอ่านรายบุคคล</strong></p>
-                    <div class="table-responsive">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>ชื่อผู้รับ</th>
-                                    <th>สถานะ</th>
-                                    <th>เวลาอ่านล่าสุด</th>
-                                </tr>
-                            </thead>
-                            <tbody id="trackReceiptStatusTableBody">
-                                <tr>
-                                    <td colspan="3" class="booking-empty">ไม่พบข้อมูลสถานะการอ่านรายบุคคล</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
                 <div class="content-topic-sec">
                     <div class="more-details">
                         <p><strong>แนบลิ้งก์</strong></p>
@@ -4797,10 +4778,30 @@ ob_start();
 
                 <div class="content-topic-sec">
                     <div class="more-details">
-                        <p><strong>ผู้เสนอ</strong></p>
+                        <p><strong>ผู้รับหนังสือ</strong></p>
                         <input type="text" id="modalOutgoingViewProposer" class="order-no-display" value="-" disabled>
                     </div>
                     <div class="more-details">
+                    </div>
+                </div>
+
+                <div class="content-read-sec">
+                    <p><strong>สถานะการอ่านรายบุคคล</strong></p>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อผู้รับ</th>
+                                    <th>สถานะ</th>
+                                    <th>เวลาอ่านล่าสุด</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trackReceiptStatusTableBody">
+                                <tr>
+                                    <td colspan="3" class="booking-empty">ไม่พบข้อมูลสถานะการอ่านรายบุคคล</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -5490,7 +5491,6 @@ ob_start();
 
             fileInput.addEventListener('change', (e) => {
                 addFiles(e.target.files);
-                fileInput.value = '';
             });
 
             if (dropzone) {

@@ -23,7 +23,27 @@ $memo_page_inbox = 'memo-inbox.php';
 $memo_page_archive = 'memo-archive.php';
 $memo_page_view = 'memo-view.php';
 
-$status_options = memo_status_options();
+$status_options = [];
+
+foreach (memo_status_options() as $status_value => $status_label) {
+    if ($status_value === MEMO_STATUS_APPROVED_UNSIGNED) {
+        $status_options['signed_all'] = 'ลงนามแล้ว';
+        continue;
+    }
+
+    if ($status_value === MEMO_STATUS_SIGNED) {
+        continue;
+    }
+
+    $status_options[$status_value] = $status_label;
+}
+
+if (in_array($status_filter, [MEMO_STATUS_APPROVED_UNSIGNED, MEMO_STATUS_SIGNED], true)) {
+    $status_filter = 'signed_all';
+}
+
+$filter_status = array_key_exists($status_filter, $status_options) ? $status_filter : 'all';
+$filter_status_label = (string) ($status_options[$filter_status] ?? 'ทั้งหมด');
 
 $thai_months = [
     1 => 'มกราคม',
@@ -162,7 +182,7 @@ ob_start();
     <input type="hidden" name="box" value="<?= h($box_key) ?>">
     <input type="hidden" name="archived" value="1">
     <input type="hidden" name="dh_year" id="filterYearInput" value="<?= h((string) $selected_dh_year) ?>">
-    <input type="hidden" name="read" id="filterReadInput" value="<?= h($filter_read) ?>">
+    <input type="hidden" name="status" id="filterStatusInput" value="<?= h($filter_status) ?>">
     <input type="hidden" name="sort" id="filterSortInput" value="<?= h($filter_sort) ?>">
     <input type="hidden" name="view" id="filterViewInput" value="<?= h($filter_view) ?>">
 </form>
@@ -194,16 +214,16 @@ ob_start();
             <div class="page-selector">
                 <p>แสดงตามสถานะหนังสือ</p>
 
-                <div class="custom-select-wrapper" data-target="filterReadInput">
+                <div class="custom-select-wrapper" data-target="filterStatusInput">
                     <div class="custom-select-trigger">
-                        <p class="select-value"><?= h($filter_read === 'read' ? 'อ่านแล้ว' : ($filter_read === 'unread' ? 'ยังไม่อ่าน' : 'ทั้งหมด')) ?></p>
+                        <p class="select-value"><?= h($filter_status_label) ?></p>
                         <i class="fa-solid fa-chevron-down"></i>
                     </div>
 
                     <div class="custom-options">
-                        <div class="custom-option<?= h($filter_read === 'read' ? ' selected' : '') ?>" data-value="read">อ่านแล้ว</div>
-                        <div class="custom-option<?= h($filter_read === 'unread' ? ' selected' : '') ?>" data-value="unread">ยังไม่อ่าน</div>
-                        <div class="custom-option<?= h($filter_read === 'all' ? ' selected' : '') ?>" data-value="all">ทั้งหมด</div>
+                        <?php foreach ($status_options as $status_value => $status_label) : ?>
+                            <div class="custom-option<?= h($filter_status === (string) $status_value ? ' selected' : '') ?>" data-value="<?= h((string) $status_value) ?>"><?= h((string) $status_label) ?></div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -804,6 +824,51 @@ ob_start();
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
 <script>
+    const memoArchiveFilterForm = document.getElementById('circularFilterForm');
+
+    if (memoArchiveFilterForm) {
+        const submitMemoArchiveFilter = () => {
+            const pageInput = memoArchiveFilterForm.querySelector('input[name="page"]');
+
+            if (pageInput) {
+                pageInput.value = '1';
+            }
+
+            if (typeof memoArchiveFilterForm.requestSubmit === 'function') {
+                memoArchiveFilterForm.requestSubmit();
+                return;
+            }
+
+            memoArchiveFilterForm.submit();
+        };
+
+        document.querySelectorAll('.header-circular-notice-keep .custom-select-wrapper[data-target]').forEach((wrapper) => {
+            const targetId = wrapper.getAttribute('data-target') || '';
+            const targetInput = targetId !== '' ? document.getElementById(targetId) : null;
+
+            if (!targetInput) {
+                return;
+            }
+
+            wrapper.querySelectorAll('.custom-option').forEach((option) => {
+                option.addEventListener('click', () => {
+                    targetInput.value = option.getAttribute('data-value') || '';
+                    submitMemoArchiveFilter();
+                });
+            });
+        });
+
+        document.querySelectorAll('[form="circularFilterForm"][data-auto-submit="true"]').forEach((field) => {
+            let filterTimer = null;
+            const delay = Number(field.getAttribute('data-auto-submit-delay') || 450);
+
+            field.addEventListener('input', () => {
+                window.clearTimeout(filterTimer);
+                filterTimer = window.setTimeout(submitMemoArchiveFilter, Number.isFinite(delay) ? delay : 450);
+            });
+        });
+    }
+
     tinymce.init({
         selector: '#memo_editor',
         height: 500,

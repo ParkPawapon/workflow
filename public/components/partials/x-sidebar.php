@@ -131,7 +131,6 @@ $sidebar_alerts['home'] = (int) ($sidebar_counts['unread_external_circulars'] ??
                     <?php if ($can_manage_external_circular): ?>
                         <li><a href="outgoing-receive.php">ลงทะเบียนรับหนังสือ</a></li>
                         <li><a href="outgoing-notice.php?box=clerk&type=external&read=all&sort=newest&view=table1">กล่องกำลังเสนอ</a></li>
-                        <li><a href="outgoing-notice.php?box=clerk_return&type=external&read=all&sort=newest&view=table1">กล่องพิจารณาแล้ว</a></li>
                     <?php endif; ?>
                     <?php if ($can_review_external_circular): ?>
                         <li><a href="outgoing-notice.php?box=director&type=external&read=all&sort=newest&view=table1">กล่องรอพิจารณา</a></li>
