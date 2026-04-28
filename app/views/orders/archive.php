@@ -100,6 +100,12 @@ $format_thai_received_datetime = static function (?string $datetime_value) use (
 ob_start();
 ?>
 
+<style>
+    .table-circular-notice-keep table thead th:nth-child(1) {
+        min-width: 150px;
+    }
+</style>
+
 <div class="content-header">
     <h1>ที่จัดเก็บคำสั่งราชการ</h1>
     <p>คำสั่งราชการ / ที่จัดเก็บคำสั่งราชการ</p>
