@@ -15639,68 +15639,21 @@ label {
 }
 
 .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-radius: 10px;
   background-color: var(--color-secondary);
   color: var(--color-neutral-lightest);
-  padding: 10px 12px;
-  width: 40%;
-  min-width: none;
-  max-width: none
-}
-
-.circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
 }
 
 .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
   background-color: rgba(var(--rgb-neutral-lightest), 0.92);
   color: var(--color-secondary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--font-size-h2);
-  flex-shrink: 0;
-}
-
-.circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-name {
-  font-size: var(--font-size-body-1);
-  font-weight: bold;
-  border-bottom: 2px solid rgba(var(--rgb-neutral-lightest), 0.9);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-type {
-  font-size: var(--font-size-body-2);
   opacity: 0.95;
 }
 
 .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-actions {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
   background-color: var(--color-neutral-lightest);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
 }
 
 .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-actions a {
@@ -22654,13 +22607,20 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: start;
+    gap: 0;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details p {
     width: auto;
     min-width: auto;
+    font-size: var(--font-size-desc-1);
+  }
+
+    .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
+    height: 30px;
+    font-size: var(--font-size-desc-1);
+    padding: 0 10px;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input {
@@ -22782,6 +22742,7 @@ label {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 115px;
+    min-width: 1px;
     width: 100%;
     border-bottom: 1px solid var(--color-neutral-lightest);
   }
@@ -25310,6 +25271,54 @@ label {
 
   .custom-option {
     padding: 5px 10px;
+    font-size: var(--font-size-desc-1);
+  }
+
+  .table-circular-notice-index table,
+  .table-circular-notice-keep table {
+    border: 0;
+  }
+
+  .button-circular-notice-index {
+    min-height: 40px;
+    max-height: 40px;
+  }
+
+  .content-order {
+    padding: 10px;
+  }
+
+  .content-order .form-group {
+    margin: 0 0 20px;
+  }
+
+  .content-order .form-group p {
+    font-size: var(--font-size-desc-1);
+  }
+
+  .content-order .form-group input,
+  .content-order .form-group select {
+    height: 30px;
+    font-size: var(--font-size-decs-1);
+    padding: 0 10px;
+  }
+
+  .content-order .form-group input:disabled,
+  .content-order .form-group select:disabled,
+  .content-order .form-group input.order-no-display[disabled],
+  .order-no-display {
+    max-height: 30px !important;
+  }
+
+  .content-order .custom-select-trigger {
+    height: 30px;
+  }
+
+  .content-order .custom-option {
+    font-size: var(--font-size-desc-1);
+    padding: 5px 10px;
+  }
+  .content-order .custom-select-wrapper i {
     font-size: var(--font-size-desc-1);
   }
 }
@@ -32673,13 +32682,20 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: start;
+    gap: 0;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details p {
     width: auto;
     min-width: auto;
+    font-size: var(--font-size-desc-3);
+  }
+  
+  .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
+    height: 25px;
+    font-size: var(--font-size-desc-3);
+    padding: 0 10px;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input {
@@ -32801,6 +32817,7 @@ label {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 115px;
+    min-width: 1px;
     width: 100%;
     border-bottom: 1px solid var(--color-neutral-lightest);
   }
@@ -35154,6 +35171,11 @@ label {
     font-size: var(--font-size-desc-3);
   }
 
+  .table-circular-notice-index table,
+  .table-circular-notice-keep table {
+    border: 0;
+  }
+
 }
 
 @media screen and (max-width: 768px) {
@@ -35202,6 +35224,46 @@ label {
     width: 100%;
   }
 
+  .content-order .form-group {
+    margin: 0 0 10px;
+  }
+
+  .content-order .form-group p {
+    font-size: var(--font-size-desc-3);
+  }
+
+  .content-order .form-group input,
+  .content-order .form-group select {
+    height: 25px;
+    font-size: var(--font-size-desc-3);
+    padding: 0 10px;
+  }
+
+  .content-order .form-group input:disabled,
+  .content-order .form-group select:disabled,
+  .content-order .form-group input.order-no-display[disabled],
+  .order-no-display {
+    max-height: 25px !important;
+  }
+
+  .content-order .custom-select-trigger {
+    height: 25px;
+    padding: 0 10px;
+  }
+
+  .content-order .custom-option {
+    font-size: var(--font-size-desc-3);
+    padding: 2px 10px;
+  }
+   .content-order .custom-select-wrapper i {
+    font-size: var(--font-size-desc-3);
+  }
+  .content-order {
+    padding: 10px;
+  }
+  .content-order .form-group .input-group {
+    gap: 0px;
+  }
 }
 
 @media screen and (max-width: 400px) {

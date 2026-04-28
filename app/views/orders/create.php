@@ -714,80 +714,6 @@ ob_start();
         transform: scale(1.2);
     }
 
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-banner {
-        flex: 1;
-        width: 100%;
-        background-color: var(--color-secondary);
-        border-radius: 8px;
-        padding: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: var(--color-neutral-lightest);
-        box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
-        min-width: 0;
-        max-width: none;
-        height: auto;
-        gap: 0;
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: auto;
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-icon {
-        font-size: var(--font-size-h1);
-        color: var(--color-secondary);
-        background-color: var(--color-neutral-lightest);
-        width: 60px;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 6px;
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-text {
-        display: flex;
-        flex-direction: column;
-        line-height: normal;
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-name {
-        font-size: var(--font-size-body-2);
-        font-weight: bold;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 250px;
-        width: 90%;
-        border-bottom: 3px solid var(--color-neutral-lightest);
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-type {
-        font-size: var(--font-size-body-2);
-        opacity: 0.9;
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-actions {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        width: 30px;
-        height: 30px;
-        border-radius: 6px;
-        background-color: var(--color-neutral-lightest);
-        font-size: var(--font-size-body-2);
-    }
-
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .file-actions a {
-        color: var(--color-secondary);
-    }
-
     .circular-track-modal-host #modalOrderSendOverlay .content-modal {
         max-height: 72vh;
         overflow: auto;
@@ -817,88 +743,6 @@ ob_start();
         color: var(--color-primary-dark);
         font-weight: 600;
         cursor: not-allowed;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec {
-        margin: 18px 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-section {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 8px;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        border-radius: 10px;
-        background-color: var(--color-secondary);
-        color: var(--color-neutral-lightest);
-        padding: 10px 12px;
-        width: 40%;
-        min-width: none;
-        max-width: none
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 0;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 8px;
-        background-color: rgba(var(--rgb-neutral-lightest), 0.92);
-        color: var(--color-secondary);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: var(--font-size-h2);
-        flex-shrink: 0;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-text {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-name {
-        font-size: var(--font-size-body-1);
-        font-weight: bold;
-        border-bottom: 2px solid rgba(var(--rgb-neutral-lightest), 0.9);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-type {
-        font-size: var(--font-size-body-2);
-        opacity: 0.95;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-actions {
-        width: 30px;
-        height: 30px;
-        border-radius: 6px;
-        background-color: var(--color-neutral-lightest);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .circular-track-modal-host #modalOrderSendOverlay .content-file-sec .file-actions a {
-        color: var(--color-secondary);
     }
 
     .circular-track-modal-host #modalOrderSendOverlay .orders-send-modal-shell .orders-send-summary {
@@ -983,88 +827,6 @@ ob_start();
         cursor: not-allowed;
     }
 
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec {
-        margin: 18px 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-section {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 8px;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        border-radius: 10px;
-        background-color: var(--color-secondary);
-        color: var(--color-neutral-lightest);
-        padding: 10px 12px;
-        width: 40%;
-        min-width: none;
-        max-width: none
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 0;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 8px;
-        background-color: rgba(var(--rgb-neutral-lightest), 0.92);
-        color: var(--color-secondary);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: var(--font-size-h2);
-        flex-shrink: 0;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-text {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-name {
-        font-size: var(--font-size-body-1);
-        font-weight: bold;
-        border-bottom: 2px solid rgba(var(--rgb-neutral-lightest), 0.9);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-type {
-        font-size: var(--font-size-body-2);
-        opacity: 0.95;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-actions {
-        width: 30px;
-        height: 30px;
-        border-radius: 6px;
-        background-color: var(--color-neutral-lightest);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-actions a {
-        color: var(--color-secondary);
-    }
-
     .circular-track-modal-host #modalOrderViewOverlay .orders-send-modal-shell .orders-send-summary {
         margin: 16px 0;
     }
@@ -1083,6 +845,48 @@ ob_start();
 
     .circular-track-modal-host #modalOrderViewOverlay .orders-send-track-empty {
         text-align: center;
+    }
+
+
+
+    @media screen and (max-width: 1023px) {
+
+        .content-order .form-group input.order-no-display[disabled],
+        .content-order .form-group input:disabled,
+        .content-order .form-group select:disabled {
+            height: 30px !important;
+            min-height: 30px !important;
+            max-height: 30px !important;
+        }
+
+        .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
+            font-size: var(--font-size-desc-1);
+            padding: 0 10px;
+        }
+        .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec:nth-child(2) {
+            border-bottom-width: 1px;
+            gap: 10px;
+            margin: 0 0 10px;
+        }
+        .content-order .form-group {
+            gap: 20px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
+            font-size: var(--font-size-desc-3);
+            padding: 0 10px;
+        }
+        .content-order .form-group {
+            gap: 10px;
+        }
+        .order-mine-list-header {
+            margin-top: 20px;
+        }
+        #modalOrderTrackSection .custom-table tr td {
+            padding: 0 5px;
+        }
     }
 </style>
 <div class="content-header">
@@ -1859,9 +1663,9 @@ ob_start();
                 </div>
             </div>
             <div class="content-modal">
-                    <div class="content-topic-sec">
-                        <div class="more-details">
-                            <p><strong>คำสั่งที่</strong></p>
+                <div class="content-topic-sec">
+                    <div class="more-details">
+                        <p><strong>คำสั่งที่</strong></p>
                         <input type="text" id="modalOrderViewNo" class="order-no-display" value="-" disabled>
                     </div>
                     <div class="more-details">
