@@ -8,6 +8,7 @@ require_once __DIR__ . '/../rbac/current_user.php';
 require_once __DIR__ . '/../rbac/roles.php';
 require_once __DIR__ . '/../modules/system/system.php';
 require_once __DIR__ . '/../modules/dashboard/metrics.php';
+require_once __DIR__ . '/../modules/circulars/repository.php';
 
 if (!function_exists('dashboard_resolve_access')) {
     function dashboard_resolve_access(array $current_user): array
@@ -36,6 +37,8 @@ if (!function_exists('dashboard_resolve_access')) {
         $acting_pid = (string) (system_get_acting_director_pid() ?? '');
         $is_director_or_acting = $position_id === 1
             || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
+        $is_deputy_user = in_array($position_id, system_position_deputy_ids($connection), true);
+        $is_vehicle_final_approver = $is_deputy_user || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
 
         return [
             'is_admin_user' => $is_admin_user,
@@ -44,10 +47,13 @@ if (!function_exists('dashboard_resolve_access')) {
             'is_facility_user' => $is_facility_user,
             'is_repair_staff_user' => $is_repair_staff_user,
             'is_director_or_acting' => $is_director_or_acting,
+            'is_deputy_user' => $is_deputy_user,
+            'is_vehicle_final_approver' => $is_vehicle_final_approver,
             'can_manage_external_circular' => $is_admin_user || $is_registry_user,
             'can_approve_room_module' => $is_admin_user || $is_facility_user,
             'can_manage_room_module' => $is_admin_user,
             'can_manage_vehicle_module' => $is_admin_user || $is_vehicle_user,
+            'can_approve_vehicle_module' => $is_admin_user || $is_vehicle_user || $is_vehicle_final_approver,
             'can_approve_repair_module' => $is_admin_user || $is_repair_staff_user,
             'can_manage_repair_module' => $is_admin_user,
             'can_access_settings' => $is_admin_user || $is_registry_user,
@@ -59,7 +65,7 @@ if (!function_exists('dashboard_shortcuts')) {
     function dashboard_shortcuts(array $access): array
     {
         $director_review_url = 'outgoing-notice.php?box=director&type=external&read=all&sort=newest&view=table1';
-        $vehicle_url = !empty($access['is_director_or_acting'])
+        $vehicle_url = !empty($access['is_vehicle_user']) || !empty($access['is_vehicle_final_approver'])
             ? 'vehicle-reservation-approval.php'
             : 'vehicle-reservation.php';
 
@@ -162,6 +168,7 @@ if (!function_exists('dashboard_index')) {
         $shortcuts = dashboard_shortcuts($access);
         $counts = dashboard_counts($current_pid, $access);
         $dh_year = system_get_dh_year();
+        $announcements = circular_get_announcements(9);
 
         view_render('dashboard/index', [
             'dashboard_counts' => $counts,
@@ -170,6 +177,7 @@ if (!function_exists('dashboard_index')) {
             'dashboard_user' => $current_user,
             'dashboard_current_date_label' => dashboard_current_thai_date_label(),
             'dashboard_calendar_events' => dashboard_calendar_events($dh_year),
+            'dashboard_announcements' => $announcements,
         ]);
     }
 }

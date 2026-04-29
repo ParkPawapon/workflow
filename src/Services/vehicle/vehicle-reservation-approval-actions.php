@@ -103,8 +103,12 @@ if ($actor_pid === '') {
 }
 
 $role_id = (int) ($teacher['roleID'] ?? 0);
-$current_director_pid = system_get_current_director_pid();
-$is_director = $current_director_pid !== null && $current_director_pid !== '' && $current_director_pid === $actor_pid;
+$position_id = (int) ($teacher['positionID'] ?? 0);
+$deputy_position_ids = system_position_deputy_ids($connection);
+$acting_director_pid = system_get_acting_director_pid();
+$is_deputy = in_array($position_id, $deputy_position_ids, true);
+$is_acting_director = $acting_director_pid !== null && $acting_director_pid !== '' && $acting_director_pid === $actor_pid;
+$is_final_approver = $is_deputy || $is_acting_director;
 // roleID mapping (legacy): 1=ADMIN, 3=VEHICLE
 $is_admin = $role_id === 1
     || (function_exists('rbac_user_has_role') && $actor_pid !== '' && rbac_user_has_role($connection, $actor_pid, ROLE_ADMIN));
@@ -115,15 +119,100 @@ $is_vehicle_officer = !$is_admin
         || (function_exists('rbac_user_has_role') && $actor_pid !== '' && rbac_user_has_role($connection, $actor_pid, ROLE_VEHICLE))
     );
 
+$resolve_final_approver = static function (string $raw_pid, string $audit_action) use (
+    $connection,
+    $booking_id,
+    $deputy_position_ids,
+    $set_vehicle_approval_alert
+): array {
+    $final_approver_pid = trim($raw_pid);
+
+    if ($final_approver_pid !== '' && !ctype_digit($final_approver_pid)) {
+        $final_approver_pid = preg_replace('/\D+/', '', $final_approver_pid) ?? '';
+    }
+
+    if ($final_approver_pid === '') {
+        if (function_exists('audit_log')) {
+            audit_log('vehicle', $audit_action, 'FAIL', 'dh_vehicle_bookings', $booking_id, 'final_approver_required');
+        }
+        $set_vehicle_approval_alert('warning', 'กรุณาเลือกรองผู้อำนวยการ', 'โปรดเลือกรองผู้อำนวยการก่อนส่งต่อ');
+    }
+
+    if ($deputy_position_ids === []) {
+        if (function_exists('audit_log')) {
+            audit_log('vehicle', $audit_action, 'FAIL', 'dh_vehicle_bookings', $booking_id, 'deputy_position_missing');
+        }
+        $set_vehicle_approval_alert('danger', 'ไม่พบข้อมูลรองผู้อำนวยการ', 'กรุณาตรวจสอบข้อมูลตำแหน่งรองผู้อำนวยการในระบบ');
+    }
+
+    try {
+        $placeholders = implode(', ', array_fill(0, count($deputy_position_ids), '?'));
+        $sql = 'SELECT t.pID, t.fName
+            FROM teacher AS t
+            WHERE t.pID = ?
+                AND t.status = 1
+                AND t.positionID IN (' . $placeholders . ')
+            LIMIT 1';
+        $stmt = mysqli_prepare($connection, $sql);
+        $types = 's' . str_repeat('i', count($deputy_position_ids));
+        $params = [$final_approver_pid];
+
+        foreach ($deputy_position_ids as $position_id_value) {
+            $params[] = (int) $position_id_value;
+        }
+
+        $bind_params = [$stmt, $types];
+
+        foreach ($params as $i => $v) {
+            $bind_params[] = &$params[$i];
+        }
+        call_user_func_array('mysqli_stmt_bind_param', $bind_params);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = $result ? mysqli_fetch_assoc($result) : null;
+        mysqli_stmt_close($stmt);
+
+        if (!$row) {
+            if (function_exists('audit_log')) {
+                audit_log('vehicle', $audit_action, 'FAIL', 'dh_vehicle_bookings', $booking_id, 'final_approver_not_found', [
+                    'finalApproverPID' => $final_approver_pid,
+                ]);
+            }
+            $set_vehicle_approval_alert('warning', 'ไม่พบรองผู้อำนวยการที่เลือก', 'กรุณาเลือกรองผู้อำนวยการที่ถูกต้อง');
+        }
+
+        return [
+            'pID' => $final_approver_pid,
+            'name' => preg_replace('/\s+/u', ' ', trim((string) ($row['fName'] ?? ''))) ?? '',
+        ];
+    } catch (mysqli_sql_exception $exception) {
+        error_log('Database Exception: ' . $exception->getMessage());
+
+        if (function_exists('audit_log')) {
+            audit_log('vehicle', $audit_action, 'FAIL', 'dh_vehicle_bookings', $booking_id, 'final_approver_lookup_failed', [
+                'finalApproverPID' => $final_approver_pid,
+            ]);
+        }
+        $set_vehicle_approval_alert('danger', 'ระบบขัดข้อง', 'ไม่สามารถดึงข้อมูลรองผู้อำนวยการได้ในขณะนี้');
+    }
+};
+
 $assigned_note_present = array_key_exists('assignedNote', $_POST);
 $assigned_note = trim((string) ($_POST['assignedNote'] ?? ''));
-// Final decision note (director-only on ASSIGNED -> APPROVED/REJECTED).
+// Final decision note (deputy/acting director only on ASSIGNED -> APPROVED/REJECTED).
 $approval_note = trim((string) ($_POST['approvalNote'] ?? ''));
 
 $current_status = 'PENDING';
+$current_final_approver_pid = '';
 
 try {
-    $check_sql = 'SELECT bookingID, status FROM dh_vehicle_bookings WHERE bookingID = ? AND deletedAt IS NULL LIMIT 1';
+    $check_fields = ['bookingID', 'status'];
+
+    if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+        $check_fields[] = 'finalApproverPID';
+    }
+
+    $check_sql = 'SELECT ' . implode(', ', $check_fields) . ' FROM dh_vehicle_bookings WHERE bookingID = ? AND deletedAt IS NULL LIMIT 1';
     $check_stmt = mysqli_prepare($connection, $check_sql);
 
     mysqli_stmt_bind_param($check_stmt, 'i', $booking_id);
@@ -141,6 +230,7 @@ try {
     }
 
     $current_status = strtoupper(trim((string) ($check_row['status'] ?? 'PENDING')));
+    $current_final_approver_pid = trim((string) ($check_row['finalApproverPID'] ?? ''));
 } catch (mysqli_sql_exception $exception) {
     error_log('Database Exception: ' . $exception->getMessage());
 
@@ -150,10 +240,24 @@ try {
     $set_vehicle_approval_alert('danger', 'ระบบขัดข้อง', 'ไม่สามารถตรวจสอบรายการจองได้ในขณะนี้');
 }
 
+if (
+    $is_final_approver
+    && $current_status === 'ASSIGNED'
+    && $current_final_approver_pid !== ''
+    && $current_final_approver_pid !== $actor_pid
+) {
+    if (function_exists('audit_log')) {
+        audit_log('vehicle', 'FINAL_DECISION', 'DENY', 'dh_vehicle_bookings', $booking_id, 'wrong_final_approver', [
+            'finalApproverPID' => $current_final_approver_pid,
+        ]);
+    }
+    $set_vehicle_approval_alert('danger', 'ไม่มีสิทธิ์ดำเนินการ', 'รายการนี้ถูกส่งให้รองผู้อำนวยการท่านอื่นพิจารณา');
+}
+
 $approved_at = date('Y-m-d H:i:s');
 
-// When directors record (or edit) the final decision, require a note (matches UI `required`).
-if ($is_director && in_array($current_status, ['ASSIGNED', 'APPROVED', 'REJECTED'], true) && $approval_note === '') {
+// When final approvers record (or edit) the final decision, require a note (matches UI `required`).
+if ($is_final_approver && in_array($current_status, ['ASSIGNED', 'APPROVED', 'REJECTED'], true) && $approval_note === '') {
     if (function_exists('audit_log')) {
         $audit_action = 'FINAL_DECISION';
 
@@ -186,7 +290,7 @@ if ($action === 'approve') {
             if (function_exists('audit_log')) {
                 audit_log('vehicle', 'ASSIGN', 'FAIL', 'dh_vehicle_bookings', $booking_id, 'vehicle_required');
             }
-            $set_vehicle_approval_alert('warning', 'กรุณาเลือกยานพาหนะ', 'โปรดเลือกยานพาหนะก่อนส่งต่อผู้บริหาร');
+            $set_vehicle_approval_alert('warning', 'กรุณาเลือกยานพาหนะ', 'โปรดเลือกยานพาหนะก่อนส่งต่อรองผู้อำนวยการ');
         }
 
         $vehicle_exists = false;
@@ -232,14 +336,15 @@ if ($action === 'approve') {
             if (function_exists('audit_log')) {
                 audit_log('vehicle', 'ASSIGN', 'FAIL', 'dh_vehicle_bookings', $booking_id, 'driver_required');
             }
-            $set_vehicle_approval_alert('warning', 'กรุณาเลือกผู้ขับรถ', 'โปรดเลือกผู้ขับรถก่อนส่งต่อผู้บริหาร');
+            $set_vehicle_approval_alert('warning', 'กรุณาเลือกผู้ขับรถ', 'โปรดเลือกผู้ขับรถก่อนส่งต่อรองผู้อำนวยการ');
         }
 
         $assign_driver_name = '';
         $assign_driver_tel = '';
 
         try {
-            $driver_stmt = mysqli_prepare($connection, 'SELECT pID, fName, telephone FROM teacher WHERE pID = ? AND status = 1 LIMIT 1');
+            $driver_sql = 'SELECT pID, fName, telephone FROM teacher WHERE pID = ? AND status = 1 LIMIT 1';
+            $driver_stmt = mysqli_prepare($connection, $driver_sql);
             mysqli_stmt_bind_param($driver_stmt, 's', $assign_driver_pid);
             mysqli_stmt_execute($driver_stmt);
             $driver_result = mysqli_stmt_get_result($driver_stmt);
@@ -255,8 +360,8 @@ if ($action === 'approve') {
                 $set_vehicle_approval_alert('warning', 'ไม่พบผู้ขับรถ', 'กรุณาเลือกผู้ขับรถที่ถูกต้อง');
             }
 
-            $assign_driver_name = trim((string) ($driver_row['fName'] ?? ''));
-            $assign_driver_tel = trim((string) ($driver_row['telephone'] ?? ''));
+            $assign_driver_name = preg_replace('/\s+/u', ' ', trim((string) ($driver_row['fName'] ?? ''))) ?? '';
+            $assign_driver_tel = preg_replace('/\s+/u', ' ', trim((string) ($driver_row['telephone'] ?? ''))) ?? '';
         } catch (mysqli_sql_exception $exception) {
             error_log('Database Exception: ' . $exception->getMessage());
 
@@ -282,6 +387,14 @@ if ($action === 'approve') {
         // We only persist driverTel for manual drivers (no driverPID).
         $driver_tel_param = null;
         // No manual driver entry in approval flow.
+        $assign_final_approver = ['pID' => null, 'name' => ''];
+
+        if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+            $assign_final_approver = $resolve_final_approver(
+                (string) ($_POST['assign_final_approver_pid'] ?? ''),
+                'ASSIGN'
+            );
+        }
 
         try {
             $status_value = 'ASSIGNED';
@@ -331,6 +444,12 @@ if ($action === 'approve') {
                 $types .= 's';
             }
 
+            if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+                $set_fields[] = 'finalApproverPID = ?';
+                $bind_values[] = $assign_final_approver['pID'];
+                $types .= 's';
+            }
+
             $update_sql = 'UPDATE dh_vehicle_bookings SET ' . implode(', ', $set_fields)
                 . ' WHERE bookingID = ? AND deletedAt IS NULL';
             $bind_values[] = $booking_id;
@@ -353,9 +472,10 @@ if ($action === 'approve') {
                 'vehicleID' => $assign_vehicle_id,
                 'driverPID' => $driver_pid_param,
                 'driverName' => $assign_driver_name,
+                'finalApproverPID' => $assign_final_approver['pID'],
             ]);
 
-            $set_vehicle_approval_alert('success', 'ส่งต่อผู้บริหารแล้ว', 'มอบหมายรถและคนขับเรียบร้อยแล้ว');
+            $set_vehicle_approval_alert('success', 'ส่งต่อรองผู้อำนวยการแล้ว', 'มอบหมายรถและคนขับเรียบร้อยแล้ว');
         } catch (mysqli_sql_exception $exception) {
             error_log('Database Exception: ' . $exception->getMessage());
             audit_log('vehicle', 'ASSIGN', 'FAIL', 'dh_vehicle_bookings', $booking_id, $exception->getMessage());
@@ -364,8 +484,8 @@ if ($action === 'approve') {
     }
 
     if ($current_status === 'ASSIGNED') {
-        // Director final decision (approve -> APPROVED)
-        if ($is_director) {
+        // Deputy/acting director final decision (approve -> APPROVED)
+        if ($is_final_approver) {
             try {
                 $status_value = 'APPROVED';
                 $status_reason = null;
@@ -479,7 +599,8 @@ if ($action === 'approve') {
             $assign_driver_tel = '';
 
             try {
-                $driver_stmt = mysqli_prepare($connection, 'SELECT pID, fName, telephone FROM teacher WHERE pID = ? AND status = 1 LIMIT 1');
+                $driver_sql = 'SELECT pID, fName, telephone FROM teacher WHERE pID = ? AND status = 1 LIMIT 1';
+                $driver_stmt = mysqli_prepare($connection, $driver_sql);
                 mysqli_stmt_bind_param($driver_stmt, 's', $assign_driver_pid);
                 mysqli_stmt_execute($driver_stmt);
                 $driver_result = mysqli_stmt_get_result($driver_stmt);
@@ -495,8 +616,8 @@ if ($action === 'approve') {
                     $set_vehicle_approval_alert('warning', 'ไม่พบผู้ขับรถ', 'กรุณาเลือกผู้ขับรถที่ถูกต้อง');
                 }
 
-                $assign_driver_name = trim((string) ($driver_row['fName'] ?? ''));
-                $assign_driver_tel = trim((string) ($driver_row['telephone'] ?? ''));
+                $assign_driver_name = preg_replace('/\s+/u', ' ', trim((string) ($driver_row['fName'] ?? ''))) ?? '';
+                $assign_driver_tel = preg_replace('/\s+/u', ' ', trim((string) ($driver_row['telephone'] ?? ''))) ?? '';
             } catch (mysqli_sql_exception $exception) {
                 error_log('Database Exception: ' . $exception->getMessage());
 
@@ -522,6 +643,14 @@ if ($action === 'approve') {
             // We only persist driverTel for manual drivers (no driverPID).
             $driver_tel_param = null;
             // No manual driver entry in approval flow.
+            $assign_final_approver = ['pID' => null, 'name' => ''];
+
+            if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+                $assign_final_approver = $resolve_final_approver(
+                    (string) ($_POST['assign_final_approver_pid'] ?? ''),
+                    'ASSIGN_UPDATE'
+                );
+            }
 
             try {
                 $status_value = 'ASSIGNED';
@@ -532,7 +661,7 @@ if ($action === 'approve') {
                     'vehicleID = ?',
                     'driverPID = ?',
                     'driverName = ?',
-                    // Keep the legacy behavior: before director approval, approvedBy/approvedAt
+                    // Keep the legacy behavior: before final approval, approvedBy/approvedAt
                     // represent the latest officer action for display fallback.
                     'approvedByPID = ?',
                     'approvedAt = ?',
@@ -573,6 +702,12 @@ if ($action === 'approve') {
                     $types .= 's';
                 }
 
+                if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+                    $set_fields[] = 'finalApproverPID = ?';
+                    $bind_values[] = $assign_final_approver['pID'];
+                    $types .= 's';
+                }
+
                 $update_sql = 'UPDATE dh_vehicle_bookings SET ' . implode(', ', $set_fields)
                     . ' WHERE bookingID = ? AND deletedAt IS NULL';
                 $bind_values[] = $booking_id;
@@ -595,6 +730,7 @@ if ($action === 'approve') {
                     'vehicleID' => $assign_vehicle_id,
                     'driverPID' => $driver_pid_param,
                     'driverName' => $assign_driver_name,
+                    'finalApproverPID' => $assign_final_approver['pID'],
                 ]);
 
                 $set_vehicle_approval_alert('success', 'บันทึกสำเร็จ', 'อัปเดตการมอบหมายรถและคนขับเรียบร้อยแล้ว');
@@ -615,10 +751,10 @@ if ($action === 'approve') {
     }
 
     if (in_array($current_status, ['APPROVED', 'REJECTED'], true)) {
-        // Director may edit/change the final decision after it was already recorded.
-        if (!$is_director) {
+        // Deputy/acting director may edit/change the final decision after it was already recorded.
+        if (!$is_final_approver) {
             if (function_exists('audit_log')) {
-                audit_log('vehicle', 'FINAL_APPROVE_OVERRIDE', 'DENY', 'dh_vehicle_bookings', $booking_id, 'not_director', [
+                audit_log('vehicle', 'FINAL_APPROVE_OVERRIDE', 'DENY', 'dh_vehicle_bookings', $booking_id, 'not_final_approver', [
                     'status' => $current_status,
                     'roleID' => $role_id,
                 ]);
@@ -694,7 +830,7 @@ if ($action === 'approve') {
 if ($action === 'reject') {
     $can_reject = false;
 
-    if (in_array($current_status, ['ASSIGNED', 'APPROVED', 'REJECTED'], true) && $is_director) {
+    if (in_array($current_status, ['ASSIGNED', 'APPROVED', 'REJECTED'], true) && $is_final_approver) {
         $can_reject = true;
     }
 

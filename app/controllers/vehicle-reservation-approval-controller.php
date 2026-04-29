@@ -10,6 +10,7 @@ require_once __DIR__ . '/../../src/Services/teacher/teacher-profile.php';
 require_once __DIR__ . '/../../src/Services/system/exec-duty-current.php';
 require_once __DIR__ . '/../../src/Services/vehicle/vehicle-reservation-utils.php';
 require_once __DIR__ . '/../modules/audit/logger.php';
+require_once __DIR__ . '/../modules/system/system.php';
 require_once __DIR__ . '/../rbac/roles.php';
 
 if (!function_exists('vehicle_reservation_approval_index')) {
@@ -26,15 +27,17 @@ if (!function_exists('vehicle_reservation_approval_index')) {
             $acting_pid = (string) $exec_duty_current_pid;
         }
 
-        $vehicle_approval_is_director = $position_id === 1 || ($acting_pid !== '' && $acting_pid === $actor_pid);
         // roleID mapping (legacy): 1=ADMIN, 3=VEHICLE
         $connection = db_connection();
+        $vehicle_approval_is_deputy = in_array($position_id, system_position_deputy_ids($connection), true);
+        $vehicle_approval_is_acting = $acting_pid !== '' && $acting_pid === $actor_pid;
+        $vehicle_approval_is_final_approver = $vehicle_approval_is_deputy || $vehicle_approval_is_acting;
         $vehicle_approval_is_admin = $role_id === 1
             || ($actor_pid !== '' && rbac_user_has_role($connection, $actor_pid, ROLE_ADMIN));
         $vehicle_approval_is_vehicle_officer = $role_id === 3
             || ($actor_pid !== '' && rbac_user_has_role($connection, $actor_pid, ROLE_VEHICLE));
 
-        if (!$vehicle_approval_is_director && !$vehicle_approval_is_vehicle_officer && !$vehicle_approval_is_admin) {
+        if (!$vehicle_approval_is_final_approver && !$vehicle_approval_is_vehicle_officer && !$vehicle_approval_is_admin) {
             if (function_exists('audit_log')) {
                 audit_log('vehicle', 'APPROVAL_ACCESS', 'DENY', null, null, 'not_authorized_role', [
                     'roleID' => $role_id,
@@ -198,6 +201,7 @@ if (!function_exists('vehicle_reservation_approval_index')) {
             'vehicle_approval_return_url' => $vehicle_approval_return_url,
             'vehicle_list' => $vehicle_list ?? [],
             'vehicle_driver_list' => $vehicle_driver_list ?? [],
+            'vehicle_deputy_list' => $vehicle_deputy_list ?? [],
             'vehicle_booking_requests' => $vehicle_booking_requests ?? [],
             'vehicle_booking_attachments' => $vehicle_booking_attachments ?? [],
             'vehicle_approval_total' => $vehicle_approval_total ?? 0,

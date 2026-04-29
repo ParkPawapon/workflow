@@ -4811,6 +4811,12 @@ select {
   color: var(--color-warning);
 }
 
+.status-pill.info {
+  background-color: rgba(var(--rgb-primary), 0.12);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
 .status-pill.rejected {
   background-color: rgba(var(--rgb-danger), 0.15);
   border: 1px solid var(--color-danger);
@@ -18551,6 +18557,12 @@ label {
   .status-pill.pending {
     background-color: rgba(var(--rgb-warning), 0.18);
     color: var(--color-warning);
+  }
+
+  .status-pill.info {
+    background-color: rgba(var(--rgb-primary), 0.12);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
   }
 
   .status-pill.rejected {
@@ -34436,6 +34448,12 @@ label {
     color: var(--color-orange);
   }
 
+  .status-pill.info {
+    background-color: rgba(var(--rgb-primary), 0.12);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+  }
+
   /* =========================================
    Approval Modal: Disabled Inputs/Selects
    - Make disabled fields clearly non-editable (Word-like, consistent)
@@ -34484,6 +34502,11 @@ label {
     width: 100%;
   }
 
+  [data-vehicle-approval-driver-dropdown] {
+    position: relative;
+    width: 100%;
+  }
+
   .approval-detail-modal .approval-driver-dropdown .form-input {
     cursor: pointer;
   }
@@ -34508,7 +34531,27 @@ label {
     padding: 8px 0;
   }
 
+  [data-vehicle-approval-driver-dropdown] .go-with-dropdown-content {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    background-color: var(--color-neutral-lightest);
+    border: 1px solid rgba(var(--rgb-secondary), 0.2);
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(var(--rgb-neutral-dark), 0.18);
+    max-height: 360px;
+    overflow: auto;
+    z-index: 1500;
+    padding: 8px 0;
+  }
+
   .approval-detail-modal .approval-driver-dropdown .go-with-dropdown-content.show {
+    display: block;
+  }
+
+  [data-vehicle-approval-driver-dropdown] .go-with-dropdown-content.show {
     display: block;
   }
 
@@ -34518,12 +34561,30 @@ label {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    height: 46px;
-    padding: 0 14px;
+    min-height: 46px;
+    padding: 10px 14px;
     background: transparent;
     border: none;
     color: var(--color-secondary);
     font-size: var(--font-size-body-2);
+    line-height: 1.25;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  [data-vehicle-approval-driver-dropdown] .dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 46px;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    color: var(--color-secondary);
+    font-size: var(--font-size-body-2);
+    line-height: 1.25;
     text-align: left;
     cursor: pointer;
   }
@@ -34532,13 +34593,41 @@ label {
     background-color: rgba(var(--rgb-primary-dark), 0.1);
   }
 
+  [data-vehicle-approval-driver-dropdown] .dropdown-item:hover {
+    background-color: rgba(var(--rgb-primary-dark), 0.1);
+  }
+
   .approval-detail-modal .approval-driver-dropdown .go-with-dropdown-content .dropdown-item[aria-selected="true"] {
+    background-color: rgba(var(--rgb-secondary), 0.12);
+  }
+
+  [data-vehicle-approval-driver-dropdown] .dropdown-item[aria-selected="true"] {
     background-color: rgba(var(--rgb-secondary), 0.12);
   }
 
   .approval-detail-modal .approval-driver-dropdown .go-with-dropdown-content .dropdown-item-tel {
     color: rgba(var(--rgb-secondary), 0.7);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  [data-vehicle-approval-driver-dropdown] .dropdown-item-tel {
+    color: rgba(var(--rgb-secondary), 0.7);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .approval-detail-modal .approval-driver-dropdown .go-with-dropdown-content .dropdown-item-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-vehicle-approval-driver-dropdown] .dropdown-item-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
