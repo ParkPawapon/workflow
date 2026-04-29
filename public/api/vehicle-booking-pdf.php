@@ -342,6 +342,7 @@ $safe_file_to_data_uri = static function (?string $relative_path): ?string {
 
 $vehicle_columns = vehicle_reservation_get_table_columns($connection, 'dh_vehicle_bookings');
 $has_assigned = vehicle_reservation_has_column($vehicle_columns, 'assignedByPID');
+$has_final_approver = vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID');
 
 $select_fields = [
     'b.bookingID',
@@ -376,6 +377,7 @@ $optional_columns = [
     'assignedByPID',
     'assignedAt',
     'assignedNote',
+    'finalApproverPID',
     'approvalNote',
 ];
 
@@ -388,9 +390,15 @@ foreach ($optional_columns as $column) {
 $req_position = system_position_join($connection, 'req', 'preq');
 $asg_position = system_position_join($connection, 'asg', 'pasg');
 $app_position = system_position_join($connection, 'app', 'papp');
+$fin_position = system_position_join($connection, 'fin', 'pfin');
 
 $assigned_join = '';
 $assigned_select = '';
+$final_approver_join = '';
+$final_approver_select = ",
+        '' AS final_approver_name,
+        '' AS final_approver_signature,
+        '' AS final_approver_position";
 
 if ($has_assigned) {
     $assigned_select = ',
@@ -399,6 +407,15 @@ if ($has_assigned) {
         ' . $asg_position['name'] . ' AS assigned_position';
     $assigned_join = 'LEFT JOIN teacher AS asg ON b.assignedByPID = asg.pID
         ' . $asg_position['join'];
+}
+
+if ($has_final_approver) {
+    $final_approver_select = ',
+        fin.fName AS final_approver_name,
+        fin.signature AS final_approver_signature,
+        ' . $fin_position['name'] . ' AS final_approver_position';
+    $final_approver_join = 'LEFT JOIN teacher AS fin ON b.finalApproverPID = fin.pID
+        ' . $fin_position['join'];
 }
 
 $sql = 'SELECT ' . implode(', ', $select_fields) . ',
@@ -415,6 +432,7 @@ $sql = 'SELECT ' . implode(', ', $select_fields) . ',
         app.fName AS approver_name,
         app.signature AS approver_signature,
         ' . $app_position['name'] . ' AS approver_position
+        ' . $final_approver_select . '
     FROM dh_vehicle_bookings AS b
     LEFT JOIN teacher AS req ON b.requesterPID = req.pID
     LEFT JOIN teacher AS drv ON b.driverPID = drv.pID
@@ -424,6 +442,7 @@ $sql = 'SELECT ' . implode(', ', $select_fields) . ',
     ' . $assigned_join . '
     LEFT JOIN teacher AS app ON b.approvedByPID = app.pID
     ' . $app_position['join'] . '
+    ' . $final_approver_join . '
     WHERE b.bookingID = ? AND b.deletedAt IS NULL
     LIMIT 1';
 
@@ -618,77 +637,40 @@ $approval_note = trim((string) ($row['approvalNote'] ?? ''));
 $requester_sig = $safe_file_to_data_uri((string) ($row['requester_signature'] ?? ''));
 $assigned_sig = $safe_file_to_data_uri((string) ($row['assigned_signature'] ?? ''));
 
-$resolve_director_at = static function (mysqli $connection, string $datetime): array {
-    $datetime = trim($datetime);
-
-    if ($datetime === '' || strpos($datetime, '0000-00-00') === 0) {
-        $pid = (string) (system_get_current_director_pid() ?? '');
-        $acting_now = (string) (system_get_acting_director_pid() ?? '');
-
-        return [
-            'pID' => $pid,
-            'acting' => $acting_now !== '' && $acting_now === $pid,
-        ];
-    }
-
-    try {
-        $stmt = mysqli_prepare(
-            $connection,
-            'SELECT pID FROM dh_exec_duty_logs
-                WHERE dutyStatus = 2
-                AND created_at <= ?
-                AND (end_at IS NULL OR end_at >= ?)
-                ORDER BY created_at DESC, dutyLogID DESC
-                LIMIT 1'
-        );
-
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, 'ss', $datetime, $datetime);
-            mysqli_stmt_execute($stmt);
-            $result = mysqli_stmt_get_result($stmt);
-            $row = $result ? mysqli_fetch_assoc($result) : null;
-            mysqli_stmt_close($stmt);
-
-            $acting_pid = $row ? trim((string) ($row['pID'] ?? '')) : '';
-
-            if ($acting_pid !== '') {
-                return [
-                    'pID' => $acting_pid,
-                    'acting' => true,
-                ];
-            }
-        }
-    } catch (mysqli_sql_exception $exception) {
-        error_log('Database Exception (resolve director pdf): ' . $exception->getMessage());
-    }
-
-    return [
-        'pID' => (string) (system_get_director_pid() ?? ''),
-        'acting' => false,
-    ];
-};
-
-$director_ref_dt = $approved_at;
-
-if ($director_ref_dt === '') {
-    if ($write_date !== '' && strpos($write_date, '0000-00-00') !== 0) {
-        $director_ref_dt = $write_date . ' 00:00:00';
-    } elseif ($created_at !== '' && strpos($created_at, '0000-00-00') !== 0) {
-        $director_ref_dt = $created_at;
-    }
-}
-
-$director_context = $resolve_director_at($connection, $director_ref_dt);
-$boss_pid = trim((string) ($director_context['pID'] ?? ''));
-$boss_is_acting = !empty($director_context['acting']);
-
+$boss_pid = trim((string) ($row['finalApproverPID'] ?? ''));
 $boss_name = '';
 $boss_signature_path = '';
+$boss_position_line_1 = '';
 
 if ($boss_pid !== '') {
+    $boss_name = trim((string) ($row['final_approver_name'] ?? ''));
+    $boss_signature_path = trim((string) ($row['final_approver_signature'] ?? ''));
+    $boss_position_line_1 = trim((string) ($row['final_approver_position'] ?? ''));
+}
+
+if ($boss_pid === '' || $boss_name === '') {
     try {
-        $boss_position = system_position_join($connection, 't', 'p');
-        $boss_row = db_fetch_one(
+        $budget_deputy_ids = system_position_budget_deputy_ids($connection);
+
+        if ($budget_deputy_ids !== []) {
+            $placeholders = implode(', ', array_fill(0, count($budget_deputy_ids), '?'));
+            $boss_position = system_position_join($connection, 't', 'p');
+            $sql = 'SELECT t.pID, t.fName, t.signature, ' . $boss_position['name'] . ' AS position_name
+                FROM teacher AS t
+                ' . $boss_position['join'] . '
+                WHERE t.status = 1
+                    AND t.positionID IN (' . $placeholders . ')
+                ORDER BY FIELD(t.positionID, ' . implode(', ', array_map('intval', $budget_deputy_ids)) . '), t.fName ASC, t.pID ASC
+                LIMIT 1';
+            $types = str_repeat('i', count($budget_deputy_ids));
+            $boss_row = db_fetch_one(
+                $sql,
+                $types,
+                ...array_map('intval', $budget_deputy_ids)
+            );
+        } elseif ($boss_pid !== '') {
+            $boss_position = system_position_join($connection, 't', 'p');
+            $boss_row = db_fetch_one(
             'SELECT t.fName, t.signature, ' . $boss_position['name'] . ' AS position_name
                 FROM teacher AS t
                 ' . $boss_position['join'] . '
@@ -697,10 +679,15 @@ if ($boss_pid !== '') {
             's',
             $boss_pid
         );
+        } else {
+            $boss_row = null;
+        }
 
         if ($boss_row) {
+            $boss_pid = trim((string) ($boss_row['pID'] ?? $boss_pid));
             $boss_name = trim((string) ($boss_row['fName'] ?? ''));
             $boss_signature_path = trim((string) ($boss_row['signature'] ?? ''));
+            $boss_position_line_1 = trim((string) ($boss_row['position_name'] ?? ''));
         }
     } catch (Throwable $e) {
         error_log('Database Exception (boss profile pdf): ' . $e->getMessage());
@@ -708,20 +695,15 @@ if ($boss_pid !== '') {
 }
 
 $boss_signature = $safe_file_to_data_uri($boss_signature_path);
-$boss_decision_by_director = $boss_pid !== '' && $approved_by_pid !== '' && $approved_by_pid === $boss_pid && ($is_approved || $is_rejected);
-$boss_signature_for_doc = $boss_decision_by_director ? $boss_signature : null;
-$boss_note_for_doc = $boss_decision_by_director ? $approval_note : '';
+$boss_decision_by_budget_deputy = $boss_pid !== '' && $approved_by_pid !== '' && $approved_by_pid === $boss_pid && ($is_approved || $is_rejected);
+$boss_signature_for_doc = $boss_decision_by_budget_deputy ? $boss_signature : null;
+$boss_note_for_doc = $boss_decision_by_budget_deputy ? $approval_note : '';
+$boss_position_line_1 = $boss_position_line_1 !== '' ? $boss_position_line_1 : 'รองผู้อำนวยการ' . $school_name;
+$boss_position_line_2 = '';
 
-$boss_position_line_1 = $boss_is_acting
-    ? 'รองผู้อำนวยการ' . $school_name
-    : 'ผู้อำนวยการ' . $school_name;
-$boss_position_line_2 = $boss_is_acting
-    ? 'รักษาราชการแทนผู้อำนวยการ' . $school_name
-    : '';
-
-$order_allow_checked = $boss_decision_by_director && $is_approved;
-$order_deny_checked = $boss_decision_by_director && $is_rejected;
-$order_pending_label = !$boss_decision_by_director ? 'รอพิจารณา' : '';
+$order_allow_checked = $boss_decision_by_budget_deputy && $is_approved;
+$order_deny_checked = $boss_decision_by_budget_deputy && $is_rejected;
+$order_pending_label = !$boss_decision_by_budget_deputy ? 'รอพิจารณา' : '';
 
 $requester_position_label = $normalize_inline_text($requester_position !== '' ? $requester_position : '-');
 $requester_department_label = $normalize_inline_text($requester_department !== '' ? $requester_department : '');

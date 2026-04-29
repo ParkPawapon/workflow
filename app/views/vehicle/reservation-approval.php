@@ -23,6 +23,17 @@ $vehicle_approval_per_page = $vehicle_approval_per_page ?? 10;
 $vehicle_approval_status_labels = (array) ($vehicle_approval_status_labels ?? []);
 $format_thai_date_range = $format_thai_date_range ?? null;
 $format_thai_datetime = $format_thai_datetime ?? null;
+$locked_vehicle_final_approver = null;
+
+foreach ($vehicle_deputy_list as $deputy_item) {
+    $deputy_id = (string) ($deputy_item['pID'] ?? '');
+    $deputy_name = trim((string) ($deputy_item['name'] ?? ''));
+
+    if ($deputy_id !== '' && $deputy_name !== '') {
+        $locked_vehicle_final_approver = $deputy_item;
+        break;
+    }
+}
 
 $show_rejected_filter = true;
 $rejected_filter_label = $vehicle_approval_mode === 'director' ? 'ไม่อนุมัติ' : 'ไม่อนุมัติ/ยกเลิก';
@@ -105,6 +116,11 @@ ob_start();
         color: rgba(var(--rgb-secondary), 0.7);
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
+    }
+
+    [data-vehicle-final-approver-locked] .custom-select-trigger,
+    [data-vehicle-final-approver-locked] .custom-options {
+        pointer-events: none;
     }
 </style>
 
@@ -470,9 +486,20 @@ ob_start();
                                 <div class="detail-item detail-full">
                                     <p class="detail-label">ส่งให้รองผู้อำนวยการ</p>
 
-                                    <div class="custom-select-wrapper">
+                                    <div class="custom-select-wrapper" data-vehicle-final-approver-locked="1">
                                         <div class="custom-select-trigger">
-                                            <p class="select-value">เลือกรองผู้อำนวยการ</p>
+                                            <p class="select-value">
+                                                <?php if ($locked_vehicle_final_approver !== null): ?>
+                                                    <?php
+                                                    $locked_deputy_name = trim((string) ($locked_vehicle_final_approver['name'] ?? ''));
+                                                    $locked_deputy_position = trim((string) ($locked_vehicle_final_approver['positionName'] ?? ''));
+                                                    $locked_deputy_label = $locked_deputy_position !== '' ? $locked_deputy_name . ' - ' . $locked_deputy_position : $locked_deputy_name;
+                                                    ?>
+                                                    <?= htmlspecialchars($locked_deputy_label, ENT_QUOTES, 'UTF-8') ?>
+                                                <?php else: ?>
+                                                    ไม่พบรองผู้อำนวยการฝ่ายงบประมาณ
+                                                <?php endif; ?>
+                                            </p>
                                             <i class="fa-solid fa-chevron-down"></i>
                                         </div>
 
@@ -488,14 +515,15 @@ ob_start();
                                                 }
                                                 $deputy_label = $deputy_position !== '' ? $deputy_name . ' - ' . $deputy_position : $deputy_name;
                                                 ?>
-                                                <div class="custom-option" data-value="<?= htmlspecialchars($deputy_id, ENT_QUOTES, 'UTF-8') ?>">
+                                                <div class="custom-option selected" data-value="<?= htmlspecialchars($deputy_id, ENT_QUOTES, 'UTF-8') ?>">
                                                     <?= htmlspecialchars($deputy_label, ENT_QUOTES, 'UTF-8') ?>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
 
-                                        <select class="form-input" id="assignFinalApproverSelect" name="assign_final_approver_pid">
-                                            <option value="">เลือกรองผู้อำนวยการ</option>
+                                        <select class="form-input" id="assignFinalApproverSelect" name="assign_final_approver_pid"
+                                            data-default-final-approver="<?= htmlspecialchars((string) ($locked_vehicle_final_approver['pID'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                            aria-readonly="true">
                                             <?php foreach ($vehicle_deputy_list as $deputy_item): ?>
                                                 <?php
                                                 $deputy_id = (string) ($deputy_item['pID'] ?? '');
@@ -507,7 +535,7 @@ ob_start();
                                                 }
                                                 $deputy_label = $deputy_position !== '' ? $deputy_name . ' - ' . $deputy_position : $deputy_name;
                                                 ?>
-                                                <option value="<?= htmlspecialchars($deputy_id, ENT_QUOTES, 'UTF-8') ?>">
+                                                <option value="<?= htmlspecialchars($deputy_id, ENT_QUOTES, 'UTF-8') ?>" selected>
                                                     <?= htmlspecialchars($deputy_label, ENT_QUOTES, 'UTF-8') ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -977,7 +1005,12 @@ ob_start();
                 }));
             }
             if (assignFinalApproverSelect) {
-                assignFinalApproverSelect.value = data.approvalFinalApproverId || '';
+                const defaultFinalApprover = assignFinalApproverSelect.dataset.defaultFinalApprover || '';
+                assignFinalApproverSelect.value = data.approvalFinalApproverId || defaultFinalApprover;
+
+                if (assignFinalApproverSelect.value === '' && defaultFinalApprover !== '') {
+                    assignFinalApproverSelect.value = defaultFinalApprover;
+                }
                 assignFinalApproverSelect.dispatchEvent(new Event('change', {
                     bubbles: true
                 }));

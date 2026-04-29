@@ -26,7 +26,7 @@ $role_id = (int) ($teacher['roleID'] ?? 0);
 $position_id = (int) ($teacher['positionID'] ?? 0);
 $acting_director_pid = system_get_acting_director_pid();
 $vehicle_approval_is_acting = $acting_director_pid !== null && $acting_director_pid !== '' && $acting_director_pid === $actor_pid;
-$vehicle_approval_is_deputy = in_array($position_id, system_position_deputy_ids($connection), true);
+$vehicle_approval_is_deputy = in_array($position_id, system_position_budget_deputy_ids($connection), true);
 // Final approver scope for filtering to prevent mixing decisions across deputies/acting executives.
 $vehicle_approval_exec_pid = null;
 // roleID mapping (legacy): 1=ADMIN, 3=VEHICLE
@@ -180,7 +180,7 @@ try {
 $vehicle_deputy_list = [];
 
 try {
-    $deputy_position_ids = system_position_deputy_ids($connection);
+    $deputy_position_ids = system_position_budget_deputy_ids($connection);
 
     if ($deputy_position_ids !== []) {
         $placeholders = implode(', ', array_fill(0, count($deputy_position_ids), '?'));

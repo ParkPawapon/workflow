@@ -92,3 +92,42 @@ if (!function_exists('system_position_deputy_ids')) {
         return array_values(array_unique(array_filter($ids)));
     }
 }
+
+if (!function_exists('system_position_budget_deputy_ids')) {
+    function system_position_budget_deputy_ids(mysqli $connection): array
+    {
+        if (!db_table_exists($connection, 'dh_positions')) {
+            return [];
+        }
+
+        $rows = db_fetch_all(
+            'SELECT positionID
+             FROM dh_positions
+             WHERE positionName LIKE ?
+                AND positionName LIKE ?
+             ORDER BY FIELD(positionID, 3), positionID ASC',
+            'ss',
+            '%รองผู้อำนวยการ%',
+            '%งบประมาณ%'
+        );
+        $ids = [];
+
+        foreach ($rows as $row) {
+            $ids[] = (int) ($row['positionID'] ?? 0);
+        }
+
+        $ids = array_values(array_unique(array_filter($ids)));
+
+        if (!empty($ids)) {
+            return $ids;
+        }
+
+        $fallback = db_fetch_all('SELECT positionID FROM dh_positions WHERE positionID = 3 LIMIT 1');
+
+        foreach ($fallback as $row) {
+            $ids[] = (int) ($row['positionID'] ?? 0);
+        }
+
+        return array_values(array_unique(array_filter($ids)));
+    }
+}
