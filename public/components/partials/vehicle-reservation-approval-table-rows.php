@@ -67,6 +67,8 @@
         $assigned_at_raw = trim((string) ($request_item['assignedAt'] ?? ''));
         $assigned_at = $assigned_at_raw !== '' ? $format_thai_datetime($assigned_at_raw) : '';
         $assigned_note = trim((string) ($request_item['assignedNote'] ?? ''));
+        $final_approver_pid = trim((string) ($request_item['finalApproverPID'] ?? ''));
+        $final_approver_name = trim((string) ($request_item['final_approver_name'] ?? ''));
         $approval_note = trim((string) ($request_item['approvalNote'] ?? ''));
 
         $vehicle_id = trim((string) ($request_item['vehicleID'] ?? ''));
@@ -134,6 +136,8 @@
                         data-approval-driver-id="<?= htmlspecialchars($driver_pid, ENT_QUOTES, 'UTF-8') ?>"
                         data-approval-driver-name="<?= htmlspecialchars($driver_name, ENT_QUOTES, 'UTF-8') ?>"
                         data-approval-driver-tel="<?= htmlspecialchars($driver_tel, ENT_QUOTES, 'UTF-8') ?>"
+                        data-approval-final-approver-id="<?= htmlspecialchars($final_approver_pid, ENT_QUOTES, 'UTF-8') ?>"
+                        data-approval-final-approver-name="<?= htmlspecialchars($final_approver_name, ENT_QUOTES, 'UTF-8') ?>"
                         data-approval-date="<?= htmlspecialchars($date_range, ENT_QUOTES, 'UTF-8') ?>"
                         data-approval-time="<?= htmlspecialchars($time_range, ENT_QUOTES, 'UTF-8') ?>"
                         data-approval-requester="<?= htmlspecialchars($requester_name !== '' ? $requester_name : '-', ENT_QUOTES, 'UTF-8') ?>"

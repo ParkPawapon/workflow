@@ -13,6 +13,7 @@ $vehicle_approval_vehicle = (string) ($vehicle_approval_vehicle ?? 'all');
 $vehicle_approval_return_url = (string) ($vehicle_approval_return_url ?? 'vehicle-reservation-approval.php');
 $vehicle_list = (array) ($vehicle_list ?? []);
 $vehicle_driver_list = (array) ($vehicle_driver_list ?? []);
+$vehicle_deputy_list = (array) ($vehicle_deputy_list ?? []);
 $vehicle_booking_requests = (array) ($vehicle_booking_requests ?? []);
 $vehicle_booking_attachments = (array) ($vehicle_booking_attachments ?? []);
 $vehicle_approval_total = (int) ($vehicle_approval_total ?? 0);
@@ -44,6 +45,66 @@ ob_start();
         .approval-detail-layout {
             grid-template-columns: repeat(1, minmax(0, 1fr));
         }
+    }
+
+    [data-vehicle-approval-driver-dropdown] {
+        position: relative;
+        width: 100%;
+    }
+
+    [data-vehicle-approval-driver-dropdown] .go-with-dropdown-content {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 8px);
+        z-index: 1500;
+        max-height: 360px;
+        overflow: auto;
+        padding: 8px 0;
+        background-color: var(--color-neutral-lightest);
+        border: 1px solid rgba(var(--rgb-secondary), 0.2);
+        border-radius: 8px;
+        box-shadow: 0 10px 24px rgba(var(--rgb-neutral-dark), 0.18);
+    }
+
+    [data-vehicle-approval-driver-dropdown] .go-with-dropdown-content.show {
+        display: block;
+    }
+
+    [data-vehicle-approval-driver-dropdown] .dropdown-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 46px;
+        gap: 12px;
+        padding: 10px 14px;
+        border: 0;
+        background: transparent;
+        color: var(--color-secondary);
+        font-size: var(--font-size-body-2);
+        line-height: 1.25;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    [data-vehicle-approval-driver-dropdown] .dropdown-item:hover,
+    [data-vehicle-approval-driver-dropdown] .dropdown-item[aria-selected="true"] {
+        background-color: rgba(var(--rgb-secondary), 0.12);
+    }
+
+    [data-vehicle-approval-driver-dropdown] .dropdown-item-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    [data-vehicle-approval-driver-dropdown] .dropdown-item-tel {
+        color: rgba(var(--rgb-secondary), 0.7);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
     }
 </style>
 
@@ -406,6 +467,53 @@ ob_start();
                                     <input class="form-input" id="assignDriverTel" type="tel"
                                         name="assign_driver_tel" placeholder="-" disabled>
                                 </div>
+                                <div class="detail-item detail-full">
+                                    <p class="detail-label">ส่งให้รองผู้อำนวยการ</p>
+
+                                    <div class="custom-select-wrapper">
+                                        <div class="custom-select-trigger">
+                                            <p class="select-value">เลือกรองผู้อำนวยการ</p>
+                                            <i class="fa-solid fa-chevron-down"></i>
+                                        </div>
+
+                                        <div class="custom-options">
+                                            <?php foreach ($vehicle_deputy_list as $deputy_item): ?>
+                                                <?php
+                                                $deputy_id = (string) ($deputy_item['pID'] ?? '');
+                                                $deputy_name = trim((string) ($deputy_item['name'] ?? ''));
+                                                $deputy_position = trim((string) ($deputy_item['positionName'] ?? ''));
+
+                                                if ($deputy_id === '' || $deputy_name === '') {
+                                                    continue;
+                                                }
+                                                $deputy_label = $deputy_position !== '' ? $deputy_name . ' - ' . $deputy_position : $deputy_name;
+                                                ?>
+                                                <div class="custom-option" data-value="<?= htmlspecialchars($deputy_id, ENT_QUOTES, 'UTF-8') ?>">
+                                                    <?= htmlspecialchars($deputy_label, ENT_QUOTES, 'UTF-8') ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+
+                                        <select class="form-input" id="assignFinalApproverSelect" name="assign_final_approver_pid">
+                                            <option value="">เลือกรองผู้อำนวยการ</option>
+                                            <?php foreach ($vehicle_deputy_list as $deputy_item): ?>
+                                                <?php
+                                                $deputy_id = (string) ($deputy_item['pID'] ?? '');
+                                                $deputy_name = trim((string) ($deputy_item['name'] ?? ''));
+                                                $deputy_position = trim((string) ($deputy_item['positionName'] ?? ''));
+
+                                                if ($deputy_id === '' || $deputy_name === '') {
+                                                    continue;
+                                                }
+                                                $deputy_label = $deputy_position !== '' ? $deputy_name . ' - ' . $deputy_position : $deputy_name;
+                                                ?>
+                                                <option value="<?= htmlspecialchars($deputy_id, ENT_QUOTES, 'UTF-8') ?>">
+                                                    <?= htmlspecialchars($deputy_label, ENT_QUOTES, 'UTF-8') ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
@@ -463,6 +571,7 @@ ob_start();
         const approvalFinalizeSection = detailModal ? detailModal.querySelector('[data-vehicle-approval-finalize]') : null;
         const assignVehicleSelect = approvalForm ? approvalForm.querySelector('[name=\"assign_vehicle_id\"]') : null;
         const assignDriverSelect = approvalForm ? approvalForm.querySelector('[name=\"assign_driver_pid\"]') : null;
+        const assignFinalApproverSelect = approvalForm ? approvalForm.querySelector('[name=\"assign_final_approver_pid\"]') : null;
         const assignDriverTelInput = approvalForm ? approvalForm.querySelector('[name=\"assign_driver_tel\"]') : null;
         const assignNoteInput = approvalForm ? approvalForm.querySelector('[name=\"assignedNote\"]') : null;
 
@@ -797,14 +906,14 @@ ob_start();
 
             canAssignStage = canAssign && isPendingStage;
             // Allow vehicle officers to edit assignment while the booking is "กำลังดำเนินการ" (ASSIGNED).
-            // Do not enable this for directors to avoid ambiguity (approve should finalize).
+            // Do not enable this for final approvers to avoid ambiguity (approve should finalize).
             canEditAssignedStage = canAssign && !canFinalize && isAssignedStage;
-            // Directors can record the final decision in ASSIGNED, and may also edit/change the decision
+            // Final approvers can record the final decision in ASSIGNED, and may also edit/change the decision
             // after it was already recorded (APPROVED/REJECTED).
             canFinalizeStage = canFinalize && (isAssignedStage || isFinalizedStage);
 
             canApproveStage = canAssignStage || canEditAssignedStage || canFinalizeStage;
-            // Only directors can record the final decision (reject/approve).
+            // Only final approvers can record the final decision (reject/approve).
             canRejectStage = canFinalizeStage;
 
             if (approvalAssignSection) {
@@ -812,12 +921,12 @@ ob_start();
             }
             if (approvalFinalizeSection) {
                 // Show the management note field:
-                // - Directors: can edit in ASSIGNED/APPROVED/REJECTED.
+                // - Final approvers: can edit in ASSIGNED/APPROVED/REJECTED.
                 // - Other roles: show read-only after a final decision is recorded.
                 approvalFinalizeSection.classList.toggle('hidden', !(canFinalizeStage || isFinalizedStage));
             }
 
-            const assignInputs = [assignVehicleSelect, assignDriverSelect];
+            const assignInputs = [assignVehicleSelect, assignDriverSelect, assignFinalApproverSelect];
             assignInputs.forEach(function(input) {
                 if (!input) return;
                 input.disabled = !(canAssignStage || canEditAssignedStage);
@@ -833,7 +942,7 @@ ob_start();
             if (approveButton) {
                 approveButton.classList.toggle('hidden', !canApproveStage);
                 if (canAssignStage) {
-                    approveButton.textContent = 'ส่งต่อผู้บริหาร';
+                    approveButton.textContent = 'ส่งต่อรองผู้อำนวยการ';
                 } else if (canEditAssignedStage) {
                     approveButton.textContent = 'บันทึกการมอบหมาย';
                 } else if (canFinalizeStage && currentStatus === 'APPROVED') {
@@ -864,6 +973,12 @@ ob_start();
             if (assignDriverSelect) {
                 assignDriverSelect.value = data.approvalDriverId || '';
                 assignDriverSelect.dispatchEvent(new Event('change', {
+                    bubbles: true
+                }));
+            }
+            if (assignFinalApproverSelect) {
+                assignFinalApproverSelect.value = data.approvalFinalApproverId || '';
+                assignFinalApproverSelect.dispatchEvent(new Event('change', {
                     bubbles: true
                 }));
             }
@@ -937,7 +1052,7 @@ ob_start();
             let message = '';
             if (!(isFinalDecision || isDecisionOverride)) {
                 if (isAssignAction) {
-                    message = 'ต้องการมอบหมายรถและส่งต่อให้ผู้บริหารพิจารณาใช่หรือไม่';
+                    message = 'ต้องการมอบหมายรถและส่งต่อให้รองผู้อำนวยการพิจารณาใช่หรือไม่';
                 } else if (isEditAssignAction) {
                     message = 'ต้องการบันทึกการแก้ไขยานพาหนะและผู้ขับรถใช่หรือไม่';
                 }
@@ -1007,8 +1122,9 @@ ob_start();
                 if (action === 'approve' && (canAssignStage || canEditAssignedStage)) {
                     const hasVehicle = assignVehicleSelect && assignVehicleSelect.value !== '';
                     const hasDriver = assignDriverSelect && assignDriverSelect.value !== '';
-                    if (!hasVehicle || !hasDriver) {
-                        showVehicleApprovalAlert('กรุณาเลือกยานพาหนะและผู้ขับรถก่อนบันทึก');
+                    const hasFinalApprover = assignFinalApproverSelect && assignFinalApproverSelect.value !== '';
+                    if (!hasVehicle || !hasDriver || !hasFinalApprover) {
+                        showVehicleApprovalAlert('กรุณาเลือกยานพาหนะ ผู้ขับรถ และรองผู้อำนวยการก่อนบันทึก');
                         return;
                     }
                 }

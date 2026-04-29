@@ -24,17 +24,11 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $actor_pid = (string) ($_SESSION['pID'] ?? '');
 $role_id = (int) ($teacher['roleID'] ?? 0);
 $position_id = (int) ($teacher['positionID'] ?? 0);
-$current_director_pid = system_get_current_director_pid();
-$vehicle_approval_is_director = $current_director_pid !== null && $current_director_pid !== '' && $current_director_pid === $actor_pid;
-// Executive (director / acting director) scope for filtering to prevent mixing decisions across executives.
 $acting_director_pid = system_get_acting_director_pid();
+$vehicle_approval_is_acting = $acting_director_pid !== null && $acting_director_pid !== '' && $acting_director_pid === $actor_pid;
+$vehicle_approval_is_deputy = in_array($position_id, system_position_deputy_ids($connection), true);
+// Final approver scope for filtering to prevent mixing decisions across deputies/acting executives.
 $vehicle_approval_exec_pid = null;
-
-if ($position_id === 1) {
-    $vehicle_approval_exec_pid = $actor_pid;
-} elseif ($acting_director_pid !== null && $acting_director_pid !== '' && $acting_director_pid === $actor_pid) {
-    $vehicle_approval_exec_pid = $actor_pid;
-}
 // roleID mapping (legacy): 1=ADMIN, 3=VEHICLE
 $vehicle_approval_is_admin = $role_id === 1
     || ($actor_pid !== '' && rbac_user_has_role($connection, $actor_pid, ROLE_ADMIN));
@@ -45,7 +39,11 @@ $vehicle_approval_is_vehicle_officer = !$vehicle_approval_is_admin
     );
 // Admin is view-only for vehicle approval flows.
 $vehicle_approval_can_assign = $vehicle_approval_is_vehicle_officer && !$vehicle_approval_is_admin;
-$vehicle_approval_can_finalize = $vehicle_approval_is_director;
+$vehicle_approval_can_finalize = !$vehicle_approval_is_admin && ($vehicle_approval_is_deputy || $vehicle_approval_is_acting);
+
+if ($vehicle_approval_can_finalize) {
+    $vehicle_approval_exec_pid = $actor_pid;
+}
 $vehicle_approval_mode = 'viewer';
 
 if ($vehicle_approval_can_assign && $vehicle_approval_can_finalize) {
@@ -73,7 +71,7 @@ $vehicle_approval_per_page = 'all';
 $pending_statuses = ['PENDING', 'ASSIGNED'];
 
 if ($vehicle_approval_mode === 'director') {
-    // Directors act after officers assign.
+    // Deputies/acting executives act after officers assign.
     $pending_statuses = ['ASSIGNED'];
 } elseif ($vehicle_approval_mode === 'officer') {
     // Officers start at submitted requests.
@@ -82,7 +80,7 @@ if ($vehicle_approval_mode === 'director') {
     $pending_statuses = ['PENDING', 'ASSIGNED'];
 }
 
-// For director/acting-director view, only show stages relevant to executives.
+// For deputy/acting executive view, only show stages relevant to final approval.
 // Requirement: executives should see "กำลังดำเนินการ" (ASSIGNED), "อนุมัติการจองสำเร็จ" (APPROVED),
 // and "ไม่อนุมัติ" (REJECTED).
 $vehicle_approval_visible_statuses = null;
@@ -90,7 +88,7 @@ $vehicle_approval_visible_statuses = null;
 if ($vehicle_approval_mode === 'director') {
     $vehicle_approval_visible_statuses = ['ASSIGNED', 'APPROVED', 'REJECTED'];
 } elseif ($vehicle_approval_exec_pid !== null && !$vehicle_approval_can_finalize && !$vehicle_approval_can_assign) {
-    // Director (positionID=1) can still view their own decisions when an acting director is appointed.
+    // Final approvers can still view their own decisions when they no longer hold the active acting duty.
     $vehicle_approval_visible_statuses = ['APPROVED', 'REJECTED'];
 }
 
@@ -149,20 +147,82 @@ try {
 $vehicle_driver_list = [];
 
 try {
-    $driver_stmt = mysqli_prepare($connection, 'SELECT pID, fName, telephone FROM teacher WHERE status = 1 ORDER BY fName ASC');
+    $driver_sql = "SELECT pID, fName, telephone FROM teacher WHERE status = 1 AND COALESCE(NULLIF(TRIM(fName), ''), '') <> ''";
+    $driver_sql .= ' ORDER BY fName ASC, pID ASC';
+    $driver_stmt = mysqli_prepare($connection, $driver_sql);
 
     if ($driver_stmt) {
         mysqli_stmt_execute($driver_stmt);
         $driver_result = mysqli_stmt_get_result($driver_stmt);
+        $seen_driver_ids = [];
 
         while ($driver_result && ($row = mysqli_fetch_assoc($driver_result))) {
+            $driver_id = trim((string) ($row['pID'] ?? ''));
+            $driver_name = preg_replace('/\s+/u', ' ', trim((string) ($row['fName'] ?? ''))) ?? '';
+            $driver_tel = preg_replace('/\s+/u', ' ', trim((string) ($row['telephone'] ?? ''))) ?? '';
+
+            if ($driver_id === '' || $driver_name === '' || isset($seen_driver_ids[$driver_id])) {
+                continue;
+            }
+            $seen_driver_ids[$driver_id] = true;
             $vehicle_driver_list[] = [
-                'pID' => (string) ($row['pID'] ?? ''),
-                'name' => (string) ($row['fName'] ?? ''),
-                'telephone' => (string) ($row['telephone'] ?? ''),
+                'pID' => $driver_id,
+                'name' => $driver_name,
+                'telephone' => $driver_tel,
             ];
         }
         mysqli_stmt_close($driver_stmt);
+    }
+} catch (mysqli_sql_exception $exception) {
+    error_log('Database Exception: ' . $exception->getMessage());
+}
+
+$vehicle_deputy_list = [];
+
+try {
+    $deputy_position_ids = system_position_deputy_ids($connection);
+
+    if ($deputy_position_ids !== []) {
+        $placeholders = implode(', ', array_fill(0, count($deputy_position_ids), '?'));
+        $position_order = implode(', ', array_map('intval', $deputy_position_ids));
+        $deputy_sql = 'SELECT t.pID, t.fName, t.positionID, p.positionName
+            FROM teacher AS t
+            LEFT JOIN dh_positions AS p ON t.positionID = p.positionID
+            WHERE t.status = 1
+                AND COALESCE(NULLIF(TRIM(t.fName), \'\'), \'\') <> \'\'
+                AND t.positionID IN (' . $placeholders . ')
+            ORDER BY FIELD(t.positionID, ' . $position_order . '), t.fName ASC, t.pID ASC';
+        $deputy_stmt = mysqli_prepare($connection, $deputy_sql);
+
+        if ($deputy_stmt) {
+            $deputy_types = str_repeat('i', count($deputy_position_ids));
+            $bind_params = [$deputy_stmt, $deputy_types];
+
+            foreach ($deputy_position_ids as $i => $position_id_value) {
+                $bind_params[] = &$deputy_position_ids[$i];
+            }
+            call_user_func_array('mysqli_stmt_bind_param', $bind_params);
+            mysqli_stmt_execute($deputy_stmt);
+            $deputy_result = mysqli_stmt_get_result($deputy_stmt);
+            $seen_deputy_ids = [];
+
+            while ($deputy_result && ($row = mysqli_fetch_assoc($deputy_result))) {
+                $deputy_id = trim((string) ($row['pID'] ?? ''));
+                $deputy_name = preg_replace('/\s+/u', ' ', trim((string) ($row['fName'] ?? ''))) ?? '';
+                $deputy_position = preg_replace('/\s+/u', ' ', trim((string) ($row['positionName'] ?? ''))) ?? '';
+
+                if ($deputy_id === '' || $deputy_name === '' || isset($seen_deputy_ids[$deputy_id])) {
+                    continue;
+                }
+                $seen_deputy_ids[$deputy_id] = true;
+                $vehicle_deputy_list[] = [
+                    'pID' => $deputy_id,
+                    'name' => $deputy_name,
+                    'positionName' => $deputy_position,
+                ];
+            }
+            mysqli_stmt_close($deputy_stmt);
+        }
     }
 } catch (mysqli_sql_exception $exception) {
     error_log('Database Exception: ' . $exception->getMessage());
@@ -206,6 +266,7 @@ $optional_columns = [
     'assignedByPID',
     'assignedAt',
     'assignedNote',
+    'finalApproverPID',
     'approvalNote',
 ];
 
@@ -220,6 +281,14 @@ $select_fields[] = 'req.telephone AS requester_phone';
 $select_fields[] = 'dep.dName AS department_name';
 $select_fields[] = 'app.fName AS approver_name';
 $assigned_join = '';
+$final_approver_join = '';
+
+if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+    $select_fields[] = 'fin.fName AS final_approver_name';
+    $final_approver_join = 'LEFT JOIN teacher AS fin ON b.finalApproverPID = fin.pID';
+} else {
+    $select_fields[] = "'' AS final_approver_name";
+}
 
 if (vehicle_reservation_has_column($vehicle_columns, 'assignedByPID')) {
     $select_fields[] = 'asg.fName AS assigned_name';
@@ -237,13 +306,23 @@ $where = [
 $types = 'i';
 $params = [$vehicle_approval_year];
 
-// Prevent executives from seeing other executives' final decisions:
+// Prevent final approvers from seeing other approvers' final decisions:
 // - ASSIGNED/PENDING are operational stages (handled by current workflow roles)
-// - APPROVED/REJECTED are final decisions and should be scoped to the executive (director/acting) who recorded them.
+// - APPROVED/REJECTED are final decisions and should be scoped to the approver who recorded them.
 if ($vehicle_approval_exec_pid !== null) {
-    $where[] = "(b.status NOT IN ('APPROVED', 'REJECTED') OR b.approvedByPID = ?)";
-    $types .= 's';
-    $params[] = $vehicle_approval_exec_pid;
+    if (vehicle_reservation_has_column($vehicle_columns, 'finalApproverPID')) {
+        $where[] = "(
+            (b.status = 'ASSIGNED' AND (b.finalApproverPID = ? OR b.finalApproverPID IS NULL OR b.finalApproverPID = ''))
+            OR (b.status IN ('APPROVED', 'REJECTED') AND b.approvedByPID = ?)
+        )";
+        $types .= 'ss';
+        $params[] = $vehicle_approval_exec_pid;
+        $params[] = $vehicle_approval_exec_pid;
+    } else {
+        $where[] = "(b.status NOT IN ('APPROVED', 'REJECTED') OR b.approvedByPID = ?)";
+        $types .= 's';
+        $params[] = $vehicle_approval_exec_pid;
+    }
 }
 
 if (is_array($vehicle_approval_visible_statuses) && $vehicle_approval_visible_statuses !== []) {
@@ -340,6 +419,7 @@ $sql = 'SELECT ' . implode(', ', $select_fields) . ' FROM dh_vehicle_bookings AS
     LEFT JOIN teacher AS drv ON b.driverPID = drv.pID
     LEFT JOIN department AS dep ON req.dID = dep.dID
     LEFT JOIN teacher AS app ON b.approvedByPID = app.pID
+    ' . $final_approver_join . '
     ' . $assigned_join . '
     LEFT JOIN dh_vehicles AS v ON b.vehicleID = v.vehicleID
     WHERE ' . implode(' AND ', $where) . '
@@ -370,6 +450,7 @@ try {
         LEFT JOIN teacher AS drv ON b.driverPID = drv.pID
         LEFT JOIN department AS dep ON req.dID = dep.dID
         LEFT JOIN teacher AS app ON b.approvedByPID = app.pID
+        ' . $final_approver_join . '
         ' . $assigned_join . '
         LEFT JOIN dh_vehicles AS v ON b.vehicleID = v.vehicleID
         WHERE ' . implode(' AND ', $where);

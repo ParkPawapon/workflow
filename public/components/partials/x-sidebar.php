@@ -37,12 +37,13 @@ if ($actor_pid !== '') {
 $is_director_or_acting = $position_id === 1 || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_manage_external_circular = $is_admin_user || $is_registry_user;
 $is_deputy_user = in_array($position_id, system_position_deputy_ids($sidebar_connection), true);
+$is_vehicle_final_approver = $is_deputy_user || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_review_external_circular = $is_director_or_acting || $is_deputy_user;
 $can_access_external_circular_menu = $actor_pid !== '';
 $can_approve_room_module = $is_admin_user || $is_facility_user;
 $can_manage_room_module = $is_admin_user;
 $can_manage_vehicle_module = $is_admin_user || $is_vehicle_user;
-$can_approve_vehicle_module = $is_admin_user || $is_vehicle_user || $is_director_or_acting;
+$can_approve_vehicle_module = $is_admin_user || $is_vehicle_user || $is_vehicle_final_approver;
 $can_manage_vehicle_records = $is_admin_user;
 $can_access_settings = $is_admin_user || $is_registry_user;
 $can_approve_repair_module = $is_admin_user || $is_repair_staff_user;
@@ -58,6 +59,8 @@ $sidebar_access = [
     'is_facility_user' => $is_facility_user,
     'is_repair_staff_user' => $is_repair_staff_user,
     'is_director_or_acting' => $is_director_or_acting,
+    'is_deputy_user' => $is_deputy_user,
+    'is_vehicle_final_approver' => $is_vehicle_final_approver,
     'can_manage_external_circular' => $can_manage_external_circular,
     'can_review_external_circular' => $can_review_external_circular,
     'can_approve_room_module' => $can_approve_room_module,

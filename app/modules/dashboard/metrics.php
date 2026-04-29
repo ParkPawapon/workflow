@@ -192,7 +192,7 @@ if (!function_exists('dashboard_count_room_notifications')) {
 }
 
 if (!function_exists('dashboard_count_vehicle_notifications')) {
-    function dashboard_count_vehicle_notifications(mysqli $connection, array $access): int
+    function dashboard_count_vehicle_notifications(mysqli $connection, array $access, string $pID = ''): int
     {
         if (!db_table_exists($connection, 'dh_vehicle_bookings')) {
             return 0;
@@ -202,27 +202,36 @@ if (!function_exists('dashboard_count_vehicle_notifications')) {
             return 0;
         }
 
-        $statuses = [];
+        $conditions = [];
+        $types = '';
+        $params = [];
 
         // Vehicle officers should be notified only when a requester has just submitted a booking.
         if (!empty($access['is_vehicle_user'])) {
-            $statuses[] = 'PENDING';
+            $conditions[] = 'status = ?';
+            $types .= 's';
+            $params[] = 'PENDING';
         }
 
-        // Executives should be notified only when a booking is waiting for final approval.
-        if (!empty($access['is_director_or_acting'])) {
-            $statuses[] = 'ASSIGNED';
+        // Deputies/acting executives should be notified only for bookings assigned to them.
+        if (!empty($access['is_vehicle_final_approver'])) {
+            if ($pID !== '' && db_column_exists($connection, 'dh_vehicle_bookings', 'finalApproverPID')) {
+                $conditions[] = "(status = ? AND (finalApproverPID = ? OR finalApproverPID IS NULL OR finalApproverPID = ''))";
+                $types .= 'ss';
+                $params[] = 'ASSIGNED';
+                $params[] = $pID;
+            } else {
+                $conditions[] = 'status = ?';
+                $types .= 's';
+                $params[] = 'ASSIGNED';
+            }
         }
 
-        if ($statuses === []) {
+        if ($conditions === []) {
             return 0;
         }
 
-        $statuses = array_values(array_unique($statuses));
-        $placeholders = implode(', ', array_fill(0, count($statuses), '?'));
-        $where = 'status IN (' . $placeholders . ')';
-        $types = str_repeat('s', count($statuses));
-        $params = $statuses;
+        $where = '(' . implode(' OR ', $conditions) . ')';
 
         if (db_column_exists($connection, 'dh_vehicle_bookings', 'deletedAt')) {
             $where .= ' AND deletedAt IS NULL';
@@ -431,7 +440,7 @@ if (!function_exists('dashboard_counts')) {
         $counts['unread_orders'] = dashboard_count_unread_orders($connection, $pID);
         $counts['external_circular_notifications'] = dashboard_count_external_circular_notifications($connection, $pID, $access);
         $counts['room_notifications'] = dashboard_count_room_notifications($connection, $access);
-        $counts['vehicle_notifications'] = dashboard_count_vehicle_notifications($connection, $access);
+        $counts['vehicle_notifications'] = dashboard_count_vehicle_notifications($connection, $access, $pID);
         $counts['unread_vehicle_bookings'] = $counts['vehicle_notifications'];
         $counts['repair_notifications'] = dashboard_count_repair_notifications($connection, $access);
         $counts['pending_manager'] = dashboard_count_pending_bookings($connection);

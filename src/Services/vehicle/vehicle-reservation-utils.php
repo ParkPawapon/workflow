@@ -75,6 +75,28 @@ if (!function_exists('vehicle_reservation_ensure_other_passenger_columns')) {
             }
         }
 
+        $columns = vehicle_reservation_get_table_columns($connection, 'dh_vehicle_bookings', true);
+
+        if (!vehicle_reservation_has_column($columns, 'finalApproverPID')) {
+            $after_column = 'approvedAt';
+
+            if (vehicle_reservation_has_column($columns, 'assignedNote')) {
+                $after_column = 'assignedNote';
+            } elseif (vehicle_reservation_has_column($columns, 'assignedByPID')) {
+                $after_column = 'assignedByPID';
+            }
+
+            $sql = "ALTER TABLE `dh_vehicle_bookings` ADD COLUMN `finalApproverPID` varchar(13) DEFAULT NULL AFTER `" . $after_column . "`";
+
+            try {
+                if (!mysqli_query($connection, $sql)) {
+                    error_log('Database Error: ' . mysqli_error($connection));
+                }
+            } catch (mysqli_sql_exception $exception) {
+                error_log('Database Exception: ' . $exception->getMessage());
+            }
+        }
+
         return vehicle_reservation_get_table_columns($connection, 'dh_vehicle_bookings', true);
     }
 }
