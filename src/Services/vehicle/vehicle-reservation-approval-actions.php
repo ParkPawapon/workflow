@@ -104,7 +104,7 @@ if ($actor_pid === '') {
 
 $role_id = (int) ($teacher['roleID'] ?? 0);
 $position_id = (int) ($teacher['positionID'] ?? 0);
-$deputy_position_ids = system_position_deputy_ids($connection);
+$deputy_position_ids = system_position_budget_deputy_ids($connection);
 $acting_director_pid = system_get_acting_director_pid();
 $is_deputy = in_array($position_id, $deputy_position_ids, true);
 $is_acting_director = $acting_director_pid !== null && $acting_director_pid !== '' && $acting_director_pid === $actor_pid;

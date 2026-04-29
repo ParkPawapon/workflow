@@ -29,7 +29,7 @@ if (!function_exists('vehicle_reservation_approval_index')) {
 
         // roleID mapping (legacy): 1=ADMIN, 3=VEHICLE
         $connection = db_connection();
-        $vehicle_approval_is_deputy = in_array($position_id, system_position_deputy_ids($connection), true);
+        $vehicle_approval_is_deputy = in_array($position_id, system_position_budget_deputy_ids($connection), true);
         $vehicle_approval_is_acting = $acting_pid !== '' && $acting_pid === $actor_pid;
         $vehicle_approval_is_final_approver = $vehicle_approval_is_deputy || $vehicle_approval_is_acting;
         $vehicle_approval_is_admin = $role_id === 1

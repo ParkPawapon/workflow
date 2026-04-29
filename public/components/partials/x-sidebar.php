@@ -36,7 +36,7 @@ if ($actor_pid !== '') {
 
 $is_director_or_acting = $position_id === 1 || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_manage_external_circular = $is_admin_user || $is_registry_user;
-$is_deputy_user = in_array($position_id, system_position_deputy_ids($sidebar_connection), true);
+$is_deputy_user = in_array($position_id, system_position_budget_deputy_ids($sidebar_connection), true);
 $is_vehicle_final_approver = $is_deputy_user || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_review_external_circular = $is_director_or_acting || $is_deputy_user;
 $can_access_external_circular_menu = $actor_pid !== '';

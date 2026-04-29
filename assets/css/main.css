@@ -4811,6 +4811,12 @@ select {
   color: var(--color-warning);
 }
 
+.status-pill.processing {
+  background-color: rgba(var(--rgb-orange), 0.15);
+  border: 1px solid var(--color-orange);
+  color: var(--color-orange);
+}
+
 .status-pill.info {
   background-color: rgba(var(--rgb-primary), 0.12);
   border: 1px solid var(--color-primary);

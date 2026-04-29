@@ -37,7 +37,7 @@ if (!function_exists('dashboard_resolve_access')) {
         $acting_pid = (string) (system_get_acting_director_pid() ?? '');
         $is_director_or_acting = $position_id === 1
             || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
-        $is_deputy_user = in_array($position_id, system_position_deputy_ids($connection), true);
+        $is_deputy_user = in_array($position_id, system_position_budget_deputy_ids($connection), true);
         $is_vehicle_final_approver = $is_deputy_user || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
 
         return [
