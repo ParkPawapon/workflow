@@ -3,6 +3,8 @@
 .DS_Store
 tmp
 docs
+build
+vendor
 node_modules
 docker/mysql/initdb/*.sql
 docker/mysql/initdb/*.sql.gz
