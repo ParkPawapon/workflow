@@ -229,6 +229,7 @@ if (!function_exists('memo_owner_resolve_chain_from_routes')) {
     function memo_owner_resolve_chain_from_routes(array $memo, array $chain, array $routes): array
     {
         $flowStage = strtoupper(trim((string) ($memo['flowStage'] ?? '')));
+        $toPID = trim((string) ($memo['toPID'] ?? ''));
         $forwardActors = [];
         $hasDirectorReview = false;
         $deputyCandidateCache = [];
@@ -266,6 +267,11 @@ if (!function_exists('memo_owner_resolve_chain_from_routes')) {
 
             return $deputyCandidateCache[$pid];
         };
+
+        if ($flowStage === 'HEAD' && $toPID !== '' && $isDeputyCandidate($toPID)) {
+            $chain['HEAD'] = '';
+            $chain['DEPUTY'] = $toPID;
+        }
 
         foreach ($routes as $route) {
             $actorPID = trim((string) ($route['actorPID'] ?? ''));
@@ -602,11 +608,18 @@ if (!function_exists('memo_index')) {
 
         $approver_options = memo_build_approver_options($connection);
         $factions = memo_list_sender_factions($connection);
-        $executive_position_ids = array_values(array_unique(array_filter(array_merge(
+        $memo_executive_position_ids = array_values(array_unique(array_filter(array_merge(
             [((int) (system_position_executive_id($connection) ?? 0))],
-            system_position_deputy_ids($connection),
+            system_position_deputy_ids($connection)
+        ))));
+        $executive_position_ids = array_values(array_unique(array_filter(array_merge(
+            $memo_executive_position_ids,
             [5]
         ))));
+
+        if (empty($memo_executive_position_ids)) {
+            $memo_executive_position_ids = [1, 9, 2, 3, 4];
+        }
 
         if (empty($executive_position_ids)) {
             $executive_position_ids = [1, 2, 3, 4, 5];
@@ -867,6 +880,7 @@ if (!function_exists('memo_index')) {
             'approver_options' => $approver_options,
             'factions' => $factions,
             'teachers' => $teachers,
+            'memo_executive_position_ids' => $memo_executive_position_ids,
             'current_user' => $current_user,
             'dh_year' => system_get_dh_year(),
             'page' => $page,

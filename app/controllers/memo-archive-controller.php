@@ -77,7 +77,22 @@ if (!function_exists('memo_archive_index')) {
                 $alert = system_not_ready_alert('ยังไม่พบตาราง memo workflow กรุณารัน migrations/011_update_memos_workflow.sql');
             } elseif ($action === 'unarchive' && $memo_id > 0) {
                 try {
-                    memo_set_archived($memo_id, $current_pid, false);
+                    $memo_owner = db_fetch_one(
+                        'SELECT createdByPID FROM dh_memos WHERE memoID = ? AND deletedAt IS NULL LIMIT 1',
+                        'i',
+                        $memo_id
+                    );
+
+                    if (!$memo_owner) {
+                        throw new RuntimeException('ไม่พบบันทึกข้อความ');
+                    }
+
+                    if ((string) ($memo_owner['createdByPID'] ?? '') === $current_pid) {
+                        memo_set_archived($memo_id, $current_pid, false);
+                    } else {
+                        memo_set_reviewer_archived($memo_id, $current_pid, false);
+                    }
+
                     $alert = [
                         'type' => 'success',
                         'title' => 'นำออกจากที่จัดเก็บแล้ว',
@@ -102,10 +117,10 @@ if (!function_exists('memo_archive_index')) {
             }
             $items = [];
         } else {
-            $dh_year_options = memo_list_creator_years($current_pid, true);
+            $dh_year_options = memo_list_archived_years($current_pid);
 
-            if (!in_array($active_dh_year, $dh_year_options, true)) {
-                array_unshift($dh_year_options, $active_dh_year);
+            if ($dh_year_options === []) {
+                $dh_year_options[] = $active_dh_year;
             }
 
             $dh_year_options = array_values(array_unique(array_filter($dh_year_options, static function (int $year): bool {
@@ -117,14 +132,14 @@ if (!function_exists('memo_archive_index')) {
                 $selected_dh_year = (int) ($dh_year_options[0] ?? $active_dh_year);
             }
 
-            $filtered_total = memo_count_by_creator($current_pid, true, $status_filter, $search, $selected_dh_year);
+            $filtered_total = memo_count_archived_for_user($current_pid, $status_filter, $search, $selected_dh_year);
             $total_pages = max(1, (int) ceil($filtered_total / $per_page));
 
             if ($page > $total_pages) {
                 $page = $total_pages;
             }
             $offset = ($page - 1) * $per_page;
-            $items = memo_list_by_creator_page($current_pid, true, $status_filter, $search, $per_page, $offset, $filter_sort, $selected_dh_year);
+            $items = memo_list_archived_for_user_page($current_pid, $status_filter, $search, $per_page, $offset, $filter_sort, $selected_dh_year);
         }
 
         $base_params = [];

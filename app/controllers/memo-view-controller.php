@@ -247,7 +247,20 @@ if (!function_exists('memo_view_index')) {
         ], true);
         $is_creator = (string) ($memo['createdByPID'] ?? '') === $current_pid;
         // Draft and "cancelled-before-submit" are creator-only even if an approver was preselected.
-        $is_approver = (string) ($memo['toPID'] ?? '') === $current_pid && $is_submitted_or_legacy;
+        $is_current_recipient = (string) ($memo['toPID'] ?? '') === $current_pid && $is_submitted_or_legacy;
+        $is_route_actor = false;
+
+        if ($is_submitted_or_legacy && $has_routes) {
+            $route_access = db_fetch_one(
+                'SELECT 1 AS ok FROM dh_memo_routes WHERE memoID = ? AND actorPID = ? LIMIT 1',
+                'is',
+                $memo_id,
+                $current_pid
+            );
+            $is_route_actor = $route_access !== null;
+        }
+
+        $is_approver = $is_current_recipient || $is_route_actor;
         $is_admin = rbac_user_has_role($connection, $current_pid, ROLE_ADMIN) || in_array((int) ($current_user['roleID'] ?? 0), [1], true);
 
         if (!$is_creator && !$is_approver && !$is_admin) {
@@ -257,7 +270,7 @@ if (!function_exists('memo_view_index')) {
             return;
         }
 
-        if ($is_approver && in_array($memo_status, [MEMO_STATUS_SUBMITTED, MEMO_STATUS_IN_REVIEW], true)) {
+        if ($is_current_recipient && in_array($memo_status, [MEMO_STATUS_SUBMITTED, MEMO_STATUS_IN_REVIEW], true)) {
             memo_mark_in_review($memo_id, $current_pid);
             $memo = memo_get($memo_id) ?? $memo;
         }

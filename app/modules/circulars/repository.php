@@ -21,11 +21,21 @@ const CIRCULAR_ENTITY_NAME = 'dh_circulars';
 if (!function_exists('circular_create_record')) {
     function circular_create_record(array $data): int
     {
-        $stmt = db_query(
-            'INSERT INTO dh_circulars
-                (dh_year, circularType, subject, detail, linkURL, fromFID, extPriority, extBookNo, extIssuedDate, extFromText, extGroupFID, status, createdByPID, updatedByPID)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            'issssissssisss',
+        $fields = [
+            'dh_year',
+            'circularType',
+            'subject',
+            'detail',
+            'linkURL',
+            'fromFID',
+            'extPriority',
+            'extBookNo',
+            'extIssuedDate',
+            'extFromText',
+            'extGroupFID',
+        ];
+        $types = 'issssissssi';
+        $params = [
             (int) $data['dh_year'],
             (string) $data['circularType'],
             (string) $data['subject'],
@@ -37,9 +47,27 @@ if (!function_exists('circular_create_record')) {
             $data['extIssuedDate'] ?? null,
             $data['extFromText'] ?? null,
             $data['extGroupFID'] ?? null,
-            (string) $data['status'],
-            (string) $data['createdByPID'],
-            $data['updatedByPID'] ?? null
+        ];
+
+        if (array_key_exists('extReceiveSeq', $data)) {
+            $fields[] = 'extReceiveSeq';
+            $types .= 'i';
+            $params[] = $data['extReceiveSeq'] !== null ? (int) $data['extReceiveSeq'] : null;
+        }
+
+        $fields[] = 'status';
+        $fields[] = 'createdByPID';
+        $fields[] = 'updatedByPID';
+        $types .= 'sss';
+        $params[] = (string) $data['status'];
+        $params[] = (string) $data['createdByPID'];
+        $params[] = $data['updatedByPID'] ?? null;
+
+        $stmt = db_query(
+            'INSERT INTO dh_circulars (' . implode(', ', $fields) . ')
+             VALUES (' . implode(', ', array_fill(0, count($fields), '?')) . ')',
+            $types,
+            ...$params
         );
         $id = db_last_insert_id();
         mysqli_stmt_close($stmt);
@@ -142,7 +170,7 @@ if (!function_exists('circular_get_inbox')) {
     function circular_get_inbox(string $pID, string $inboxType = 'NORMAL', bool $archived = false): array
     {
         $archivedFlag = $archived ? 1 : 0;
-        $sql = 'SELECT i.inboxID, i.isRead, i.readAt, i.isArchived, i.deliveredAt,
+        $sql = 'SELECT i.inboxID, i.isRead, i.readAt, i.isArchived, i.deliveredAt, i.deliveredByPID,
                 c.circularID, c.circularType, c.subject, c.detail, c.linkURL, c.status, c.createdAt,
                 t.fName AS senderName,
                 COALESCE(sf.fName, tf.fName, "") AS senderFactionName
@@ -322,9 +350,17 @@ if (!function_exists('circular_list_sent')) {
 if (!function_exists('circular_get_read_stats')) {
     function circular_get_read_stats(int $circularID): array
     {
-        $sql = 'SELECT i.pID, MAX(i.isRead) AS isRead, MAX(i.readAt) AS readAt, t.fName
+        $sql = 'SELECT
+                i.pID,
+                MAX(CASE WHEN i.isRead = 1 OR rr.routeID IS NOT NULL THEN 1 ELSE 0 END) AS isRead,
+                MAX(CASE WHEN i.readAt IS NOT NULL THEN i.readAt ELSE rr.actionAt END) AS readAt,
+                t.fName
             FROM dh_circular_inboxes AS i
             INNER JOIN teacher AS t ON i.pID = t.pID
+            LEFT JOIN dh_circular_routes AS rr
+                ON rr.circularID = i.circularID
+               AND rr.fromPID = i.pID
+               AND rr.action IN (\'RETURN\', \'APPROVE\', \'FORWARD\')
             WHERE i.circularID = ?
             GROUP BY i.pID, t.fName
             ORDER BY t.fName ASC';
@@ -362,11 +398,12 @@ if (!function_exists('circular_get_announcements')) {
             return [];
         }
 
-        $sql = 'SELECT a.announcementID, a.selectedAt, c.circularID, c.subject
+        $sql = 'SELECT MAX(a.announcementID) AS announcementID, MAX(a.selectedAt) AS selectedAt, c.circularID, c.subject
             FROM dh_circular_announcements AS a
             INNER JOIN dh_circulars AS c ON a.circularID = c.circularID
             WHERE a.isActive = 1 AND c.deletedAt IS NULL
-            ORDER BY a.selectedAt DESC
+            GROUP BY c.circularID, c.subject
+            ORDER BY selectedAt DESC
             LIMIT ' . (int) $limit;
 
         return db_fetch_all($sql);

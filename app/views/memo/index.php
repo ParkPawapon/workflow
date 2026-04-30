@@ -9,6 +9,11 @@ $factions = (array) ($factions ?? []);
 $teachers = (array) ($teachers ?? []);
 $memo_director_label = 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
 $current_pid = trim((string) ($current_user['pID'] ?? ''));
+$memo_executive_position_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($memo_executive_position_ids ?? [])))));
+
+if ($memo_executive_position_ids === []) {
+    $memo_executive_position_ids = [1, 9, 2, 3, 4];
+}
 
 $selected_sender_fid = trim((string) ($values['sender_fid'] ?? ''));
 
@@ -163,7 +168,7 @@ foreach ($teachers as $teacher) {
         continue;
     }
 
-    if (in_array($position_id, [1, 2, 3, 4], true)) {
+    if (in_array($position_id, $memo_executive_position_ids, true)) {
         $executive_members[$pid] = [
             'pID' => $pid,
             'name' => $name,
@@ -638,12 +643,13 @@ ob_start();
                         $detail_for_attr = $detail !== '' ? $detail : '-';
                         $detail_b64 = base64_encode($detail_for_attr);
                         $status = strtoupper(trim((string) ($memo['status'] ?? '')));
-                        $status_meta = memo_status_meta($status);
+                        $status_meta = memo_status_meta_for_record($memo);
                         $status_sort_priority = (int) ($status_meta['priority'] ?? 99);
                         $submitted_at = trim((string) ($memo['submittedAt'] ?? ''));
                         $updated_at = trim((string) ($memo['updatedAt'] ?? ''));
                         $created_at = trim((string) ($memo['createdAt'] ?? ''));
-                        [$date_line, $time_line] = $format_thai_datetime($submitted_at !== '' ? $submitted_at : $created_at);
+                        $sent_at = $created_at !== '' ? $created_at : $submitted_at;
+                        [$date_line, $time_line] = $format_thai_datetime($sent_at);
                         [$updated_date_line, $updated_time_line] = $format_thai_datetime($updated_at !== '' ? $updated_at : $created_at);
 
                         if ($updated_date_line === '-' || $updated_date_line === '') {
@@ -653,7 +659,7 @@ ob_start();
                         if ($updated_time_line === '-' || $updated_time_line === '') {
                             $updated_time_line = $time_line;
                         }
-                        $sent_sort_raw = $submitted_at !== '' ? $submitted_at : $created_at;
+                        $sent_sort_raw = $sent_at;
                         $sent_sort_ts = strtotime($sent_sort_raw);
 
                         if ($sent_sort_ts === false) {
@@ -1471,15 +1477,6 @@ ob_start();
             });
 
             filteredRows.sort((leftRow, rightRow) => {
-                const leftStatus = String(leftRow.getAttribute('data-memo-status') || '').toUpperCase();
-                const rightStatus = String(rightRow.getAttribute('data-memo-status') || '').toUpperCase();
-                const leftStatusOrder = Number(leftRow.getAttribute('data-memo-status-order') || memoStatusPriorityMap[leftStatus] || 99);
-                const rightStatusOrder = Number(rightRow.getAttribute('data-memo-status-order') || memoStatusPriorityMap[rightStatus] || 99);
-
-                if (leftStatusOrder !== rightStatusOrder) {
-                    return leftStatusOrder - rightStatusOrder;
-                }
-
                 const leftTs = Number(leftRow.getAttribute('data-memo-sent-ts') || '0');
                 const rightTs = Number(rightRow.getAttribute('data-memo-sent-ts') || '0');
 

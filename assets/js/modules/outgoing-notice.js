@@ -409,6 +409,9 @@
   var noticeViewGroup = document.getElementById("noticeOutgoingViewGroup");
   var noticeViewLink = document.getElementById("noticeOutgoingViewLink");
   var noticeViewProposer = document.getElementById("noticeOutgoingViewProposer");
+  var noticeViewDirectorComment = document.getElementById(
+    "noticeOutgoingDirectorComment",
+  );
   var noticeViewCoverSection = document.getElementById("noticeOutgoingViewCoverSection");
   var noticeViewCoverList = document.getElementById("noticeOutgoingViewCoverList");
   var noticeViewAttachmentSection = document.getElementById("noticeOutgoingViewAttachmentSection");
@@ -606,6 +609,33 @@
     }, 50);
   }
 
+  function setNoticeViewDirectorCommentContent(value) {
+    var normalizedValue = String(value || "").trim() || "<p>-</p>";
+    var editor =
+      window.tinymce && typeof window.tinymce.get === "function"
+        ? window.tinymce.get("noticeOutgoingDirectorComment")
+        : null;
+
+    if (editor) {
+      editor.setContent(normalizedValue);
+      return;
+    }
+
+    if (noticeViewDirectorComment) {
+      noticeViewDirectorComment.value = normalizedValue;
+    }
+
+    window.setTimeout(function () {
+      var delayedEditor =
+        window.tinymce && typeof window.tinymce.get === "function"
+          ? window.tinymce.get("noticeOutgoingDirectorComment")
+          : null;
+      if (delayedEditor) {
+        delayedEditor.setContent(normalizedValue);
+      }
+    }, 50);
+  }
+
   function formatFileSize(bytes) {
     var size = Number(bytes || 0);
     if (!Number.isFinite(size) || size <= 0) {
@@ -777,6 +807,9 @@
         "-",
     );
     setNoticeViewEditorContent(button.getAttribute("data-detail"));
+    setNoticeViewDirectorCommentContent(
+      button.getAttribute("data-director-comment"),
+    );
     renderNoticeViewFiles(files, entityId);
   }
 

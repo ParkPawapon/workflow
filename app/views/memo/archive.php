@@ -344,7 +344,7 @@ ob_start();
                                     $subject = trim((string) ($item['subject'] ?? ''));
                                     $approver_name = trim((string) ($item['approverName'] ?? ''));
                                     $status = (string) ($item['status'] ?? '');
-                                    $status_meta = memo_status_meta($status);
+                                    $status_meta = memo_status_meta_for_record($item);
                                     $status_class = (string) ($status_meta['pill_variant'] ?? 'pending');
                                     $submitted_at = trim((string) ($item['submittedAt'] ?? ''));
                                     $created_at = trim((string) ($item['createdAt'] ?? ''));

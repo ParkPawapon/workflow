@@ -127,6 +127,10 @@ function vehicle_reservation_get_bookings(mysqli $connection, int $year, string 
         'companionIds',
         'requesterDisplayName',
         'attachmentFileID',
+        'assignedByPID',
+        'assignedAt',
+        'assignedNote',
+        'finalApproverPID',
         'approvalNote',
     ];
 
@@ -137,10 +141,25 @@ function vehicle_reservation_get_bookings(mysqli $connection, int $year, string 
     }
 
     $select_fields[] = 'app.fName AS approver_name';
+    $assigned_join = '';
+
+    if (vehicle_reservation_has_column($columns, 'assignedByPID')) {
+        $select_fields[] = 'asg.fName AS assigned_name';
+        $assigned_join = 'LEFT JOIN teacher AS asg ON b.assignedByPID = asg.pID';
+    } else {
+        $select_fields[] = "'' AS assigned_name";
+    }
+
+    $select_fields[] = 'v.vehiclePlate';
+    $select_fields[] = 'v.vehicleType';
+    $select_fields[] = 'v.vehicleBrand';
+    $select_fields[] = 'v.vehicleModel';
 
     $sql = 'SELECT ' . implode(', ', $select_fields) . ' FROM dh_vehicle_bookings AS b
         LEFT JOIN teacher AS drv ON b.driverPID = drv.pID
         LEFT JOIN teacher AS app ON b.approvedByPID = app.pID
+        ' . $assigned_join . '
+        LEFT JOIN dh_vehicles AS v ON b.vehicleID = v.vehicleID
         WHERE b.deletedAt IS NULL AND b.dh_year = ? AND b.requesterPID = ?
         ORDER BY b.createdAt DESC, b.bookingID DESC';
 

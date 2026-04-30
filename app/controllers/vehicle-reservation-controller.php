@@ -217,6 +217,15 @@ if (!function_exists('vehicle_reservation_index')) {
             }
             $passenger_count = max(1, count($companion_ids) + max(0, $other_passenger_count) + 1);
             $attachments = $vehicle_booking_attachments[(string) $booking_id] ?? [];
+            $vehicle_type = trim((string) ($booking_item['vehicleType'] ?? ''));
+            $vehicle_plate = trim((string) ($booking_item['vehiclePlate'] ?? ''));
+            $vehicle_brand = trim((string) ($booking_item['vehicleBrand'] ?? ''));
+            $vehicle_model = trim((string) ($booking_item['vehicleModel'] ?? ''));
+            $vehicle_label = trim(($vehicle_type !== '' ? $vehicle_type : '') . ' ' . ($vehicle_plate !== '' ? $vehicle_plate : ''));
+
+            if ($vehicle_label === '') {
+                $vehicle_label = trim(($vehicle_brand !== '' ? $vehicle_brand : '') . ' ' . ($vehicle_model !== '' ? $vehicle_model : ''));
+            }
 
             $updated_at_value = trim((string) ($booking_item['updatedAt'] ?? ''));
 
@@ -244,6 +253,17 @@ if (!function_exists('vehicle_reservation_index')) {
                 'statusClass' => $status_meta['class'],
                 'statusReason' => (string) ($booking_item['statusReason'] ?? ''),
                 'approvalNote' => (string) ($booking_item['approvalNote'] ?? ''),
+                'vehicleLabel' => $vehicle_label,
+                'vehiclePlate' => $vehicle_plate,
+                'vehicleType' => $vehicle_type,
+                'vehicleBrand' => $vehicle_brand,
+                'vehicleModel' => $vehicle_model,
+                'driverName' => (string) ($booking_item['driverName'] ?? ''),
+                'driverTel' => (string) ($booking_item['driverTel'] ?? ''),
+                'assignedNote' => (string) ($booking_item['assignedNote'] ?? ''),
+                'assignedName' => (string) ($booking_item['assigned_name'] ?? ''),
+                'assignedAt' => (string) ($booking_item['assignedAt'] ?? ''),
+                'assignedAtLabel' => $format_thai_datetime((string) ($booking_item['assignedAt'] ?? '')),
                 'attachments' => $attachments,
                 'createdAt' => (string) ($booking_item['createdAt'] ?? ''),
                 'updatedAt' => $updated_at_value,

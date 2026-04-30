@@ -75,6 +75,28 @@ if (!function_exists('memo_status_meta')) {
     }
 }
 
+if (!function_exists('memo_status_meta_for_record')) {
+    function memo_status_meta_for_record(array $memo): array
+    {
+        $status = strtoupper(trim((string) ($memo['status'] ?? '')));
+        $meta = memo_status_meta($status);
+
+        $flowStage = strtoupper(trim((string) ($memo['effectiveFlowStage'] ?? ($memo['flowStage'] ?? ''))));
+        $deputyPID = trim((string) ($memo['deputyResolvedPID'] ?? ($memo['deputyPID'] ?? '')));
+        $hasDeputyReview = $deputyPID !== ''
+            || trim((string) ($memo['deputyName'] ?? '')) !== ''
+            || trim((string) ($memo['deputyAction'] ?? '')) !== '';
+
+        if ($status === MEMO_STATUS_SUBMITTED && $flowStage === 'DIRECTOR' && $hasDeputyReview) {
+            $meta['label'] = 'เสนอผู้อำนวยการ';
+            $meta['pill_variant'] = 'info';
+            $meta['badge_variant'] = 'info';
+        }
+
+        return $meta;
+    }
+}
+
 if (!function_exists('memo_status_options')) {
     function memo_status_options(): array
     {

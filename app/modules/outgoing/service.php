@@ -45,6 +45,54 @@ if (!function_exists('outgoing_document_number')) {
     }
 }
 
+if (!function_exists('outgoing_sequence_label')) {
+    function outgoing_sequence_label(int $seq): string
+    {
+        return 'ว' . str_pad((string) max(0, $seq), 3, '0', STR_PAD_LEFT);
+    }
+}
+
+if (!function_exists('outgoing_format_number')) {
+    function outgoing_format_number(int $seq): string
+    {
+        return outgoing_prefix() . '/' . outgoing_sequence_label($seq);
+    }
+}
+
+if (!function_exists('outgoing_parse_sequence_from_number')) {
+    function outgoing_parse_sequence_from_number(string $number): int
+    {
+        $number = trim($number);
+
+        if ($number === '') {
+            return 0;
+        }
+
+        if (preg_match('/\/ว?0*([0-9]+)$/u', $number, $matches) !== 1) {
+            return 0;
+        }
+
+        return max(0, (int) ($matches[1] ?? 0));
+    }
+}
+
+if (!function_exists('outgoing_display_number')) {
+    function outgoing_display_number(array $outgoing): string
+    {
+        $seq = (int) ($outgoing['outgoingSeq'] ?? 0);
+
+        if ($seq <= 0) {
+            $seq = outgoing_parse_sequence_from_number((string) ($outgoing['outgoingNo'] ?? ''));
+        }
+
+        if ($seq > 0) {
+            return outgoing_format_number($seq);
+        }
+
+        return outgoing_document_number($outgoing);
+    }
+}
+
 if (!function_exists('outgoing_sync_document')) {
     function outgoing_sync_document(int $outgoingID): ?int
     {
@@ -98,7 +146,7 @@ if (!function_exists('outgoing_generate_number')) {
     {
         $row = db_fetch_one('SELECT outgoingSeq FROM dh_outgoing_letters WHERE dh_year = ? ORDER BY outgoingSeq DESC LIMIT 1 FOR UPDATE', 'i', $year);
         $seq = $row ? ((int) $row['outgoingSeq'] + 1) : 1;
-        $number = outgoing_prefix() . '/' . $seq;
+        $number = outgoing_format_number($seq);
 
         return [$number, $seq];
     }
@@ -109,7 +157,7 @@ if (!function_exists('outgoing_preview_number')) {
     {
         $row = db_fetch_one('SELECT outgoingSeq FROM dh_outgoing_letters WHERE dh_year = ? ORDER BY outgoingSeq DESC LIMIT 1', 'i', $year);
         $seq = $row ? ((int) $row['outgoingSeq'] + 1) : 1;
-        $number = outgoing_prefix() . '/' . $seq;
+        $number = outgoing_format_number($seq);
 
         return $number;
     }

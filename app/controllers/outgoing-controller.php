@@ -119,7 +119,6 @@ if (!function_exists('outgoing_build_detail')) {
             'ประเภท: ' . outgoing_priority_label_from_key($priority_key),
             'ลงวันที่: ' . $effective_date,
             'ผู้ออกเลข: ' . ($issuer_name !== '' ? $issuer_name : '-'),
-            'เจ้าของเรื่อง: ' . (!empty($owner_names) ? implode(', ', $owner_names) : '-'),
         ];
 
         return implode("\n", $lines);
@@ -229,8 +228,9 @@ if (!function_exists('outgoing_build_view_modal_payload_map')) {
             }
 
             $full_item = outgoing_get($outgoing_id) ?? $item;
-            $outgoing_no = trim((string) ($full_item['outgoingNo'] ?? $item['outgoingNo'] ?? ''));
-            $document = $documents_map[$outgoing_no] ?? [];
+            $stored_outgoing_no = trim((string) ($full_item['outgoingNo'] ?? $item['outgoingNo'] ?? ''));
+            $outgoing_no = outgoing_display_number($full_item ?: $item);
+            $document = $documents_map[$stored_outgoing_no] ?? ($documents_map[$outgoing_no] ?? []);
             $detail_meta = outgoing_parse_detail_meta((string) ($full_item['detail'] ?? ''));
             $document_meta = outgoing_parse_detail_meta((string) ($document['content'] ?? ''));
             $priority_meta = outgoing_resolve_priority_meta(
@@ -404,7 +404,6 @@ if (!function_exists('outgoing_index')) {
                 $post_audit_payload['subject'] = $form_values['subject'] !== '' ? $form_values['subject'] : null;
                 $post_audit_payload['priority'] = $form_values['priority'];
                 $post_audit_payload['effectiveDate'] = $form_values['effective_date'] !== '' ? $form_values['effective_date'] : null;
-                $post_audit_payload['ownerCount'] = count($form_values['person_ids']);
             }
 
             if (!csrf_validate($_POST['csrf_token'] ?? null)) {
@@ -432,31 +431,23 @@ if (!function_exists('outgoing_index')) {
                             'title' => 'วันที่ไม่ถูกต้อง',
                             'message' => 'กรุณาเลือกวันที่ให้ถูกต้อง',
                         ];
-                    } elseif ($form_values['person_ids'] === []) {
-                        $audit_fail('CREATE', 'missing_owner', null, $post_audit_payload);
-                        $alert = [
-                            'type' => 'danger',
-                            'title' => 'กรุณาเลือกเจ้าของเรื่อง',
-                            'message' => 'อย่างน้อย 1 รายการ',
-                        ];
                     } else {
                         try {
-                            $owner_names = outgoing_resolve_owner_names($form_values['person_ids']);
                             $outgoing_id = outgoing_create_draft([
                                 'dh_year' => system_get_dh_year(),
                                 'subject' => $form_values['subject'],
-                                'detail' => outgoing_build_detail($form_values['effective_date'], $issuer_name, $owner_names, (string) ($form_values['priority'] ?? 'normal')),
+                                'detail' => outgoing_build_detail($form_values['effective_date'], $issuer_name, [], (string) ($form_values['priority'] ?? 'normal')),
                                 'status' => OUTGOING_STATUS_WAITING_ATTACHMENT,
                                 'createdByPID' => $current_pid,
                             ]);
 
                             $created_outgoing = outgoing_get($outgoing_id);
-                            $created_number = outgoing_document_number($created_outgoing ?? []);
+                            $created_number = outgoing_display_number($created_outgoing ?? []);
 
                             $alert = [
                                 'type' => 'success',
-                                'title' => 'บันทึกออกเลขเรียบร้อย',
-                                'message' => $created_number !== '' ? 'เลขทะเบียน ' . $created_number : '',
+                                'title' => 'เวียนเรียบร้อย',
+                                'message' => $created_number !== '' ? 'เลขทะเบียนส่ง ' . $created_number : '',
                             ];
 
                             $form_values = [

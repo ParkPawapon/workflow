@@ -97,6 +97,47 @@ if (!function_exists('memo_reviewer_visibility_sql')) {
     }
 }
 
+if (!function_exists('memo_ensure_inbox_archives_table')) {
+    function memo_ensure_inbox_archives_table(): void
+    {
+        $connection = db_connection();
+
+        if (db_table_exists($connection, 'dh_memo_inbox_archives')) {
+            return;
+        }
+
+        db_query(
+            'CREATE TABLE IF NOT EXISTS dh_memo_inbox_archives (
+                archiveID bigint(20) NOT NULL AUTO_INCREMENT,
+                memoID bigint(20) NOT NULL,
+                pID varchar(13) NOT NULL,
+                isArchived tinyint(1) NOT NULL DEFAULT 1,
+                archivedAt datetime DEFAULT NULL,
+                updatedAt timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                PRIMARY KEY (archiveID),
+                UNIQUE KEY uq_memo_inbox_archive (memoID, pID),
+                KEY idx_memo_inbox_archive_user (pID, isArchived, archivedAt),
+                KEY idx_memo_inbox_archive_memo (memoID)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci'
+        );
+    }
+}
+
+if (!function_exists('memo_reviewer_not_archived_sql')) {
+    function memo_reviewer_not_archived_sql(string $memoAlias = '', string $archiveAlias = 'mia'): string
+    {
+        $memoPrefix = $memoAlias !== '' ? $memoAlias . '.' : '';
+
+        return 'NOT EXISTS (
+            SELECT 1
+            FROM dh_memo_inbox_archives AS ' . $archiveAlias . '
+            WHERE ' . $archiveAlias . '.memoID = ' . $memoPrefix . 'memoID
+              AND ' . $archiveAlias . '.pID = ?
+              AND ' . $archiveAlias . '.isArchived = 1
+        )';
+    }
+}
+
 if (!function_exists('memo_create_record')) {
     function memo_create_record(array $data): int
     {
@@ -252,11 +293,10 @@ if (!function_exists('memo_list_by_creator_page')) {
             $params[] = $like;
         }
 
-        $status_order_sql = memo_status_order_case_sql('m.status');
-        $timeline_order_sql = 'COALESCE(m.submittedAt, m.createdAt)';
+        $timeline_order_sql = 'm.createdAt';
         $timeline_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
         $memo_id_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
-        $order_by = $status_order_sql . ' ASC, ' . $timeline_order_sql . ' ' . $timeline_direction . ', m.memoID ' . $memo_id_direction;
+        $order_by = $timeline_order_sql . ' ' . $timeline_direction . ', m.memoID ' . $memo_id_direction;
 
         $sql = 'SELECT m.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt, m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt,
                 m.createdByPID, m.flowMode, m.flowStage,
@@ -297,18 +337,200 @@ if (!function_exists('memo_list_creator_years')) {
     }
 }
 
+if (!function_exists('memo_archive_filter_sql')) {
+    function memo_archive_filter_sql(string $alias, ?string $status, ?string $search, ?int $dh_year, string &$types, array &$params): string
+    {
+        $prefix = $alias !== '' ? $alias . '.' : '';
+        $status = trim((string) $status);
+        $where = '';
+
+        if ($status === 'signed_all') {
+            $where .= ' AND ' . $prefix . 'status IN (?, ?)';
+            $types .= 'ss';
+            $params[] = MEMO_STATUS_APPROVED_UNSIGNED;
+            $params[] = MEMO_STATUS_SIGNED;
+        } elseif ($status !== '' && $status !== 'all') {
+            $where .= ' AND ' . $prefix . 'status = ?';
+            $types .= 's';
+            $params[] = $status;
+        }
+
+        if ($dh_year !== null && $dh_year > 0) {
+            $where .= ' AND ' . $prefix . 'dh_year = ?';
+            $types .= 'i';
+            $params[] = $dh_year;
+        }
+
+        [$term, $like] = memo_prepare_search($search);
+
+        if ($term !== '') {
+            $where .= ' AND (' . $prefix . 'subject LIKE ? ESCAPE \'\\\\\' OR ' . $prefix . 'memoNo LIKE ? ESCAPE \'\\\\\')';
+            $types .= 'ss';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        return $where;
+    }
+}
+
+if (!function_exists('memo_list_archived_years')) {
+    function memo_list_archived_years(string $pID): array
+    {
+        memo_ensure_inbox_archives_table();
+
+        $sql = 'SELECT DISTINCT archived_year
+            FROM (
+                SELECT m.dh_year AS archived_year
+                FROM dh_memos AS m
+                WHERE m.createdByPID = ? AND m.deletedAt IS NULL AND m.isArchived = 1
+                  AND m.dh_year IS NOT NULL AND m.dh_year >= 2568
+
+                UNION
+
+                SELECT m.dh_year AS archived_year
+                FROM dh_memos AS m
+                INNER JOIN dh_memo_inbox_archives AS mia
+                    ON mia.memoID = m.memoID AND mia.pID = ? AND mia.isArchived = 1
+                WHERE m.createdByPID <> ? AND m.deletedAt IS NULL
+                  AND ' . memo_reviewer_visibility_sql('m', 'mr_archive_year') . '
+                  AND m.dh_year IS NOT NULL AND m.dh_year >= 2568
+                  AND (m.submittedAt IS NOT NULL OR m.status IN ("SUBMITTED","IN_REVIEW","RETURNED","APPROVED_UNSIGNED","SIGNED","REJECTED"))
+            ) AS archived_years
+            ORDER BY archived_year DESC';
+
+        $rows = db_fetch_all($sql, 'sssss', $pID, $pID, $pID, $pID, $pID);
+        $years = [];
+
+        foreach ($rows as $row) {
+            $year = (int) ($row['archived_year'] ?? 0);
+
+            if ($year > 0) {
+                $years[] = $year;
+            }
+        }
+
+        return array_values(array_unique($years));
+    }
+}
+
+if (!function_exists('memo_count_archived_for_user')) {
+    function memo_count_archived_for_user(string $pID, ?string $status = null, ?string $search = null, ?int $dh_year = null): int
+    {
+        memo_ensure_inbox_archives_table();
+
+        $ownerTypes = 's';
+        $ownerParams = [$pID];
+        $ownerWhere = 'm.createdByPID = ? AND m.deletedAt IS NULL AND m.isArchived = 1';
+        $ownerWhere .= memo_archive_filter_sql('m', $status, $search, $dh_year, $ownerTypes, $ownerParams);
+
+        $reviewerTypes = 'ssss';
+        $reviewerParams = [$pID, $pID, $pID, $pID];
+        $reviewerWhere = 'm.createdByPID <> ? AND m.deletedAt IS NULL
+            AND ' . memo_reviewer_visibility_sql('m', 'mr_archive_count') . '
+            AND (m.submittedAt IS NOT NULL OR m.status IN ("SUBMITTED","IN_REVIEW","RETURNED","APPROVED_UNSIGNED","SIGNED","REJECTED"))';
+        $reviewerWhere .= memo_archive_filter_sql('m', $status, $search, $dh_year, $reviewerTypes, $reviewerParams);
+
+        $sql = 'SELECT COUNT(*) AS total
+            FROM (
+                SELECT m.memoID
+                FROM dh_memos AS m
+                WHERE ' . $ownerWhere . '
+
+                UNION ALL
+
+                SELECT m.memoID
+                FROM dh_memos AS m
+                INNER JOIN dh_memo_inbox_archives AS mia
+                    ON mia.memoID = m.memoID AND mia.pID = ? AND mia.isArchived = 1
+                WHERE ' . $reviewerWhere . '
+            ) AS archived_memos';
+
+        $types = $ownerTypes . $reviewerTypes;
+        $params = array_merge($ownerParams, $reviewerParams);
+        $row = db_fetch_one($sql, $types, ...$params);
+
+        return (int) ($row['total'] ?? 0);
+    }
+}
+
+if (!function_exists('memo_list_archived_for_user_page')) {
+    function memo_list_archived_for_user_page(string $pID, ?string $status, ?string $search, int $limit, int $offset, ?string $sort = null, ?int $dh_year = null): array
+    {
+        memo_ensure_inbox_archives_table();
+
+        $limit = max(1, $limit);
+        $offset = max(0, $offset);
+        $sort = strtolower(trim((string) $sort));
+        $timeline_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
+        $memo_id_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
+
+        $ownerTypes = 's';
+        $ownerParams = [$pID];
+        $ownerWhere = 'm.createdByPID = ? AND m.deletedAt IS NULL AND m.isArchived = 1';
+        $ownerWhere .= memo_archive_filter_sql('m', $status, $search, $dh_year, $ownerTypes, $ownerParams);
+
+        $reviewerTypes = 'ssss';
+        $reviewerParams = [$pID, $pID, $pID, $pID];
+        $reviewerWhere = 'm.createdByPID <> ? AND m.deletedAt IS NULL
+            AND ' . memo_reviewer_visibility_sql('m', 'mr_archive_page') . '
+            AND (m.submittedAt IS NOT NULL OR m.status IN ("SUBMITTED","IN_REVIEW","RETURNED","APPROVED_UNSIGNED","SIGNED","REJECTED"))';
+        $reviewerWhere .= memo_archive_filter_sql('m', $status, $search, $dh_year, $reviewerTypes, $reviewerParams);
+
+        $selectColumnsOwner = 'm.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt,
+                m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt, m.createdByPID, m.flowMode, m.flowStage,
+                m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
+                t.fName AS approverName,
+                m.archivedAt AS archiveTimelineAt,
+                "OWNER" AS archiveSource';
+        $selectColumnsReviewer = 'm.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt,
+                m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt, m.createdByPID, m.flowMode, m.flowStage,
+                m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
+                c.fName AS approverName,
+                mia.archivedAt AS archiveTimelineAt,
+                "INBOX" AS archiveSource';
+
+        $sql = 'SELECT *
+            FROM (
+                SELECT ' . $selectColumnsOwner . '
+                FROM dh_memos AS m
+                LEFT JOIN teacher AS t ON m.toPID = t.pID
+                WHERE ' . $ownerWhere . '
+
+                UNION ALL
+
+                SELECT ' . $selectColumnsReviewer . '
+                FROM dh_memos AS m
+                INNER JOIN dh_memo_inbox_archives AS mia
+                    ON mia.memoID = m.memoID AND mia.pID = ? AND mia.isArchived = 1
+                LEFT JOIN teacher AS c ON m.createdByPID = c.pID
+                WHERE ' . $reviewerWhere . '
+            ) AS archived_memos
+            ORDER BY COALESCE(archiveTimelineAt, submittedAt, reviewedAt, createdAt) ' . $timeline_direction . ', memoID ' . $memo_id_direction . '
+            LIMIT ? OFFSET ?';
+
+        $types = $ownerTypes . $reviewerTypes . 'ii';
+        $params = array_merge($ownerParams, $reviewerParams, [$limit, $offset]);
+
+        return db_fetch_all($sql, $types, ...$params);
+    }
+}
+
 if (!function_exists('memo_count_by_reviewer')) {
     function memo_count_by_reviewer(string $pID, ?string $status = null, ?string $search = null, ?int $dh_year = null): int
     {
+        memo_ensure_inbox_archives_table();
+
         $status = trim((string) $status);
 
         // Reviewer inbox must not expose drafts or "cancelled-before-submit" records.
         // `submittedAt` may be NULL for legacy rows, so we also allow canonical workflow statuses.
         $where = 'createdByPID <> ? AND deletedAt IS NULL
             AND ' . memo_reviewer_visibility_sql('', 'mr_count') . '
+            AND ' . memo_reviewer_not_archived_sql('', 'mia_count') . '
             AND (submittedAt IS NOT NULL OR status IN ("SUBMITTED","IN_REVIEW","RETURNED","APPROVED_UNSIGNED","SIGNED","REJECTED"))';
-        $types = 'sss';
-        $params = [$pID, $pID, $pID];
+        $types = 'ssss';
+        $params = [$pID, $pID, $pID, $pID];
 
         if ($status === 'signed_all') {
             $where .= ' AND status IN (?, ?)';
@@ -345,6 +567,8 @@ if (!function_exists('memo_count_by_reviewer')) {
 if (!function_exists('memo_list_by_reviewer_page')) {
     function memo_list_by_reviewer_page(string $pID, ?string $status, ?string $search, int $limit, int $offset, ?int $dh_year = null, ?string $sort = null): array
     {
+        memo_ensure_inbox_archives_table();
+
         $connection = db_connection();
         $creator_position = system_position_join($connection, 'c', 'cp');
         $limit = max(1, $limit);
@@ -358,9 +582,10 @@ if (!function_exists('memo_list_by_reviewer_page')) {
         // `submittedAt` may be NULL for legacy rows, so we also allow canonical workflow statuses.
         $where = 'm.createdByPID <> ? AND m.deletedAt IS NULL
             AND ' . memo_reviewer_visibility_sql('m', 'mr_page') . '
+            AND ' . memo_reviewer_not_archived_sql('m', 'mia_page') . '
             AND (m.submittedAt IS NOT NULL OR m.status IN ("SUBMITTED","IN_REVIEW","RETURNED","APPROVED_UNSIGNED","SIGNED","REJECTED"))';
-        $types = 'sss';
-        $params = [$pID, $pID, $pID];
+        $types = 'ssss';
+        $params = [$pID, $pID, $pID, $pID];
 
         if ($status === 'signed_all') {
             $where .= ' AND m.status IN (?, ?)';
@@ -414,15 +639,18 @@ if (!function_exists('memo_list_by_reviewer_page')) {
 if (!function_exists('memo_list_reviewer_years')) {
     function memo_list_reviewer_years(string $pID): array
     {
+        memo_ensure_inbox_archives_table();
+
         $sql = 'SELECT DISTINCT m.dh_year
             FROM dh_memos AS m
             WHERE m.createdByPID <> ? AND m.deletedAt IS NULL
               AND ' . memo_reviewer_visibility_sql('m', 'mr_year') . '
+              AND ' . memo_reviewer_not_archived_sql('m', 'mia_year') . '
               AND m.dh_year IS NOT NULL AND m.dh_year >= 2568
               AND (m.submittedAt IS NOT NULL OR m.status IN ("SUBMITTED","IN_REVIEW","RETURNED","APPROVED_UNSIGNED","SIGNED","REJECTED"))
             ORDER BY m.dh_year DESC';
 
-        $rows = db_fetch_all($sql, 'sss', $pID, $pID, $pID);
+        $rows = db_fetch_all($sql, 'ssss', $pID, $pID, $pID, $pID);
         $years = [];
 
         foreach ($rows as $row) {
