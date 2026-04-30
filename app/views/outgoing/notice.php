@@ -551,7 +551,7 @@ ob_start();
                             <?php if ($show_book_type_column) : ?>
                                 <th>ประเภทหนังสือ</th>
                             <?php endif; ?>
-                            <th>เลขรับ / เลขที่ / หัวเรื่อง</th>
+                            <th>เลขที่ / หัวเรื่อง</th>
                             <th>ผู้ส่ง</th>
                             <th>วันที่ส่ง</th>
                             <th>สถานะ</th>
@@ -593,9 +593,6 @@ ob_start();
                                         <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
                                     <?php endif; ?>
                                     <td>
-                                        <?php if ((int) ($item['ext_receive_seq'] ?? 0) > 0) : ?>
-                                            <p>เลขรับ <?= h((string) (int) ($item['ext_receive_seq'] ?? 0)) ?></p>
-                                        <?php endif; ?>
                                         <?php if (trim((string) ($item['ext_book_no'] ?? '')) !== '') : ?>
                                             <p><?= h((string) ($item['ext_book_no'] ?? '')) ?></p>
                                         <?php endif; ?>
@@ -693,7 +690,7 @@ ob_start();
                 <thead>
                     <tr>
                         <th>วันที่รับ</th>
-                        <th>เลขรับ / เลขที่ / เรื่อง</th>
+                        <th>เลขที่ / เรื่อง</th>
                         <th>ความเร่งด่วน</th>
                         <th>สถานะปัจุบัน</th>
                         <th></th>
@@ -736,9 +733,6 @@ ob_start();
                                     <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
                                 </td>
                                 <td>
-                                    <?php if ((int) ($item['ext_receive_seq'] ?? 0) > 0) : ?>
-                                        <p>เลขรับ <?= h((string) (int) ($item['ext_receive_seq'] ?? 0)) ?></p>
-                                    <?php endif; ?>
                                     <p><?= h((string) ($item['ext_book_no'] ?? '-')) ?></p>
                                     <p><?= h((string) ($item['subject'] ?? '')) ?></p>
                                 </td>
