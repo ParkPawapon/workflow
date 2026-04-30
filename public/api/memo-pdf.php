@@ -534,6 +534,81 @@ if (!function_exists('memo_pdf_resolve_stage_action')) {
     }
 }
 
+if (!function_exists('memo_pdf_review_action_label')) {
+    function memo_pdf_review_action_label(string $action, string $stage = ''): string
+    {
+        $action = strtoupper(trim($action));
+        $stage = strtoupper(trim($stage));
+
+        $labels = [
+            'APPROVE_UNSIGNED' => 'ลงนามแล้ว',
+            'REJECT' => 'ไม่อนุมัติ',
+            'SIGN' => 'ลงนามแล้ว',
+            'DIRECTOR_APPROVE' => 'อนุมัติ',
+            'DIRECTOR_REJECT' => 'ไม่อนุมัติ',
+            'DIRECTOR_SIGNED' => 'ลงนามแล้ว',
+            'DIRECTOR_ACKNOWLEDGED' => 'ทราบ',
+            'DIRECTOR_AGREED' => 'ชอบ',
+            'DIRECTOR_NOTIFIED' => 'แจ้ง',
+            'DIRECTOR_ASSIGNED' => 'มอบ',
+            'DIRECTOR_SCHEDULED' => 'ลงนัด',
+            'DIRECTOR_PERMITTED' => 'อนุญาต',
+            'DIRECTOR_APPROVED' => 'อนุมัติ',
+            'DIRECTOR_REJECTED' => 'ไม่อนุมัติ',
+            'DIRECTOR_REQUEST_MEETING' => 'ขอพบ',
+        ];
+
+        if ($action === 'FORWARD') {
+            return $stage === 'DEPUTY' ? 'เสนอผู้อำนวยการ' : '';
+        }
+
+        if ($action === 'RETURN') {
+            return 'กลับไปแก้ไข';
+        }
+
+        return $labels[$action] ?? '';
+    }
+}
+
+if (!function_exists('memo_pdf_review_note_with_action')) {
+    function memo_pdf_review_note_with_action(string $note, string $action, string $stage): string
+    {
+        $note = trim($note);
+        $stage = strtoupper(trim($stage));
+
+        if (!in_array($stage, ['DEPUTY', 'DIRECTOR'], true)) {
+            return $note;
+        }
+
+        $action_label = memo_pdf_review_action_label($action, $stage);
+
+        if ($action_label === '') {
+            return $note;
+        }
+
+        if ($note === '' || $note === '-') {
+            return $action_label;
+        }
+
+        $normalize = static function (string $value): string {
+            $value = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $value = strip_tags($value);
+            $value = preg_replace('/\s+/u', '', $value) ?? $value;
+
+            return trim($value);
+        };
+
+        $normalized_note = $normalize($note);
+        $normalized_label = $normalize($action_label);
+
+        if ($normalized_note === $normalized_label || str_starts_with($normalized_note, $normalized_label)) {
+            return $note;
+        }
+
+        return trim($action_label . ' ' . $note);
+    }
+}
+
 if (!function_exists('memo_pdf_resolve_chain_from_routes')) {
     function memo_pdf_resolve_chain_from_routes(array $memo, array $chain, array $routes): array
     {
@@ -901,9 +976,11 @@ if (!function_exists('memo_pdf_build_live_data')) {
 
             $rendered_review_keys[$review_key] = true;
 
+            $stage_display_note = memo_pdf_review_note_with_action($stage_note !== '' ? $stage_note : '-', $stage_action, $stage);
+
             $review_blocks[] = [
                 'title' => $meta['title'],
-                'note' => $stage_note !== '' ? $stage_note : '-',
+                'note' => $stage_display_note !== '' ? $stage_display_note : '-',
                 'signature' => memo_pdf_safe_file_to_data_uri((string) ($stage_profile['signature'] ?? '')) ?? '',
                 'name' => trim((string) ($stage_profile['name'] ?? '-')),
                 'position' => trim((string) ($stage_profile['positionName'] ?? '-')),
