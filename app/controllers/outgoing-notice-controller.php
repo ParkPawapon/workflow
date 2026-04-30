@@ -671,6 +671,7 @@ if (!function_exists('outgoing_notice_index')) {
         $attachments_map = [];
         $forwarded_recipients_map = [];
         $director_review_map = [];
+        $latest_sender_comment_map = [];
 
         if (!empty($items) && db_table_exists($connection, 'dh_file_refs')) {
             $entity_ids = array_values(array_unique(array_filter(array_map(static function (array $item): int {
@@ -758,6 +759,50 @@ if (!function_exists('outgoing_notice_index')) {
                         'comment' => trim((string) ($row['note'] ?? '')),
                         'reviewer_pid' => trim((string) ($row['fromPID'] ?? '')),
                         'reviewer_name' => trim((string) ($row['reviewerName'] ?? '')),
+                    ];
+                }
+            }
+
+            if (!empty($entity_ids)) {
+                $placeholders = implode(', ', array_fill(0, count($entity_ids), '?'));
+                $types = str_repeat('i', count($entity_ids));
+                $rows = db_fetch_all(
+                    'SELECT r.circularID, r.routeID, r.action, r.note, r.fromPID,
+                            COALESCE(t.fName, "") AS senderName,
+                            COALESCE(p.positionName, "") AS senderPositionName
+                     FROM dh_circular_routes AS r
+                     INNER JOIN (
+                         SELECT circularID, fromPID, MAX(routeID) AS routeID
+                         FROM dh_circular_routes
+                         WHERE circularID IN (' . $placeholders . ')
+                           AND fromPID IS NOT NULL
+                           AND fromPID <> \'\'
+                         GROUP BY circularID, fromPID
+                     ) AS latest ON latest.routeID = r.routeID
+                     LEFT JOIN teacher AS t ON t.pID = r.fromPID
+                     LEFT JOIN dh_positions AS p ON p.positionID = t.positionID',
+                    $types,
+                    ...$entity_ids
+                );
+
+                foreach ($rows as $row) {
+                    $circular_id_key = (string) ((int) ($row['circularID'] ?? 0));
+                    $from_pid = trim((string) ($row['fromPID'] ?? ''));
+
+                    if ($circular_id_key === '0' || $from_pid === '') {
+                        continue;
+                    }
+
+                    if (!isset($latest_sender_comment_map[$circular_id_key])) {
+                        $latest_sender_comment_map[$circular_id_key] = [];
+                    }
+
+                    $latest_sender_comment_map[$circular_id_key][$from_pid] = [
+                        'action' => strtoupper(trim((string) ($row['action'] ?? ''))),
+                        'comment' => trim((string) ($row['note'] ?? '')),
+                        'sender_pid' => $from_pid,
+                        'sender_name' => trim((string) ($row['senderName'] ?? '')),
+                        'sender_position_name' => trim((string) ($row['senderPositionName'] ?? '')),
                     ];
                 }
             }
@@ -931,6 +976,39 @@ if (!function_exists('outgoing_notice_index')) {
             return date('H:i', $timestamp) . ' น.';
         };
 
+        $director_pids_for_label = array_values(array_filter(array_unique([
+            (string) (system_get_director_pid() ?? ''),
+            (string) (system_get_acting_director_pid() ?? ''),
+            (string) (system_get_current_director_pid() ?? ''),
+        ])));
+
+        $latest_comment_label = static function (array $route) use ($director_pids_for_label): string {
+            $action = strtoupper(trim((string) ($route['action'] ?? '')));
+            $sender_pid = trim((string) ($route['sender_pid'] ?? ''));
+            $position_name = trim((string) ($route['sender_position_name'] ?? ''));
+            $is_deputy_sender = str_contains($position_name, 'รองผู้อำนวยการ');
+            $is_director_sender = ($sender_pid !== '' && in_array($sender_pid, $director_pids_for_label, true))
+                || (!$is_deputy_sender && str_contains($position_name, 'ผู้อำนวยการ'));
+
+            if ($action === 'RETURN' && $is_director_sender) {
+                return 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+            }
+
+            if ($action === 'APPROVE' || $is_deputy_sender) {
+                return 'ความคิดเห็นของรองผู้อำนวยการ';
+            }
+
+            if ($action === 'RETURN') {
+                return 'ความคิดเห็นของผู้พิจารณา';
+            }
+
+            if (in_array($action, ['CREATE', 'SEND'], true)) {
+                return 'ความคิดเห็นของเจ้าหน้าที่สารบรรณ';
+            }
+
+            return 'ความคิดเห็นของผู้ส่งล่าสุด';
+        };
+
         $display_items = [];
 
         foreach ($items as $item) {
@@ -939,10 +1017,29 @@ if (!function_exists('outgoing_notice_index')) {
             $priority_label = $priority !== '' ? $priority : 'ปกติ';
             $urgency_class = $urgency_class_map[$priority_label] ?? 'normal';
             $status_key = strtoupper((string) ($item['status'] ?? ''));
+            $can_deputy_distribute_item = $box_key === 'normal'
+                && $filter_type === 'external'
+                && $is_deputy_reviewer
+                && strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL
+                && $status_key === EXTERNAL_STATUS_FORWARDED;
             $status_label = $resolve_status_label($status_key, $box_key);
             $consider_class = $consider_class_map[$status_key] ?? 'considering';
             $files = $attachments_map[(string) $circular_id] ?? [];
             $director_review = $director_review_map[(string) $circular_id] ?? [];
+            $delivered_by_pid = trim((string) ($item['deliveredByPID'] ?? ''));
+            $latest_sender_comment = $latest_sender_comment_map[(string) $circular_id][$delivered_by_pid] ?? [];
+            $latest_sender_comment_text = trim((string) ($latest_sender_comment['comment'] ?? ''));
+            $system_route_notes = [
+                'CLERK_FORWARD_TO_DEPUTY',
+                'REVIEWER_FORWARD_TO_DEPUTY',
+                'EDIT_RESEND',
+                'RESEND',
+                'EXTERNAL_BEFORE_REVIEW',
+            ];
+
+            if (in_array(strtoupper($latest_sender_comment_text), $system_route_notes, true)) {
+                $latest_sender_comment_text = '';
+            }
             $files_json = json_encode($files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $forwarded_recipient_pids = array_keys($forwarded_recipients_map[(string) $circular_id] ?? []);
             $forwarded_recipient_pids_json = json_encode($forwarded_recipient_pids, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -958,6 +1055,19 @@ if (!function_exists('outgoing_notice_index')) {
             $read_stats_json = '[]';
 
             if ($circular_id > 0) {
+                $read_stats = circular_get_read_stats($circular_id);
+
+                if ($can_deputy_distribute_item) {
+                    $allowed_read_stat_pids = array_fill_keys(array_map(static function ($pid): string {
+                        return 'pid:' . trim((string) $pid);
+                    }, $forwarded_recipient_pids), true);
+
+                    $read_stats = array_values(array_filter($read_stats, static function (array $entry) use ($allowed_read_stat_pids): bool {
+                        $pid = trim((string) ($entry['pID'] ?? ''));
+                        return $pid !== '' && isset($allowed_read_stat_pids['pid:' . $pid]);
+                    }));
+                }
+
                 $read_stats = array_map(static function (array $entry) use ($format_thai_date_long, $format_thai_time): array {
                     $read_at = trim((string) ($entry['readAt'] ?? ''));
 
@@ -968,7 +1078,7 @@ if (!function_exists('outgoing_notice_index')) {
                     }
 
                     return $entry;
-                }, circular_get_read_stats($circular_id));
+                }, $read_stats);
                 $read_stats_json = json_encode($read_stats, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
                 if ($read_stats_json === false) {
@@ -1007,6 +1117,7 @@ if (!function_exists('outgoing_notice_index')) {
                 'sender_faction_name' => $sender_faction_name,
                 'sender_display' => $sender_display,
                 'owner_pid' => (string) ($item['createdByPID'] ?? ''),
+                'delivered_by_pid' => $delivered_by_pid,
                 'detail' => (string) ($item['detail'] ?? ''),
                 'link_url' => (string) ($item['linkURL'] ?? ''),
                 'delivered_date' => $received_date,
@@ -1029,6 +1140,10 @@ if (!function_exists('outgoing_notice_index')) {
                 'ext_group_name' => trim((string) ($item['extGroupName'] ?? '')),
                 'director_comment' => (string) ($director_review['comment'] ?? ''),
                 'director_reviewer_name' => (string) ($director_review['reviewer_name'] ?? ''),
+                'latest_sender_comment' => $latest_sender_comment_text,
+                'latest_sender_comment_label' => $latest_sender_comment_text !== '' ? $latest_comment_label($latest_sender_comment) : '',
+                'latest_sender_name' => (string) ($latest_sender_comment['sender_name'] ?? ''),
+                'latest_sender_position_name' => (string) ($latest_sender_comment['sender_position_name'] ?? ''),
                 'status_key' => $status_key,
                 'status_label' => $status_label,
                 'consider_class' => $consider_class,
