@@ -17,3 +17,6 @@ parameters:
         - tests
     bootstrapFiles:
         - tests/bootstrap.php
+    scanFiles:
+        - app/controllers/repairs-controller.php
+        - app/modules/outgoing/priority.php

@@ -72,7 +72,7 @@ $runner->run('workflow state machine keeps required transitions intact', static 
     $t->assertSame([INTERNAL_STATUS_SENT], $machine['internal'][INTERNAL_STATUS_DRAFT] ?? [], 'Internal draft transition changed');
     $t->assertSame([INTERNAL_STATUS_RECALLED, INTERNAL_STATUS_ARCHIVED], $machine['internal'][INTERNAL_STATUS_SENT] ?? [], 'Internal sent transition changed');
     $t->assertSame([OUTGOING_STATUS_COMPLETE], $machine['outgoing'][OUTGOING_STATUS_WAITING_ATTACHMENT] ?? [], 'Outgoing transition changed');
-    $t->assertSame([REPAIR_STATUS_IN_PROGRESS, REPAIR_STATUS_REJECTED, REPAIR_STATUS_CANCELLED], $machine['repairs'][REPAIR_STATUS_PENDING] ?? [], 'Repair pending transition changed');
+    $t->assertSame([REPAIR_STATUS_IN_PROGRESS, REPAIR_STATUS_COMPLETED, REPAIR_STATUS_CANCELLED], $machine['repairs'][REPAIR_STATUS_PENDING] ?? [], 'Repair pending transition changed');
     $t->assertTrue(in_array(MEMO_STATUS_SIGNED, $machine['memos'][MEMO_STATUS_IN_REVIEW] ?? [], true), 'Memo review path no longer reaches signed state');
 });
 

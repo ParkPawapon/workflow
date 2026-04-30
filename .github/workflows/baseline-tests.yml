@@ -40,6 +40,18 @@ jobs:
       - name: Build and start stack
         run: docker compose --env-file .env.docker up -d --build
 
+      - name: Wait for PHP dependencies
+        run: |
+          for attempt in {1..120}; do
+            if docker compose --env-file .env.docker exec -T app test -f vendor/autoload.php; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker compose --env-file .env.docker logs --no-color app
+          exit 1
+
       - name: Run ${{ matrix.label }}
         run: docker compose --env-file .env.docker exec -T app ${{ matrix.command }}
 

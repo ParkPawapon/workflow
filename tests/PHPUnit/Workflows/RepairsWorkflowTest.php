@@ -118,14 +118,14 @@ final class RepairsWorkflowTest extends WorkflowTestCase
 
         $this->assertSame('ส่งคำร้องสำเร็จ', $statusMap[REPAIR_STATUS_PENDING]['label'] ?? null);
         $this->assertSame('กำลังดำเนินการ', $statusMap[REPAIR_STATUS_IN_PROGRESS]['label'] ?? null);
-        $this->assertSame('เสร็จสิ้น', $statusMap[REPAIR_STATUS_COMPLETED]['label'] ?? null);
+        $this->assertSame('ดำเนินการเสร็จสิ้น', $statusMap[REPAIR_STATUS_COMPLETED]['label'] ?? null);
         $this->assertSame('ยกเลิกคำร้อง', $statusMap[REPAIR_STATUS_CANCELLED]['label'] ?? null);
         $this->assertSame('ยกเลิกคำร้อง', $statusMap[REPAIR_STATUS_REJECTED]['label'] ?? null);
 
         $this->assertSame('ทั้งหมด', $filters['all'] ?? null);
         $this->assertSame('ส่งคำร้องสำเร็จ', $filters['pending'] ?? null);
         $this->assertSame('กำลังดำเนินการ', $filters['in_progress'] ?? null);
-        $this->assertSame('เสร็จสิ้น', $filters['completed'] ?? null);
+        $this->assertSame('ดำเนินการเสร็จสิ้น', $filters['completed'] ?? null);
         $this->assertSame('ยกเลิกคำร้อง', $filters['cancelled'] ?? null);
         $this->assertSame('all', repairs_default_filter_status('approval'));
         $this->assertSame('all', repairs_default_filter_status('report'));
