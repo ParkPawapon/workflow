@@ -1,0 +1,74 @@
+name: Publish GHCR Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref, branch, or tag to package
+        required: true
+        default: v1.0.0-rc-1
+      image_tag:
+        description: Container image tag to publish
+        required: true
+        default: v1.0.0-rc-1
+      push_latest:
+        description: Also publish the latest tag
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Build and publish package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Log in to GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+
+      - name: Build package image
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          PUSH_LATEST: ${{ inputs.push_latest }}
+        run: |
+          set -euo pipefail
+          image_name="ghcr.io/${GITHUB_REPOSITORY,,}"
+          tags=(-t "${image_name}:${IMAGE_TAG}")
+
+          if [[ "${PUSH_LATEST}" == "true" ]]; then
+            tags+=(-t "${image_name}:latest")
+          fi
+
+          docker build \
+            -f docker/php/Dockerfile.package \
+            "${tags[@]}" \
+            .
+
+          docker push "${image_name}:${IMAGE_TAG}"
+
+          if [[ "${PUSH_LATEST}" == "true" ]]; then
+            docker push "${image_name}:latest"
+          fi
+
+      - name: Package summary
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          PUSH_LATEST: ${{ inputs.push_latest }}
+        run: |
+          image_name="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "Published ${image_name}:${IMAGE_TAG}" >> "${GITHUB_STEP_SUMMARY}"
+          if [[ "${PUSH_LATEST}" == "true" ]]; then
+            echo "Published ${image_name}:latest" >> "${GITHUB_STEP_SUMMARY}"
+          fi
