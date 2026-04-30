@@ -16,6 +16,7 @@ $dashboard_role_ids = array_filter(array_map('intval', preg_split('/\s*,\s*/', t
 $dashboard_is_admin = in_array(1, $dashboard_role_ids, true) || str_contains($dashboard_role, 'ผู้ดูแลระบบ');
 $dashboard_can_manage_external_circular = !empty($dashboard_access['can_manage_external_circular']) || $dashboard_is_admin;
 $unread_external_circulars = (int) ($dashboard_counts['unread_external_circulars'] ?? $dashboard_counts['unread_circulars'] ?? 0);
+$external_circular_review_notifications = (int) ($dashboard_counts['external_circular_notifications'] ?? 0);
 $unread_internal_circulars = (int) ($dashboard_counts['unread_internal_circulars'] ?? 0);
 $unread_memos = (int) ($dashboard_counts['unread_memos'] ?? 0);
 $unread_orders = (int) ($dashboard_counts['unread_orders'] ?? 0);
@@ -29,10 +30,13 @@ if ($dashboard_is_admin) {
     $repair_notifications = 0;
 }
 
-$external_circular_href = 'outgoing-notice.php?box=clerk&type=external&read=all&sort=newest&view=table1';
+$external_circular_href = 'outgoing-notice.php?box=normal&type=external&read=all&sort=newest&view=table1';
+$external_circular_review_href = 'outgoing-notice.php?box=clerk&type=external&read=all&sort=newest&view=table1';
 
 if (!empty($dashboard_access['is_director_or_acting']) && empty($dashboard_access['can_manage_external_circular'])) {
-    $external_circular_href = 'outgoing-notice.php?box=director&type=external&read=all&sort=newest&view=table1';
+    $external_circular_review_href = 'outgoing-notice.php?box=director&type=external&read=all&sort=newest&view=table1';
+} elseif (!empty($dashboard_access['can_review_external_circular']) && empty($dashboard_access['can_manage_external_circular'])) {
+    $external_circular_review_href = 'outgoing-notice.php?box=director&type=external&read=all&sort=newest&view=table1';
 }
 
 $dashboard_notifications = array_values(array_filter([
@@ -40,6 +44,12 @@ $dashboard_notifications = array_values(array_filter([
         'label' => 'หนังสือเวียน',
         'count' => $unread_external_circulars,
         'href' => $external_circular_href,
+    ],
+    [
+        'label' => 'หนังสือเวียนให้พิจารณา',
+        'count' => $external_circular_review_notifications,
+        'message' => '',
+        'href' => $external_circular_review_href,
     ],
     [
         'label' => 'หนังสือเวียน (ภายใน)',
@@ -209,9 +219,10 @@ ob_start();
                             <?php
                             $notification_label = (string) ($notification['label'] ?? '-');
                             $notification_href = trim((string) ($notification['href'] ?? ''));
+                            $notification_message = trim((string) ($notification['message'] ?? 'ที่ยังไม่อ่าน'));
                             ?>
                             <li>คุณมี <?php if ($notification_href !== ''): ?><a class="dashboard-notification-link" href="<?= h($notification_href) ?>"><?php endif; ?><b><?= h($notification_label) ?></b><?php if ($notification_href !== ''): ?></a><?php endif; ?>
-                                <?= h((string) ($notification['message'] ?? 'ที่ยังไม่อ่าน')) ?>
+                                <?php if ($notification_message !== ''): ?><?= h($notification_message) ?><?php endif; ?>
                                 <b><?= h((string) ((int) ($notification['count'] ?? 0))) ?></b> ฉบับ
                             </li>
                         <?php endforeach; ?>

@@ -37,8 +37,9 @@ if (!function_exists('dashboard_resolve_access')) {
         $acting_pid = (string) (system_get_acting_director_pid() ?? '');
         $is_director_or_acting = $position_id === 1
             || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
-        $is_deputy_user = in_array($position_id, system_position_budget_deputy_ids($connection), true);
-        $is_vehicle_final_approver = $is_deputy_user || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
+        $is_deputy_user = in_array($position_id, system_position_deputy_ids($connection), true);
+        $is_budget_deputy_user = in_array($position_id, system_position_budget_deputy_ids($connection), true);
+        $is_vehicle_final_approver = $is_budget_deputy_user || ($acting_pid !== '' && $actor_pid !== '' && $acting_pid === $actor_pid);
 
         return [
             'is_admin_user' => $is_admin_user,
@@ -48,7 +49,9 @@ if (!function_exists('dashboard_resolve_access')) {
             'is_repair_staff_user' => $is_repair_staff_user,
             'is_director_or_acting' => $is_director_or_acting,
             'is_deputy_user' => $is_deputy_user,
+            'is_budget_deputy_user' => $is_budget_deputy_user,
             'is_vehicle_final_approver' => $is_vehicle_final_approver,
+            'can_review_external_circular' => $is_director_or_acting || $is_deputy_user,
             'can_manage_external_circular' => $is_admin_user || $is_registry_user,
             'can_approve_room_module' => $is_admin_user || $is_facility_user,
             'can_manage_room_module' => $is_admin_user,

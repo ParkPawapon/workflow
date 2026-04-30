@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../db/db.php';
+require_once __DIR__ . '/../../config/state.php';
+require_once __DIR__ . '/../../rbac/roles.php';
 require_once __DIR__ . '/../../../src/Services/room/room-booking-utils.php';
 require_once __DIR__ . '/../vehicle/calendar.php';
 
@@ -23,6 +25,78 @@ if (!function_exists('dashboard_zero_counts')) {
             'pending_manager' => 0,
             'pending_approvals' => 0,
         ];
+    }
+}
+
+if (!function_exists('dashboard_external_registry_pids')) {
+    function dashboard_external_registry_pids(mysqli $connection): array
+    {
+        $role_ids = rbac_resolve_role_ids($connection, ROLE_REGISTRY);
+
+        if ($role_ids === []) {
+            return [];
+        }
+
+        $role_condition = rbac_csv_role_condition('roleID', count($role_ids));
+        $placeholders = implode(', ', array_fill(0, count($role_ids), '?'));
+        $types = str_repeat('i', count($role_ids));
+        $pids = [];
+
+        $stmt = db_query('SELECT pID FROM teacher WHERE status = 1 AND ' . $role_condition, $types, ...$role_ids);
+        $result = mysqli_stmt_get_result($stmt);
+
+        while ($result && ($row = mysqli_fetch_assoc($result))) {
+            $pid = trim((string) ($row['pID'] ?? ''));
+
+            if ($pid !== '' && ctype_digit($pid)) {
+                $pids[] = $pid;
+            }
+        }
+        mysqli_stmt_close($stmt);
+
+        if (db_table_exists($connection, 'dh_user_roles')) {
+            $stmt = db_query(
+                'SELECT DISTINCT t.pID
+                 FROM teacher AS t
+                 INNER JOIN dh_user_roles AS ur ON ur.pID = t.pID
+                 WHERE t.status = 1 AND ur.roleID IN (' . $placeholders . ')',
+                $types,
+                ...$role_ids
+            );
+            $result = mysqli_stmt_get_result($stmt);
+
+            while ($result && ($row = mysqli_fetch_assoc($result))) {
+                $pid = trim((string) ($row['pID'] ?? ''));
+
+                if ($pid !== '' && ctype_digit($pid)) {
+                    $pids[] = $pid;
+                }
+            }
+            mysqli_stmt_close($stmt);
+        }
+
+        if (db_table_exists($connection, 'user_roles')) {
+            $stmt = db_query(
+                'SELECT DISTINCT t.pID
+                 FROM teacher AS t
+                 INNER JOIN user_roles AS ur ON ur.teacher_id = t.pID
+                 WHERE t.status = 1 AND ur.role_id IN (' . $placeholders . ')',
+                $types,
+                ...$role_ids
+            );
+            $result = mysqli_stmt_get_result($stmt);
+
+            while ($result && ($row = mysqli_fetch_assoc($result))) {
+                $pid = trim((string) ($row['pID'] ?? ''));
+
+                if ($pid !== '' && ctype_digit($pid)) {
+                    $pids[] = $pid;
+                }
+            }
+            mysqli_stmt_close($stmt);
+        }
+
+        return array_values(array_unique($pids));
     }
 }
 
@@ -48,6 +122,67 @@ if (!function_exists('dashboard_count_unread_circulars_by_type')) {
             'ss',
             $pID,
             strtoupper($circularType)
+        );
+
+        return (int) ($row['total'] ?? 0);
+    }
+}
+
+if (!function_exists('dashboard_count_unread_external_circulars')) {
+    function dashboard_count_unread_external_circulars(mysqli $connection, string $pID, array $access, string $directorInboxType = INBOX_TYPE_SPECIAL_PRINCIPAL): int
+    {
+        $pID = trim($pID);
+
+        if (
+            $pID === ''
+            || !db_table_exists($connection, 'dh_circular_inboxes')
+            || !db_table_exists($connection, 'dh_circulars')
+            || !db_column_exists($connection, 'dh_circulars', 'circularType')
+            || !db_column_exists($connection, 'dh_circulars', 'status')
+        ) {
+            return 0;
+        }
+
+        $conditions = [];
+        $types = 'ss';
+        $params = [$pID, CIRCULAR_TYPE_EXTERNAL];
+
+        $normal_condition = '(i.inboxType = ? AND c.status = ?';
+        $types .= 'ss';
+        $params[] = INBOX_TYPE_NORMAL;
+        $params[] = EXTERNAL_STATUS_FORWARDED;
+
+        if (db_column_exists($connection, 'dh_circular_inboxes', 'deliveredByPID')) {
+            // Match the normal external inbox: only count letters delivered by someone else.
+            $normal_condition .= ' AND COALESCE(i.deliveredByPID, "") <> "" AND i.deliveredByPID <> ?';
+            $types .= 's';
+            $params[] = $pID;
+
+            if (!empty($access['can_manage_external_circular']) || !empty($access['is_registry_user']) || !empty($access['is_admin_user'])) {
+                $registry_pids = dashboard_external_registry_pids($connection);
+
+                if ($registry_pids !== []) {
+                    $normal_condition .= ' AND i.deliveredByPID NOT IN (' . implode(', ', array_fill(0, count($registry_pids), '?')) . ')';
+                    $types .= str_repeat('s', count($registry_pids));
+                    array_push($params, ...$registry_pids);
+                }
+            }
+        }
+
+        $normal_condition .= ')';
+        $conditions[] = $normal_condition;
+
+        $row = db_fetch_one(
+            'SELECT COUNT(DISTINCT c.circularID) AS total
+            FROM dh_circular_inboxes AS i
+            INNER JOIN dh_circulars AS c ON c.circularID = i.circularID
+            WHERE i.pID = ?
+                AND i.isRead = 0
+                AND i.isArchived = 0
+                AND UPPER(c.circularType) = ?
+                AND (' . implode(' OR ', $conditions) . ')',
+            $types,
+            ...$params
         );
 
         return (int) ($row['total'] ?? 0);
@@ -80,10 +215,20 @@ if (!function_exists('dashboard_count_external_circular_notifications')) {
             $params[] = 'EXTERNAL_PENDING_REVIEW';
         }
 
-        if (!empty($access['is_director_or_acting'])) {
-            $role_conditions[] = '(i.inboxType = ? AND c.status = ?)';
-            $types .= 'ss';
-            $params[] = $directorInboxType !== '' ? $directorInboxType : 'special_principal_inbox';
+        if (!empty($access['is_director_or_acting']) || !empty($access['is_deputy_user']) || !empty($access['can_review_external_circular'])) {
+            $review_inbox_types = [$directorInboxType !== '' ? $directorInboxType : INBOX_TYPE_SPECIAL_PRINCIPAL];
+
+            if (!in_array(INBOX_TYPE_SPECIAL_PRINCIPAL, $review_inbox_types, true)) {
+                $review_inbox_types[] = INBOX_TYPE_SPECIAL_PRINCIPAL;
+            }
+
+            if (!empty($access['is_director_or_acting']) && !in_array(INBOX_TYPE_ACTING_PRINCIPAL, $review_inbox_types, true)) {
+                $review_inbox_types[] = INBOX_TYPE_ACTING_PRINCIPAL;
+            }
+
+            $role_conditions[] = '(i.inboxType IN (' . implode(', ', array_fill(0, count($review_inbox_types), '?')) . ') AND c.status = ?)';
+            $types .= str_repeat('s', count($review_inbox_types)) . 's';
+            array_push($params, ...$review_inbox_types);
             $params[] = 'EXTERNAL_PENDING_REVIEW';
         }
 
@@ -433,7 +578,7 @@ if (!function_exists('dashboard_counts')) {
 
         $connection = db_connection();
 
-        $counts['unread_external_circulars'] = dashboard_count_unread_circulars_by_type($connection, $pID, 'EXTERNAL');
+        $counts['unread_external_circulars'] = dashboard_count_unread_external_circulars($connection, $pID, $access);
         $counts['unread_internal_circulars'] = dashboard_count_unread_circulars_by_type($connection, $pID, 'INTERNAL');
         $counts['unread_circulars'] = $counts['unread_external_circulars'] + $counts['unread_internal_circulars'];
         $counts['unread_memos'] = dashboard_count_unread_memos($connection, $pID);
