@@ -28,10 +28,20 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      - name: Checkout packaging files
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: packaging
+
       - name: Checkout source
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
+          path: source
+
+      - name: Prepare package Dockerfile
+        run: cp packaging/docker/php/Dockerfile.package source/docker/php/Dockerfile.package
 
       - name: Log in to GitHub Container Registry
         env:
@@ -52,9 +62,9 @@ jobs:
           fi
 
           docker build \
-            -f docker/php/Dockerfile.package \
+            -f source/docker/php/Dockerfile.package \
             "${tags[@]}" \
-            .
+            source
 
           docker push "${image_name}:${IMAGE_TAG}"
 
