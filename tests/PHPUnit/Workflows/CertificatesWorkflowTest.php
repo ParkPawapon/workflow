@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\PHPUnit\Workflows;
 
+use RuntimeException;
 use Tests\Support\WorkflowTestCase;
 
 final class CertificatesWorkflowTest extends WorkflowTestCase
@@ -98,7 +99,7 @@ final class CertificatesWorkflowTest extends WorkflowTestCase
         $this->assertSame(((int) ($expectedRange['toSeq'] ?? 0)) + 1, (int) ($afterPreview['fromSeq'] ?? 0));
     }
 
-    public function testRemovingExistingAttachmentReturnsCertificateToWaitingAttachmentStatus(): void
+    public function testExistingCompleteAttachmentCannotBeRemoved(): void
     {
         $year = $this->currentDhYear();
         $actorPid = trim((string) ($_SESSION['pID'] ?? ''));
@@ -149,16 +150,21 @@ final class CertificatesWorkflowTest extends WorkflowTestCase
         );
         mysqli_stmt_close($refStmt);
 
-        certificate_update_attachments($certificateId, $actorPid, [], [$fileId]);
+        try {
+            certificate_update_attachments($certificateId, $actorPid, [], [$fileId]);
+            $this->fail('Expected completed certificates with existing attachments to be locked');
+        } catch (RuntimeException $exception) {
+            $this->assertSame('รายการนี้แนบไฟล์สำเร็จแล้ว ไม่สามารถแก้ไขไฟล์แนบได้', $exception->getMessage());
+        }
 
         $certificate = certificate_get($certificateId);
         $this->assertNotNull($certificate);
-        $this->assertSame(CERTIFICATE_STATUS_WAITING_ATTACHMENT, (string) ($certificate['status'] ?? ''));
-        $this->assertSame([], certificate_get_attachments($certificateId));
+        $this->assertSame(CERTIFICATE_STATUS_COMPLETE, (string) ($certificate['status'] ?? ''));
+        $this->assertSame([$fileId], array_map('intval', array_column(certificate_get_attachments($certificateId), 'fileID')));
 
         $fileRow = db_fetch_one('SELECT deletedAt FROM dh_files WHERE fileID = ? LIMIT 1', 'i', $fileId);
         $this->assertIsArray($fileRow);
-        $this->assertNotSame('', trim((string) ($fileRow['deletedAt'] ?? '')));
+        $this->assertSame('', trim((string) ($fileRow['deletedAt'] ?? '')));
     }
 
     private function cleanupCertificates(): void

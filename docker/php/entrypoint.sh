@@ -3,6 +3,10 @@ set -euo pipefail
 
 cd /var/www/html
 
+if command -v git >/dev/null 2>&1; then
+  git config --global --add safe.directory /var/www/html || true
+fi
+
 if [[ ! -f vendor/autoload.php ]] && command -v composer >/dev/null 2>&1; then
   composer install --no-interaction --prefer-dist
 fi

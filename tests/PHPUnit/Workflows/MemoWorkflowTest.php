@@ -35,7 +35,7 @@ final class MemoWorkflowTest extends WorkflowTestCase
             MEMO_STATUS_SUBMITTED => 'รอพิจารณา',
             MEMO_STATUS_CANCELLED => 'ยกเลิก',
             MEMO_STATUS_RETURNED => 'ตีกลับแก้ไข',
-            MEMO_STATUS_APPROVED_UNSIGNED => 'อนุมัติ (รอแนบไฟล์)',
+            MEMO_STATUS_APPROVED_UNSIGNED => 'ลงนามแล้ว',
             MEMO_STATUS_SIGNED => 'ลงนามแล้ว',
             MEMO_STATUS_REJECTED => 'ไม่อนุมัติ',
         ], memo_status_options());
