@@ -595,6 +595,13 @@ ob_start();
 
             <hr>
 
+            <div class="vehicle-row" id="vehicleBookingOfficerSection" style="display: none;">
+                <div class="vehicle-input-content">
+                    <label for="vehicleBookingOfficerNote">ความเห็นเจ้าหน้าที่ยานพาหนะ</label>
+                    <textarea id="vehicleBookingOfficerNote" rows="5" placeholder="ความเห็นเจ้าหน้าที่ยานพาหนะ" disabled></textarea>
+                </div>
+            </div>
+
             <div class="vehicle-row" id="vehicleBookingDecisionSection" style="display: none;">
                 <div class="vehicle-input-content">
                     <label for="vehicleBookingDecisionNote">รายละเอียดการ<span id="vehicleBookingDecisionLabelStatus" style="color: var(--color-success)">อนุมัติการจอง</span></label>
@@ -650,6 +657,8 @@ ob_start();
             endTime: document.getElementById('vehicleEditEndTime'),
             fuelRadios: modal.querySelectorAll('input[name="fuelSource"]'),
             dayCount: dayCountDisplay,
+            officerSection: document.getElementById('vehicleBookingOfficerSection'),
+            officerNote: document.getElementById('vehicleBookingOfficerNote'),
             decisionSection: document.getElementById('vehicleBookingDecisionSection'),
             decisionLabelStatus: document.getElementById('vehicleBookingDecisionLabelStatus'),
             decisionNote: document.getElementById('vehicleBookingDecisionNote'),
@@ -819,6 +828,8 @@ ob_start();
                     radio.checked = false;
                 });
             }
+            if (fieldMap.officerSection) fieldMap.officerSection.style.display = 'none';
+            if (fieldMap.officerNote) fieldMap.officerNote.value = '';
             if (fieldMap.decisionSection) fieldMap.decisionSection.style.display = 'none';
             if (fieldMap.decisionLabelStatus) {
                 fieldMap.decisionLabelStatus.textContent = 'อนุมัติการจอง';
@@ -873,6 +884,50 @@ ob_start();
 
         function resolvePassengerCount(data) {
             return Math.max(1, resolveCompanionCount(data) + resolveOtherPassengerCount(data) + 1);
+        }
+
+        function renderOfficerNote(data) {
+            if (!fieldMap.officerSection || !fieldMap.officerNote) return;
+
+            const vehicleLabel = String(data?.vehicleLabel || '').trim();
+            const driverName = String(data?.driverName || '').trim();
+            const driverTel = String(data?.driverTel || '').trim();
+            const assignedNote = String(data?.assignedNote || '').trim();
+            const assignedName = String(data?.assignedName || '').trim();
+            const assignedAtLabel = String(data?.assignedAtLabel || '').trim();
+            const lines = [];
+
+            if (vehicleLabel !== '' || driverName !== '') {
+                let summary = 'ควรอนุญาตให้ใช้รถยนต์ส่วนกลาง';
+
+                if (vehicleLabel !== '') {
+                    summary += ` หมายเลขทะเบียน ${vehicleLabel}`;
+                }
+                if (driverName !== '') {
+                    summary += ` โดยมี ${driverName} ทำหน้าที่พนักงานขับรถ`;
+                    if (driverTel !== '') {
+                        summary += ` (${driverTel})`;
+                    }
+                }
+                lines.push(summary);
+            }
+
+            if (assignedNote !== '') {
+                lines.push(assignedNote);
+            }
+
+            if (assignedName !== '') {
+                lines.push(`ผู้ตรวจสอบ: ${assignedName}${assignedAtLabel !== '' && assignedAtLabel !== '-' ? ` (${assignedAtLabel} น.)` : ''}`);
+            }
+
+            if (lines.length === 0) {
+                fieldMap.officerSection.style.display = 'none';
+                fieldMap.officerNote.value = '';
+                return;
+            }
+
+            fieldMap.officerSection.style.display = '';
+            fieldMap.officerNote.value = lines.join('\n');
         }
 
         function renderDecisionNote(data) {
@@ -955,6 +1010,7 @@ ob_start();
 
             renderPassengerSummary(data);
             renderAttachmentList(false);
+            renderOfficerNote(data);
             renderDecisionNote(data);
         }
 

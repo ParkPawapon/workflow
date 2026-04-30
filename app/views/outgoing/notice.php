@@ -44,6 +44,7 @@ require_once __DIR__ . '/../../rbac/current_user.php';
 
 $values = $values ?? [];
 $factions = $factions ?? [];
+$roles = $roles ?? [];
 $teachers = $teachers ?? [];
 $is_edit_mode = (bool) ($is_edit_mode ?? false);
 $edit_circular_id = (int) ($edit_circular_id ?? 0);
@@ -64,7 +65,7 @@ foreach ($factions as $faction) {
     if ($fid <= 0) {
         continue;
     }
-    $faction_name_map[$fid] = trim((string) ($faction['fName'] ?? ''));
+    $faction_name_map[$fid] = trim((string) ($faction['fName'] ?? $faction['fname'] ?? ''));
 }
 $sender_from_fid = (int) ($current_user['fID'] ?? 0);
 $sender_faction_display = '';
@@ -86,6 +87,7 @@ if ($sender_faction_display === '') {
 }
 
 $selected_factions = array_map('strval', (array) ($values['faction_ids'] ?? []));
+$selected_roles = array_map('strval', (array) ($values['role_ids'] ?? []));
 $selected_people = array_map('strval', (array) ($values['person_ids'] ?? []));
 
 $is_selected = static function (string $value, array $selected): bool {
@@ -94,8 +96,21 @@ $is_selected = static function (string $value, array $selected): bool {
 
 $faction_members = [];
 $department_groups = [];
+$role_groups = [];
 $executive_members = [];
 $subject_head_members = [];
+$role_name_map = [];
+
+foreach ($roles as $role) {
+    $role_id = (int) ($role['roleID'] ?? 0);
+    $role_name = trim((string) ($role['roleName'] ?? ''));
+
+    if ($role_id <= 0 || $role_name === '') {
+        continue;
+    }
+
+    $role_name_map[$role_id] = $role_name;
+}
 
 foreach ($teachers as $teacher) {
     $fid = (int) ($teacher['fID'] ?? 0);
@@ -146,12 +161,51 @@ foreach ($teachers as $teacher) {
             'name' => $name,
         ];
     }
+
+    $teacher_role_ids = function_exists('rbac_parse_role_ids')
+        ? rbac_parse_role_ids($teacher['roleID'] ?? '')
+        : array_values(array_filter(array_map('intval', preg_split('/\s*,\s*/', trim((string) ($teacher['roleID'] ?? ''))) ?: [])));
+
+    foreach ($teacher_role_ids as $role_id) {
+        $role_name = $role_name_map[(int) $role_id] ?? '';
+
+        if ($role_name === '') {
+            continue;
+        }
+
+        if (!isset($role_groups[$role_id])) {
+            $role_groups[$role_id] = [
+                'roleID' => (int) $role_id,
+                'name' => $role_name,
+                'members' => [],
+            ];
+        }
+
+        $role_groups[$role_id]['members'][$pid] = [
+            'pID' => $pid,
+            'name' => $name,
+        ];
+    }
 }
 
 if (!empty($department_groups)) {
     uasort($department_groups, static function (array $a, array $b): int {
         return strcmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? ''));
     });
+}
+
+if (!empty($role_groups)) {
+    uasort($role_groups, static function (array $a, array $b): int {
+        return strcmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? ''));
+    });
+
+    foreach ($role_groups as $role_id => $role_group) {
+        $members = array_values((array) ($role_group['members'] ?? []));
+        usort($members, static function (array $a, array $b): int {
+            return strcmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? ''));
+        });
+        $role_groups[$role_id]['members'] = $members;
+    }
 }
 
 $executive_members = array_values($executive_members);
@@ -192,6 +246,15 @@ $forward_is_registry_handoff = (bool) ($can_manage_external ?? false)
     && $filter_view === 'table2';
 $forward_restrict_to_deputies = $forward_is_registry_handoff;
 $forward_show_recipient_controls = !$forward_is_reviewer_return;
+$forward_show_deputy_distribute_controls = !$is_outside_view
+    && $box_key === 'normal'
+    && (bool) ($is_deputy_reviewer ?? false)
+    && !$archived;
+$deputy_forward_pids_for_forward = array_fill_keys(array_filter(array_map(static function ($pid): string {
+    return trim((string) $pid);
+}, (array) ($deputy_forward_pids ?? [])), static function (string $pid): bool {
+    return $pid !== '';
+}), true);
 
 if ($forward_restrict_to_deputies) {
     $forward_deputy_members = [];
@@ -204,7 +267,7 @@ if ($forward_restrict_to_deputies) {
         if (
             $pid === ''
             || $name === ''
-            || !in_array($position_id, $deputy_position_ids_for_forward, true)
+            || (!isset($deputy_forward_pids_for_forward[$pid]) && !in_array($position_id, $deputy_position_ids_for_forward, true))
             || ($acting_pid_for_forward !== '' && $pid === $acting_pid_for_forward)
         ) {
             continue;
@@ -226,7 +289,7 @@ $sender_factions = [];
 
 foreach ($factions as $faction) {
     $fid = (int) ($faction['fID'] ?? 0);
-    $faction_name = trim((string) ($faction['fName'] ?? ''));
+    $faction_name = trim((string) ($faction['fName'] ?? $faction['fname'] ?? ''));
 
     if ($fid <= 0 || $faction_name === '') {
         continue;
@@ -245,6 +308,7 @@ foreach ($factions as $faction) {
 if ($forward_restrict_to_deputies) {
     $factions = [];
     $department_groups = [];
+    $role_groups = [];
     $special_groups = [];
 
     if (!empty($forward_deputy_members)) {
@@ -334,13 +398,50 @@ ob_start();
     }
 
     #forwardReceiptStatusSection table th:first-child,
-    #forwardReceiptStatusSection table td:first-child {
+    #forwardReceiptStatusSection table td:first-child,
+    #noticeDetailReceiptStatusSection table th:first-child,
+    #noticeDetailReceiptStatusSection table td:first-child {
         text-align: left;
     }
 
     #forwardReceiptStatusSection table th:nth-child(2),
-    #forwardReceiptStatusSection table td:nth-child(2) {
+    #forwardReceiptStatusSection table td:nth-child(2),
+    #noticeDetailReceiptStatusSection table th:nth-child(2),
+    #noticeDetailReceiptStatusSection table td:nth-child(2) {
         text-align: center;
+    }
+
+    #forwardReceiptStatusSection table th:nth-child(3),
+    #forwardReceiptStatusSection table td:nth-child(3),
+    #noticeDetailReceiptStatusSection table th:nth-child(3),
+    #noticeDetailReceiptStatusSection table td:nth-child(3) {
+        text-align: left;
+    }
+
+    #forwardViewGroupFid.native-forward-group-select {
+        width: 100%;
+        height: 50px;
+        padding: 8px 20px;
+        border: 1px solid var(--color-secondary);
+        border-radius: 6px;
+        background-color: var(--color-neutral-lightest);
+        color: var(--color-secondary);
+        font-size: var(--font-size-body-1);
+        cursor: pointer;
+        outline: none;
+    }
+
+    #forwardAnnouncementSection .select-all-box {
+        align-items: center;
+        font-size: var(--font-size-body-1);
+        font-weight: 700;
+        gap: 12px;
+        min-height: 46px;
+    }
+
+    #forwardAnnouncementSection .select-all-box input[type="checkbox"] {
+        transform: scale(1.25);
+        transform-origin: center;
     }
 </style>
 <div class="content-header">
@@ -450,7 +551,7 @@ ob_start();
                             <?php if ($show_book_type_column) : ?>
                                 <th>ประเภทหนังสือ</th>
                             <?php endif; ?>
-                            <th>หัวเรื่อง</th>
+                            <th>เลขรับ / เลขที่ / หัวเรื่อง</th>
                             <th>ผู้ส่ง</th>
                             <th>วันที่ส่ง</th>
                             <th>สถานะ</th>
@@ -470,7 +571,15 @@ ob_start();
                                 $read_stats_json = (string) ($item['read_stats_json'] ?? '[]');
                                 $sender_modal_text = trim((string) ($item['sender_name'] ?? '-'));
                                 $ext_group_id = (int) ($item['ext_group_fid'] ?? 0);
-                                $ext_group_name = $ext_group_id > 0 ? (string) ($faction_name_map[$ext_group_id] ?? '') : '';
+                                $ext_group_name = trim((string) ($item['ext_group_name'] ?? ''));
+                                $can_deputy_distribute_item = $box_key === 'normal'
+                                    && (bool) ($is_deputy_reviewer ?? false)
+                                    && strtoupper((string) ($item['type'] ?? '')) === 'EXTERNAL'
+                                    && strtoupper((string) ($item['status_key'] ?? '')) === EXTERNAL_STATUS_FORWARDED;
+
+                                if ($ext_group_name === '' && $ext_group_id > 0) {
+                                    $ext_group_name = (string) ($faction_name_map[$ext_group_id] ?? '');
+                                }
 
                                 if (!empty($item['sender_faction_name'])) {
                                     $sender_modal_text .= ' (' . trim((string) $item['sender_faction_name']) . ')';
@@ -483,7 +592,15 @@ ob_start();
                                     <?php if ($show_book_type_column) : ?>
                                         <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
                                     <?php endif; ?>
-                                    <td><?= h((string) ($item['subject'] ?? '')) ?></td>
+                                    <td>
+                                        <?php if ((int) ($item['ext_receive_seq'] ?? 0) > 0) : ?>
+                                            <p>เลขรับ <?= h((string) (int) ($item['ext_receive_seq'] ?? 0)) ?></p>
+                                        <?php endif; ?>
+                                        <?php if (trim((string) ($item['ext_book_no'] ?? '')) !== '') : ?>
+                                            <p><?= h((string) ($item['ext_book_no'] ?? '')) ?></p>
+                                        <?php endif; ?>
+                                        <p><?= h((string) ($item['subject'] ?? '')) ?></p>
+                                    </td>
                                     <td>
                                         <div class="circular-sender-stack">
                                             <span class="circular-sender-name"><?= h((string) ($item['sender_name'] ?? '-')) ?></span>
@@ -514,12 +631,16 @@ ob_start();
                                                 data-from="<?= h((string) ($item['ext_from_text'] ?? '')) ?>"
                                                 data-to="<?= h($director_label) ?>"
                                                 data-group="<?= h($ext_group_name !== '' ? $ext_group_name : '-') ?>"
+                                                data-group-fid="<?= h((string) $ext_group_id) ?>"
                                                 data-detail="<?= h((string) ($item['detail'] ?? '')) ?>"
                                                 data-link="<?= h((string) ($item['link_url'] ?? '')) ?>"
                                                 data-type="<?= h((string) ($item['type_label'] ?? '')) ?>"
                                                 data-status="<?= h((string) ($item['status_label'] ?? '-')) ?>"
                                                 data-consider="<?= h((string) ($item['consider_class'] ?? 'considering')) ?>"
-                                                data-files="<?= h($file_json) ?>">
+                                                data-files="<?= h($file_json) ?>"
+                                                data-read-stats="<?= h($read_stats_json) ?>"
+                                                data-show-read-stats="<?= h($can_deputy_distribute_item ? '1' : '0') ?>"
+                                                data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>">
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
                                             </button>
@@ -535,6 +656,7 @@ ob_start();
                                                 data-issued-raw="<?= h((string) ($item['ext_issued_date_raw'] ?? '')) ?>"
                                                 data-from="<?= h((string) ($item['ext_from_text'] ?? '')) ?>"
                                                 data-group="<?= h($ext_group_name !== '' ? $ext_group_name : '-') ?>"
+                                                data-group-fid="<?= h((string) $ext_group_id) ?>"
                                                 data-subject="<?= h((string) ($item['subject'] ?? '')) ?>"
                                                 data-sender="<?= h($sender_modal_text) ?>"
                                                 data-sender-name="<?= h((string) ($item['sender_name'] ?? '-')) ?>"
@@ -545,7 +667,10 @@ ob_start();
                                                 data-owner-pid="<?= h((string) ($item['owner_pid'] ?? '')) ?>"
                                                 data-files="<?= h($file_json) ?>"
                                                 data-forwarded-pids="<?= h((string) ($item['forwarded_recipient_pids_json'] ?? '[]')) ?>"
-                                                data-read-stats="<?= h($read_stats_json) ?>">
+                                                data-read-stats="<?= h($read_stats_json) ?>"
+                                                data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-deputy-distribute="<?= h($can_deputy_distribute_item ? '1' : '0') ?>"
+                                                data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>">
                                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                                 <span class="tooltip">ส่งหนังสือต่อ</span>
                                             </button>
@@ -564,7 +689,7 @@ ob_start();
                 <thead>
                     <tr>
                         <th>วันที่รับ</th>
-                        <th>เลขที่ / เรื่อง</th>
+                        <th>เลขรับ / เลขที่ / เรื่อง</th>
                         <th>ความเร่งด่วน</th>
                         <th>สถานะปัจุบัน</th>
                         <th></th>
@@ -581,6 +706,13 @@ ob_start();
                             $file_json = (string) ($item['files_json'] ?? '[]');
                             $read_stats_json = (string) ($item['read_stats_json'] ?? '[]');
                             $priority_label = (string) ($item['ext_priority_label'] ?? 'ปกติ');
+                            $ext_group_id = (int) ($item['ext_group_fid'] ?? 0);
+                            $ext_group_name = trim((string) ($item['ext_group_name'] ?? ''));
+
+                            if ($ext_group_name === '' && $ext_group_id > 0) {
+                                $ext_group_name = (string) ($faction_name_map[$ext_group_id] ?? '');
+                            }
+
                             $status_key_for_action = strtoupper((string) ($item['status_key'] ?? ''));
                             $show_workflow_action = !($box_key === 'clerk' && $filter_view === 'table1');
 
@@ -591,6 +723,8 @@ ob_start();
                             if ($box_key === 'director' && $filter_view === 'table2') {
                                 $show_workflow_action = false;
                             }
+
+                            $show_detail_action = !($box_key === 'director' && $filter_view === 'table1' && $show_workflow_action);
                             ?>
                             <tr>
                                 <td>
@@ -598,6 +732,9 @@ ob_start();
                                     <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
                                 </td>
                                 <td>
+                                    <?php if ((int) ($item['ext_receive_seq'] ?? 0) > 0) : ?>
+                                        <p>เลขรับ <?= h((string) (int) ($item['ext_receive_seq'] ?? 0)) ?></p>
+                                    <?php endif; ?>
                                     <p><?= h((string) ($item['ext_book_no'] ?? '-')) ?></p>
                                     <p><?= h((string) ($item['subject'] ?? '')) ?></p>
                                 </td>
@@ -607,31 +744,35 @@ ob_start();
                                 <td><span class="status-pill pending"><?= h((string) ($item['status_label'] ?? '-')) ?></span></td>
                                 <td>
                                     <div class="circular-action-stack">
-                                        <button
-                                            class="booking-action-btn secondary js-open-circular-modal"
-                                            type="button"
-                                            data-circular-id="<?= h((string) (int) ($item['circular_id'] ?? 0)) ?>"
-                                            data-inbox-id="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>"
-                                            data-urgency="<?= h($priority_label) ?>"
-                                            data-urgency-class="<?= h((string) ($item['urgency_class'] ?? 'normal')) ?>"
-                                            data-bookno="<?= h((string) ($item['ext_book_no'] ?? '')) ?>"
-                                            data-issued="<?= h((string) ($item['ext_issued_date'] ?? '-')) ?>"
-                                            data-issued-raw="<?= h((string) ($item['ext_issued_date_raw'] ?? '')) ?>"
-                                            data-from="<?= h((string) ($item['ext_from_text'] ?? '')) ?>"
-                                            data-to="<?= h($director_label) ?>"
-                                            data-subject="<?= h((string) ($item['subject'] ?? '')) ?>"
-                                            data-group="<?= h((int) ($item['ext_group_fid'] ?? 0) > 0 ? (string) ($faction_name_map[(int) ($item['ext_group_fid'] ?? 0)] ?? '-') : '-') ?>"
-                                            data-detail="<?= h((string) ($item['detail'] ?? '')) ?>"
-                                            data-link="<?= h((string) ($item['link_url'] ?? '')) ?>"
-                                            data-sender-name="<?= h((string) ($item['sender_name'] ?? '-')) ?>"
-                                            data-sender-faction="<?= h((string) ($item['sender_faction_name'] ?? '')) ?>"
-                                            data-status="<?= h((string) ($item['status_label'] ?? '-')) ?>"
-                                            data-consider="<?= h((string) ($item['consider_class'] ?? 'considering')) ?>"
-                                            data-files="<?= h($file_json) ?>"
-                                            data-received-time="<?= h((string) ($item['delivered_time'] ?? '-')) ?>">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="tooltip">ดูรายละเอียด</span>
-                                        </button>
+                                        <?php if ($show_detail_action) : ?>
+                                            <button
+                                                class="booking-action-btn secondary js-open-circular-modal"
+                                                type="button"
+                                                data-circular-id="<?= h((string) (int) ($item['circular_id'] ?? 0)) ?>"
+                                                data-inbox-id="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>"
+                                                data-urgency="<?= h($priority_label) ?>"
+                                                data-urgency-class="<?= h((string) ($item['urgency_class'] ?? 'normal')) ?>"
+                                                data-bookno="<?= h((string) ($item['ext_book_no'] ?? '')) ?>"
+                                                data-issued="<?= h((string) ($item['ext_issued_date'] ?? '-')) ?>"
+                                                data-issued-raw="<?= h((string) ($item['ext_issued_date_raw'] ?? '')) ?>"
+                                                data-from="<?= h((string) ($item['ext_from_text'] ?? '')) ?>"
+                                                data-to="<?= h($director_label) ?>"
+                                                data-subject="<?= h((string) ($item['subject'] ?? '')) ?>"
+                                                data-group="<?= h($ext_group_name !== '' ? $ext_group_name : '-') ?>"
+                                                data-group-fid="<?= h((string) $ext_group_id) ?>"
+                                                data-detail="<?= h((string) ($item['detail'] ?? '')) ?>"
+                                                data-link="<?= h((string) ($item['link_url'] ?? '')) ?>"
+                                                data-sender-name="<?= h((string) ($item['sender_name'] ?? '-')) ?>"
+                                                data-sender-faction="<?= h((string) ($item['sender_faction_name'] ?? '')) ?>"
+                                                data-status="<?= h((string) ($item['status_label'] ?? '-')) ?>"
+                                                data-consider="<?= h((string) ($item['consider_class'] ?? 'considering')) ?>"
+                                                data-files="<?= h($file_json) ?>"
+                                                data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-received-time="<?= h((string) ($item['delivered_time'] ?? '-')) ?>">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="tooltip">ดูรายละเอียด</span>
+                                            </button>
+                                        <?php endif; ?>
                                         <?php if ($show_workflow_action) : ?>
                                             <button
                                                 class="booking-action-btn secondary js-open-circular-send-modal"
@@ -644,7 +785,8 @@ ob_start();
                                                 data-issued="<?= h((string) ($item['ext_issued_date'] ?? '-')) ?>"
                                                 data-issued-raw="<?= h((string) ($item['ext_issued_date_raw'] ?? '')) ?>"
                                                 data-from="<?= h((string) ($item['ext_from_text'] ?? '')) ?>"
-                                                data-group="<?= h((int) ($item['ext_group_fid'] ?? 0) > 0 ? (string) ($faction_name_map[(int) ($item['ext_group_fid'] ?? 0)] ?? '-') : '-') ?>"
+                                                data-group="<?= h($ext_group_name !== '' ? $ext_group_name : '-') ?>"
+                                                data-group-fid="<?= h((string) $ext_group_id) ?>"
                                                 data-subject="<?= h((string) ($item['subject'] ?? '')) ?>"
                                                 data-sender-name="<?= h((string) ($item['sender_name'] ?? '-')) ?>"
                                                 data-sender-faction="<?= h((string) ($item['sender_faction_name'] ?? '')) ?>"
@@ -653,7 +795,9 @@ ob_start();
                                                 data-owner-pid="<?= h((string) ($item['owner_pid'] ?? '')) ?>"
                                                 data-files="<?= h($file_json) ?>"
                                                 data-forwarded-pids="<?= h((string) ($item['forwarded_recipient_pids_json'] ?? '[]')) ?>"
-                                                data-read-stats="<?= h($read_stats_json) ?>">
+                                                data-read-stats="<?= h($read_stats_json) ?>"
+                                                data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>">
                                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                                 <span class="tooltip">อ่าน/ดำเนินการ</span>
                                             </button>
@@ -672,66 +816,111 @@ ob_start();
         <div class="modal-overlay-circular-notice-index keep-sending" id="modalNoticeKeepOverlay">
             <div class="modal-content">
                 <div class="header-modal">
-                    <p id="">ดูรายละเอียด</p>
-                    <i class="fa-solid fa-xmark" id="closeModalNoticeKeep"></i>
+                    <div class="first-header">
+                        <p>แสดงข้อความรายละเอียดหนังสือเวียน</p>
+                    </div>
+                    <div class="sec-header">
+                        <div class="consider-status considering" id="modalConsiderStatus">ส่งแล้ว</div>
+                        <i class="fa-solid fa-xmark" id="closeModalNoticeKeep"></i>
+                    </div>
                 </div>
 
                 <div class="content-modal">
-                    <form method="" enctype="" data-validate class="container-circular-notice-sending" id="">
+                    <form method="POST" enctype="multipart/form-data" data-validate class="container-circular-notice-sending" id="circularDetailForm" style="box-shadow:none; padding: 0;">
                         <?= csrf_field() ?>
                         <input type="hidden" name="edit_circular_id" id="editTargetCircularId" value="">
-
-                        <div class="form-group">
-                            <label for="edit_subject"><b>หัวเรื่อง</b></label>
-                            <input type="text" name="subject" id="edit_subject" placeholder="กรุณากรอกหัวเรื่อง" disabled>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="edit_detail"><b>รายละเอียด</b></label>
-                            <textarea name="detail" id="edit_detail" rows="4" placeholder="กรุณากรอกรายละเอียด" disabled></textarea>
-                        </div>
-
-                        <div class="content-file-sec">
-                            <p><strong>ไฟล์เอกสารแนบจากระบบ</strong></p>
-                            <div class="file-section" id="modalFileSection"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="edit_linkURL"><b>แนบลิ้งก์</b></label>
-                            <input type="text" id="edit_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง" disabled />
+                        <div class="type-urgent">
+                            <p>ประเภท</p>
+                            <div class="radio-group-urgent">
+                                <input type="radio" name="noticeViewPriority" value="normal" data-notice-view-urgent="normal" id="noticeOutgoingPriorityNormal" checked disabled>
+                                <label for="noticeOutgoingPriorityNormal">ปกติ</label>
+                                <input type="radio" name="noticeViewPriority" value="urgent" data-notice-view-urgent="urgent" id="noticeOutgoingPriorityUrgent" disabled>
+                                <label for="noticeOutgoingPriorityUrgent">ด่วน</label>
+                                <input type="radio" name="noticeViewPriority" value="high" data-notice-view-urgent="high" id="noticeOutgoingPriorityHigh" disabled>
+                                <label for="noticeOutgoingPriorityHigh">ด่วนมาก</label>
+                                <input type="radio" name="noticeViewPriority" value="highest" data-notice-view-urgent="highest" id="noticeOutgoingPriorityHighest" disabled>
+                                <label for="noticeOutgoingPriorityHighest">ด่วนที่สุด</label>
+                            </div>
                         </div>
 
                         <div class="sender-row">
                             <div class="form-group sender-field">
-                                <label for="edit_senderDisplay"><b>ผู้ส่ง</b></label>
-                                <input id="edit_senderDisplay" type="text" value="<?= h($sender_name) ?>" disabled>
+                                <label><b>เลขที่หนังสือ</b></label>
+                                <input type="text" id="noticeOutgoingViewBookNo" value="-" disabled>
                             </div>
                             <div class="form-group">
-                                <label for="edit_fromFIDDisplay"><b>ในนามของ</b></label>
-                                <input id="edit_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
-                                <input type="hidden" name="fromFID" value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
+                                <label><b>ลงวันที่</b></label>
+                                <input type="text" id="noticeOutgoingViewIssuedDate" value="-" disabled>
                             </div>
                         </div>
 
+                        <div class="sender-row">
+                            <div class="form-group">
+                                <label><b>เรื่อง</b></label>
+                                <input type="text" id="noticeOutgoingViewSubjectText" value="-" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label><b>จาก</b></label>
+                                <input type="text" id="noticeOutgoingViewFrom" value="-" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group sender-field">
+                            <label><b>ถึงกลุ่ม</b></label>
+                            <input type="text" id="noticeOutgoingViewGroup" value="-" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label><b>เกษียณหนังสือ</b></label>
+                            <textarea id="notice_memo_editor_view" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
+                        </div>
+
+                        <div class="content-file-sec" id="noticeOutgoingViewCoverSection" style="display: none;">
+                            <p><strong>ไฟล์หนังสือนำ</strong></p>
+                            <div class="file-section" id="noticeOutgoingViewCoverList"></div>
+                        </div>
+
+                        <div class="content-file-sec" id="noticeOutgoingViewAttachmentSection" style="display: none;">
+                            <p><strong>ไฟล์เอกสารแนบเพิ่มเติม</strong></p>
+                            <div class="file-section" id="noticeOutgoingViewAttachmentList"></div>
+                        </div>
+
+                        <div class="form-group sender-field">
+                            <label><b>แนบลิงก์</b></label>
+                            <input type="text" id="noticeOutgoingViewLink" value="-" disabled />
+                        </div>
+
+                        <div class="form-group sender-field">
+                            <label><b>ผู้รับหนังสือ</b></label>
+                            <input type="text" id="noticeOutgoingViewProposer" value="-" disabled>
+                        </div>
+
+                        <div class="form-group" id="noticeOutgoingDirectorCommentSection">
+                            <label><b>ความคิดเห็นของผู้อำนวยการโรงเรียน</b></label>
+                            <textarea id="noticeOutgoingDirectorComment" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
+                        </div>
+
+                        <div class="content-read-sec" id="noticeDetailReceiptStatusSection" style="display: none;">
+                            <p><strong>สถานะการอ่านรายบุคคล</strong></p>
+                            <div class="table-responsive">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ชื่อผู้รับ</th>
+                                            <th>สถานะ</th>
+                                            <th>เวลาอ่านล่าสุด</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="noticeDetailReceiptStatusTableBody">
+                                        <tr>
+                                            <td colspan="3" class="enterprise-empty">ไม่พบข้อมูลผู้รับ</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </form>
                 </div>
-
-                <div class="footer-modal">
-                    <form method="POST" id="modalArchiveForm">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="inbox_id" id="modalInboxId" value="">
-                        <input type="hidden" name="action" value="<?= h($archived ? 'unarchive' : 'archive') ?>">
-                        <button
-                            type="submit"
-                            data-confirm="<?= h($archived ? 'ต้องการย้ายหนังสือเวียนนี้กลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนนี้หรือไม่') ?>"
-                            data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>"
-                            data-confirm-ok="ยืนยัน"
-                            data-confirm-cancel="ยกเลิก">
-                            <p><?= h($archived ? 'ย้ายกลับ' : 'จัดเก็บ') ?></p>
-                        </button>
-                    </form>
-                </div>
-
             </div>
         </div>
     <?php else : ?>
@@ -819,6 +1008,11 @@ ob_start();
                         <div class="form-group sender-field">
                             <label><b>ผู้รับหนังสือ</b></label>
                             <input type="text" id="noticeOutgoingViewProposer" value="-" disabled>
+                        </div>
+
+                        <div class="form-group" id="noticeOutgoingDirectorCommentSection">
+                            <label><b>ความคิดเห็นของผู้อำนวยการโรงเรียน</b></label>
+                            <textarea id="noticeOutgoingDirectorComment" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
                         </div>
 
                     </form>
@@ -982,7 +1176,7 @@ ob_start();
             </div>
 
             <div class="content-modal">
-                <form method="POST" enctype="multipart/form-data" data-validate class="container-circular-notice-sending" id="circularForwardForm" style="box-shadow:none; padding: 0;">
+                <form method="POST" enctype="multipart/form-data" data-validate class="container-circular-notice-sending" id="circularForwardForm" data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>" style="box-shadow:none; padding: 0;">
                     <?= csrf_field() ?>
                     <input type="hidden" name="inbox_id" data-send-inbox-id value="">
                     <input type="hidden" name="circular_id" data-send-circular-id value="">
@@ -1027,7 +1221,24 @@ ob_start();
 
                     <div class="form-group sender-field">
                         <label><b>ถึงกลุ่ม</b></label>
-                        <input type="text" id="forwardViewGroup" value="-" disabled>
+                        <?php if ($forward_is_reviewer_return) : ?>
+                            <select name="extGroupFID" id="forwardViewGroupFid" class="native-forward-group-select">
+                                <option value="">เลือกกลุ่ม/ฝ่าย</option>
+                                <?php foreach ($factions as $faction) : ?>
+                                    <?php
+                                    $faction_id = (int) ($faction['fID'] ?? 0);
+                                    $faction_name = trim((string) ($faction['fName'] ?? $faction['fname'] ?? ''));
+
+                                    if ($faction_id <= 0 || $faction_name === '') {
+                                        continue;
+                                    }
+                                    ?>
+                                    <option value="<?= h((string) $faction_id) ?>"><?= h($faction_name) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php else : ?>
+                            <input type="text" id="forwardViewGroup" value="-" disabled>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">
@@ -1054,6 +1265,35 @@ ob_start();
                         <label><b>ผู้รับหนังสือ</b></label>
                         <input type="text" id="forwardViewProposer" value="-" disabled>
                     </div>
+
+                    <?php if ($forward_is_reviewer_return || $forward_is_registry_handoff || $forward_show_deputy_distribute_controls) : ?>
+                        <div class="enterprise-divider" id="forwardDirectorCommentDivider"></div>
+
+                        <div class="form-group" id="forwardDirectorCommentSection">
+                            <label><b>ความคิดเห็นของผู้อำนวยการโรงเรียน</b></label>
+                            <textarea rows="5" id="forwardDirectorComment"<?= $forward_is_reviewer_return ? ' name="comment"' : ' data-editor-readonly disabled' ?> class="js-memo-editor"></textarea>
+                        </div>
+
+                        <?php if ($forward_is_registry_handoff) : ?>
+                            <div class="enterprise-divider"></div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php if ($forward_show_deputy_distribute_controls) : ?>
+                        <div class="enterprise-divider" id="forwardDeputyCommentDivider" style="display: none;"></div>
+
+                        <div class="form-group" id="forwardDeputyCommentSection" style="display: none;">
+                            <label><b>ความคิดเห็นของรองผู้อำนวยการ</b></label>
+                            <textarea rows="5" id="forwardDeputyComment" name="deputy_comment" class="js-memo-editor"></textarea>
+                        </div>
+
+                        <div class="form-group sender-field" id="forwardAnnouncementSection" style="display: none;">
+                            <label class="select-all-box" for="forwardPublishAnnouncement">
+                                <input type="checkbox" id="forwardPublishAnnouncement" name="publish_announcement" value="1">
+                                ส่งเป็นข่าวประชาสัมพันธ์
+                            </label>
+                        </div>
+                    <?php endif; ?>
 
                     <?php if ($forward_show_recipient_controls) : ?>
                         <div class="form-group receive" data-recipients-section>
@@ -1084,7 +1324,7 @@ ob_start();
                                                     if ($fid <= 0) continue;
 
                                                     $fid_value = (string) $fid;
-                                                    $faction_name = trim((string) ($faction['fName'] ?? ''));
+                                                    $faction_name = trim((string) ($faction['fName'] ?? $faction['fname'] ?? ''));
 
                                                     if ($faction_name === '') continue;
 
@@ -1224,6 +1464,82 @@ ob_start();
                                                                             data-member-group-key="<?= h($forward_group_key) ?>"
                                                                             data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
                                                                             data-group-label="<?= h($department_name) ?>"
+                                                                            name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
+                                                                        <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
+                                                                    </label>
+                                                                </li>
+                                                            <?php endforeach; ?>
+                                                        </ol>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($role_groups)) : ?>
+                                        <div class="category-group">
+                                            <div class="category-title">
+                                                <span>บทบาท</span>
+                                            </div>
+                                            <div class="category-items">
+                                                <?php foreach ($role_groups as $role_group) : ?>
+                                                    <?php
+                                                    $role_id = (int) ($role_group['roleID'] ?? 0);
+                                                    $role_name = trim((string) ($role_group['name'] ?? ''));
+                                                    $members = (array) ($role_group['members'] ?? []);
+
+                                                    if ($role_id <= 0 || $role_name === '' || empty($members)) continue;
+
+                                                    $member_payload = [];
+                                                    $has_selected_member = false;
+
+                                                    foreach ($members as $member) {
+                                                        $member_pid = (string) ($member['pID'] ?? '');
+                                                        $member_name = (string) ($member['name'] ?? '');
+                                                        if ($member_pid === '' || $member_name === '') continue;
+
+                                                        if ($is_selected($member_pid, $selected_people)) {
+                                                            $has_selected_member = true;
+                                                        }
+                                                        $member_payload[] = [
+                                                            'pID' => $member_pid,
+                                                            'name' => $member_name,
+                                                            'faction' => $role_name,
+                                                        ];
+                                                    }
+
+                                                    if (empty($member_payload)) continue;
+
+                                                    $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
+                                                    $member_total = count($member_payload);
+                                                    $role_value = (string) $role_id;
+                                                    $forward_group_key = 'forward-role-' . $role_value;
+                                                    $expanded_by_default = $is_selected($role_value, $selected_roles) || $has_selected_member;
+                                                    ?>
+                                                    <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>">
+                                                        <div class="group-header">
+                                                            <label class="item-main" for="forward_group_role_<?= h($role_value) ?>">
+                                                                <input type="checkbox" id="forward_group_role_<?= h($role_value) ?>" class="item-checkbox group-item-checkbox role-item-checkbox" data-group="role"
+                                                                    data-group-key="<?= h($forward_group_key) ?>"
+                                                                    data-group-label="<?= h($role_name) ?>"
+                                                                    data-members="<?= h($member_payload_json) ?>"
+                                                                    name="role_ids[]" value="<?= h($role_value) ?>" <?= h($is_selected($role_value, $selected_roles) ? 'checked' : '') ?>>
+                                                                <span class="item-title"><?= h($role_name) ?></span>
+                                                                <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                            </label>
+                                                            <button type="button" class="group-toggle" aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                <i class="fa-solid fa-chevron-down"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        <ol class="member-sublist">
+                                                            <?php foreach ($member_payload as $member) : ?>
+                                                                <li>
+                                                                    <label class="item member-item" for="forward_member_role_<?= h($role_value) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
+                                                                        <input type="checkbox" id="forward_member_role_<?= h($role_value) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
+                                                                            data-member-group-key="<?= h($forward_group_key) ?>"
+                                                                            data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
+                                                                            data-group-label="<?= h($role_name) ?>"
                                                                             name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
                                                                         <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
                                                                     </label>
@@ -1462,6 +1778,7 @@ ob_start();
             const previewImage = document.getElementById('previewImage');
             const previewCaption = document.getElementById('previewCaption');
             const closePreviewBtn = document.getElementById('closePreviewBtn');
+            const isRegistryHandoff = () => String(form.dataset.registryHandoff || '').trim() === '1';
 
             const maxFiles = 5;
             const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -1775,15 +2092,10 @@ ob_start();
                 }
 
                 const checkedMembers = memberChecks.filter((item) => item.checked && !item.disabled);
-
-                if (checkedMembers.length === 0) {
-                    receiptStatusSection.style.display = 'none';
-                    receiptStatusTableBody.innerHTML = '<tr><td colspan="3" class="enterprise-empty">ไม่พบข้อมูลผู้รับ</td></tr>';
-                    return;
-                }
-
                 const readStatsMap = new Map();
-                getCurrentReadStats().forEach((item) => {
+                const currentReadStats = getCurrentReadStats();
+
+                currentReadStats.forEach((item) => {
                     const pid = String(item?.pID || '').trim();
                     if (pid !== '') {
                         readStatsMap.set(pid, item);
@@ -1791,32 +2103,58 @@ ob_start();
                 });
 
                 const recipientsMap = new Map();
-                const addRecipient = (pid, name, faction) => {
+                let recipientOrder = 0;
+                const addRecipient = (pid, name, faction, stat = null) => {
                     const key = String(pid || '').trim();
-                    if (key === '' || recipientsMap.has(key)) return;
+                    if (key === '') return;
+
+                    if (recipientsMap.has(key)) {
+                        const existing = recipientsMap.get(key);
+                        if (stat && !existing.stat) {
+                            existing.stat = stat;
+                        }
+                        return;
+                    }
+
                     recipientsMap.set(key, {
                         pid: key,
                         name: String(name || '-').trim() || '-',
                         faction: String(faction || '-').trim() || '-',
+                        stat,
+                        order: recipientOrder++,
                     });
                 };
 
+                if (!isRegistryHandoff()) {
+                    currentReadStats.forEach((stat) => {
+                        const pid = String(stat?.pID || '').trim();
+                        const isRead = Number(stat?.isRead || 0) === 1;
+                        const readAtDisplay = String(stat?.readAtDisplay || '').trim();
+
+                        if (pid !== '' && (isRead || (readAtDisplay !== '' && readAtDisplay !== '-'))) {
+                            addRecipient(pid, stat?.fName, '-', stat);
+                        }
+                    });
+                }
+
                 checkedMembers.forEach((item) => {
-                    addRecipient(item.value, item.getAttribute('data-member-name'), item.getAttribute('data-group-label'));
+                    const pid = String(item.value || '').trim();
+                    addRecipient(pid, item.getAttribute('data-member-name'), item.getAttribute('data-group-label'), readStatsMap.get(pid) || null);
                 });
 
-                const recipients = Array.from(recipientsMap.values()).sort((a, b) => {
-                    if (a.faction === b.faction) {
-                        return a.name.localeCompare(b.name, 'th');
-                    }
-                    return a.faction.localeCompare(b.faction, 'th');
-                });
+                if (recipientsMap.size === 0) {
+                    receiptStatusSection.style.display = 'none';
+                    receiptStatusTableBody.innerHTML = '<tr><td colspan="3" class="enterprise-empty">ไม่พบข้อมูลผู้รับ</td></tr>';
+                    return;
+                }
+
+                const recipients = Array.from(recipientsMap.values()).sort((a, b) => a.order - b.order);
 
                 receiptStatusSection.style.display = '';
                 receiptStatusTableBody.innerHTML = '';
 
                 recipients.forEach((recipient) => {
-                    const stat = readStatsMap.get(recipient.pid) || null;
+                    const stat = recipient.stat || readStatsMap.get(recipient.pid) || null;
                     const isRead = Number(stat?.isRead || 0) === 1;
 
                     const row = document.createElement('tr');
@@ -1902,7 +2240,24 @@ ob_start();
                     sendReceiptStatusTableBody.innerHTML = '<tr><td colspan="3" class="enterprise-empty">ไม่พบข้อมูลผู้รับ</td></tr>';
                 }
                 delete form.dataset.readStats;
+                if (form.id === 'circularForwardForm') {
+                    form.dataset.deputyDistributeAction = '0';
+                }
                 if (searchInput) searchInput.value = '';
+                [forwardDirectorCommentDivider, forwardDirectorCommentSection, forwardDeputyCommentDivider, forwardDeputyCommentSection, forwardAnnouncementSection].forEach((element) => {
+                    if (element) {
+                        element.style.display = 'none';
+                    }
+                });
+                setForwardDirectorCommentContent('');
+                setForwardDeputyCommentContent('');
+                if (forwardPublishAnnouncement) {
+                    forwardPublishAnnouncement.checked = false;
+                    forwardPublishAnnouncement.disabled = true;
+                }
+                if (typeof updateForwardActionButtonState === 'function') {
+                    updateForwardActionButtonState();
+                }
                 recipientSearchRequestNo++;
                 filterRecipientDropdown('');
                 [...groupChecks, ...memberChecks].forEach((item) => {
@@ -1991,6 +2346,10 @@ ob_start();
             const requestFormSubmit = () => {
                 if (!form) return;
 
+                if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
+                    window.tinymce.triggerSave();
+                }
+
                 if (typeof form.requestSubmit === 'function') {
                     form.requestSubmit();
                     return;
@@ -2003,10 +2362,9 @@ ob_start();
             const confirmModal = document.getElementById(prefix + 'confirmModal');
             const confirmYes = document.getElementById(prefix + 'btnConfirmYes');
             const confirmNo = document.getElementById(prefix + 'btnConfirmNo');
-            const confirmTitle = String(btnSend?.getAttribute('data-confirm-title') || '').trim() || 'ยืนยันการทำรายการ';
-
             btnSend?.addEventListener('click', (e) => {
                 e.preventDefault();
+                const confirmTitle = String(btnSend?.getAttribute('data-confirm-title') || '').trim() || 'ยืนยันการทำรายการ';
 
                 if (window.AppAlerts && typeof window.AppAlerts.confirm === 'function') {
                     window.AppAlerts.confirm('', {
@@ -2022,6 +2380,8 @@ ob_start();
                     return;
                 }
 
+                const confirmHeading = confirmModal?.querySelector('h3');
+                if (confirmHeading) confirmHeading.textContent = confirmTitle;
                 confirmModal?.classList.add('active');
             });
             confirmNo?.addEventListener('click', () => confirmModal?.classList.remove('active'));
@@ -2122,6 +2482,9 @@ ob_start();
         const noticeDetailCoverList = document.getElementById('noticeOutgoingViewCoverList');
         const noticeDetailAttachmentSection = document.getElementById('noticeOutgoingViewAttachmentSection');
         const noticeDetailAttachmentList = document.getElementById('noticeOutgoingViewAttachmentList');
+        const noticeDetailDirectorComment = document.getElementById('noticeOutgoingDirectorComment');
+        const noticeDetailReceiptStatusSection = document.getElementById('noticeDetailReceiptStatusSection');
+        const noticeDetailReceiptStatusTableBody = document.getElementById('noticeDetailReceiptStatusTableBody');
         const noticeDetailUrgentRadios = detailModalKeep ? Array.from(detailModalKeep.querySelectorAll('[data-notice-view-urgent]')) : [];
 
         const escapeHtml = (value) => String(value ?? '')
@@ -2234,6 +2597,27 @@ ob_start();
             }, 50);
         };
 
+        const setNoticeDirectorCommentContent = (html) => {
+            const normalizedHtml = String(html || '').trim() || '<p>-</p>';
+            const editor = window.tinymce ? window.tinymce.get('noticeOutgoingDirectorComment') : null;
+
+            if (editor) {
+                editor.setContent(normalizedHtml);
+                return;
+            }
+
+            if (noticeDetailDirectorComment) {
+                noticeDetailDirectorComment.value = normalizedHtml;
+            }
+
+            window.setTimeout(() => {
+                const delayedEditor = window.tinymce ? window.tinymce.get('noticeOutgoingDirectorComment') : null;
+                if (delayedEditor) {
+                    delayedEditor.setContent(normalizedHtml);
+                }
+            }, 50);
+        };
+
         const setForwardViewEditorContent = (html) => {
             const normalizedHtml = String(html || '').trim() || '<p>-</p>';
             const editor = window.tinymce ? window.tinymce.get('forwardViewDetail') : null;
@@ -2255,6 +2639,137 @@ ob_start();
             }, 50);
         };
 
+        const setForwardDirectorCommentContent = (html, fallback = '') => {
+            let normalizedHtml = String(html || '').trim();
+            const fallbackHtml = String(fallback || '').trim();
+            if (normalizedHtml === '' && fallbackHtml !== '') {
+                normalizedHtml = fallbackHtml;
+            }
+            const editor = window.tinymce ? window.tinymce.get('forwardDirectorComment') : null;
+
+            if (editor) {
+                editor.setContent(normalizedHtml);
+                return;
+            }
+
+            if (forwardDirectorComment) {
+                forwardDirectorComment.value = normalizedHtml;
+            }
+
+            window.setTimeout(() => {
+                const delayedEditor = window.tinymce ? window.tinymce.get('forwardDirectorComment') : null;
+                if (delayedEditor) {
+                    delayedEditor.setContent(normalizedHtml);
+                }
+            }, 50);
+        };
+
+        const setForwardDeputyCommentContent = (html) => {
+            const normalizedHtml = String(html || '').trim();
+            const editor = window.tinymce ? window.tinymce.get('forwardDeputyComment') : null;
+
+            if (editor) {
+                editor.setContent(normalizedHtml);
+                return;
+            }
+
+            if (forwardDeputyComment) {
+                forwardDeputyComment.value = normalizedHtml;
+            }
+
+            window.setTimeout(() => {
+                const delayedEditor = window.tinymce ? window.tinymce.get('forwardDeputyComment') : null;
+                if (delayedEditor) {
+                    delayedEditor.setContent(normalizedHtml);
+                }
+            }, 50);
+        };
+
+        const setForwardGroupSelection = (value, fallbackLabel) => {
+            const groupWrapper = document.getElementById('forwardViewGroupSelectWrapper');
+            const groupInput = document.getElementById('forwardViewGroupFid');
+            const groupLabel = document.getElementById('forwardViewGroupSelectLabel');
+
+            if (!groupInput) {
+                return;
+            }
+
+            let normalizedValue = String(value || '').trim();
+            const normalizedFallback = String(fallbackLabel || '').trim().replace(/\s+/g, ' ');
+            const isNativeSelect = groupInput.tagName === 'SELECT';
+
+            if (isNativeSelect) {
+                const selectOptions = Array.from(groupInput.options || []);
+
+                if (normalizedValue === '' && normalizedFallback !== '' && normalizedFallback !== '-') {
+                    const matchedOption = selectOptions.find((option) => {
+                        const optionLabel = String(option.textContent || '').trim().replace(/\s+/g, ' ');
+                        return optionLabel === normalizedFallback;
+                    }) || null;
+                    normalizedValue = matchedOption ? String(matchedOption.value || '').trim() : '';
+                }
+
+                groupInput.value = normalizedValue;
+                groupInput.dispatchEvent(new Event('change', {
+                    bubbles: true
+                }));
+                return;
+            }
+
+            if (!groupWrapper || !groupLabel) {
+                return;
+            }
+
+            const options = Array.from(groupWrapper.querySelectorAll('.custom-option'));
+            let selectedOption = null;
+
+            if (normalizedValue === '' && normalizedFallback !== '' && normalizedFallback !== '-') {
+                selectedOption = options.find((option) => {
+                    const optionLabel = String(option.getAttribute('data-label') || option.textContent || '').trim().replace(/\s+/g, ' ');
+                    return optionLabel === normalizedFallback;
+                }) || null;
+                normalizedValue = selectedOption ? String(selectedOption.getAttribute('data-value') || '').trim() : '';
+            }
+
+            options.forEach((option) => {
+                const isSelected = option.getAttribute('data-value') === normalizedValue;
+                option.classList.toggle('selected', isSelected);
+
+                if (isSelected) {
+                    selectedOption = option;
+                }
+            });
+
+            groupInput.value = normalizedValue;
+            const selectedLabel = selectedOption
+                ? String(selectedOption.getAttribute('data-label') || selectedOption.textContent || '').trim()
+                : '';
+            const fallbackText = String(fallbackLabel || '').trim();
+            const resolvedLabel = selectedLabel || (fallbackText !== '-' ? fallbackText : '') || 'เลือกกลุ่ม/ฝ่าย';
+
+            groupLabel.replaceChildren(document.createTextNode(resolvedLabel));
+            groupLabel.textContent = resolvedLabel;
+            groupLabel.dataset.currentLabel = resolvedLabel;
+            groupLabel.setAttribute('title', resolvedLabel);
+            groupLabel.setAttribute('aria-label', resolvedLabel);
+            groupWrapper.dataset.selectedLabel = resolvedLabel;
+            groupWrapper.setAttribute('data-selected-value', normalizedValue);
+            groupInput.setAttribute('value', normalizedValue);
+            groupInput.dispatchEvent(new Event('input', {
+                bubbles: true
+            }));
+            groupInput.dispatchEvent(new Event('change', {
+                bubbles: true
+            }));
+        };
+
+        const scheduleForwardGroupSelection = (value, fallbackLabel) => {
+            setForwardGroupSelection(value, fallbackLabel);
+            [0, 50, 150].forEach((delay) => {
+                window.setTimeout(() => setForwardGroupSelection(value, fallbackLabel), delay);
+            });
+        };
+
         const renderNoticeDetailFileList = (section, list, circularId, files) => {
             if (!section || !list) {
                 return;
@@ -2262,7 +2777,7 @@ ob_start();
 
             if (files.length === 0) {
                 section.style.display = '';
-                list.innerHTML = '<p class="enterprise-empty">ยังไม่มีไฟล์แนบ</p>';
+                list.innerHTML = '<p class="enterprise-empty">-</p>';
                 return;
             }
 
@@ -2305,6 +2820,44 @@ ob_start();
             renderNoticeDetailFileList(noticeDetailAttachmentSection, noticeDetailAttachmentList, circularId, groupedFiles.attachmentFiles);
         };
 
+        const renderNoticeDetailReadStats = (rawStats, shouldShow) => {
+            if (!noticeDetailReceiptStatusSection || !noticeDetailReceiptStatusTableBody) {
+                return;
+            }
+
+            const isEnabled = String(shouldShow || '').trim() === '1';
+            const stats = parseJsonList(rawStats).filter((item) => String(item?.pID || '').trim() !== '');
+
+            if (!isEnabled || stats.length === 0) {
+                noticeDetailReceiptStatusSection.style.display = 'none';
+                noticeDetailReceiptStatusTableBody.innerHTML = '<tr><td colspan="3" class="enterprise-empty">ไม่พบข้อมูลผู้รับ</td></tr>';
+                return;
+            }
+
+            noticeDetailReceiptStatusSection.style.display = '';
+            noticeDetailReceiptStatusTableBody.innerHTML = '';
+
+            stats.forEach((item) => {
+                const isRead = Number(item?.isRead || 0) === 1;
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td');
+                const statusCell = document.createElement('td');
+                const readAtCell = document.createElement('td');
+                const statusPill = document.createElement('span');
+
+                nameCell.textContent = String(item?.fName || '-').trim() || '-';
+                statusPill.className = `status-pill ${isRead ? 'approved' : 'pending'}`;
+                statusPill.textContent = isRead ? 'อ่านแล้ว' : 'ยังไม่อ่าน';
+                statusCell.appendChild(statusPill);
+                readAtCell.textContent = String(item?.readAtDisplay || '-').trim() || '-';
+
+                row.appendChild(nameCell);
+                row.appendChild(statusCell);
+                row.appendChild(readAtCell);
+                noticeDetailReceiptStatusTableBody.appendChild(row);
+            });
+        };
+
         const populateNoticeDetailModal = (button) => {
             if (!button || !noticeDetailUsesOutgoingLayout) {
                 return;
@@ -2331,7 +2884,9 @@ ob_start();
             setNoticeInput(noticeDetailLink, button.getAttribute('data-link'));
             setNoticeInput(noticeDetailProposer, button.getAttribute('data-sender-name'));
             setNoticeDetailEditorContent(button.getAttribute('data-detail'));
+            setNoticeDirectorCommentContent(button.getAttribute('data-director-comment'));
             renderNoticeDetailFiles(circularId, button.getAttribute('data-files'));
+            renderNoticeDetailReadStats(button.getAttribute('data-read-stats'), button.getAttribute('data-show-read-stats'));
         };
 
         document.querySelectorAll('.js-open-circular-modal').forEach(btn => {
@@ -2372,13 +2927,75 @@ ob_start();
         const forwardViewSubject = document.getElementById('forwardViewSubject');
         const forwardViewFrom = document.getElementById('forwardViewFrom');
         const forwardViewGroup = document.getElementById('forwardViewGroup');
+        const forwardViewGroupSelectWrapper = document.getElementById('forwardViewGroupSelectWrapper');
+        const forwardViewGroupFid = document.getElementById('forwardViewGroupFid');
+        const forwardViewGroupSelectLabel = document.getElementById('forwardViewGroupSelectLabel');
         const forwardViewDetail = document.getElementById('forwardViewDetail');
+        const forwardDirectorComment = document.getElementById('forwardDirectorComment');
+        const forwardDirectorCommentSection = document.getElementById('forwardDirectorCommentSection');
+        const forwardDirectorCommentDivider = document.getElementById('forwardDirectorCommentDivider');
+        const forwardDeputyComment = document.getElementById('forwardDeputyComment');
+        const forwardDeputyCommentSection = document.getElementById('forwardDeputyCommentSection');
+        const forwardDeputyCommentDivider = document.getElementById('forwardDeputyCommentDivider');
+        const forwardAnnouncementSection = document.getElementById('forwardAnnouncementSection');
+        const forwardPublishAnnouncement = document.getElementById('forwardPublishAnnouncement');
+        const forwardSendButton = document.getElementById('forward_btnSendNotice');
+        const forwardSendButtonText = forwardSendButton?.querySelector('p');
+        const forwardIsReviewerReturnPage = <?= json_encode($forward_is_reviewer_return, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+        const forwardDefaultButtonLabel = <?= json_encode($forward_is_reviewer_return ? 'พิจารณา' : 'ส่งหนังสือต่อ', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+        const forwardDefaultConfirmTitle = <?= json_encode($forward_is_reviewer_return ? 'ยืนยันการพิจารณา' : 'ยืนยันการส่งหนังสือต่อ', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+        const forwardAnnouncementButtonLabel = 'ขึ้นข่าวประชาสัมพันธ์';
+        const forwardAnnouncementConfirmTitle = 'ยืนยันการขึ้นข่าวประชาสัมพันธ์';
         const forwardViewLink = document.getElementById('forwardViewLink');
         const forwardViewProposer = document.getElementById('forwardViewProposer');
         const forwardViewCoverSection = document.getElementById('forwardViewCoverSection');
         const forwardViewCoverList = document.getElementById('forwardViewCoverList');
         const forwardViewAttachmentSection = document.getElementById('forwardViewAttachmentSection');
         const forwardViewAttachmentList = document.getElementById('forwardViewAttachmentList');
+
+        const updateForwardActionButtonState = () => {
+            if (!forwardSendButton) return;
+
+            const isDeputyDistributeAction = String(sendForm?.dataset.deputyDistributeAction || '').trim() === '1';
+            const shouldPublishAnnouncement = isDeputyDistributeAction && Boolean(forwardPublishAnnouncement?.checked);
+            const label = shouldPublishAnnouncement ? forwardAnnouncementButtonLabel : forwardDefaultButtonLabel;
+            const confirmTitle = shouldPublishAnnouncement ? forwardAnnouncementConfirmTitle : forwardDefaultConfirmTitle;
+            const recipientSection = sendForm?.querySelector('[data-recipients-section]');
+            const receiptStatusSection = sendForm?.querySelector('#forwardReceiptStatusSection');
+
+            if (forwardSendButtonText) {
+                forwardSendButtonText.textContent = label;
+            }
+            forwardSendButton.setAttribute('data-confirm-title', confirmTitle);
+
+            if (recipientSection) {
+                recipientSection.style.display = shouldPublishAnnouncement ? 'none' : '';
+            }
+            if (receiptStatusSection && shouldPublishAnnouncement) {
+                receiptStatusSection.style.display = 'none';
+            } else if (sendForm && typeof sendForm.setReadStats === 'function') {
+                sendForm.setReadStats(sendForm.dataset.readStats || '[]');
+            }
+        };
+
+        forwardPublishAnnouncement?.addEventListener('change', updateForwardActionButtonState);
+
+        const syncForwardReviewFormFields = () => {
+            if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
+                window.tinymce.triggerSave();
+            }
+
+            if (forwardViewGroupFid && forwardViewGroupFid.tagName === 'SELECT') {
+                const selectedOption = forwardViewGroupFid.options[forwardViewGroupFid.selectedIndex] || null;
+                const selectedValue = String(selectedOption?.value || forwardViewGroupFid.value || '').trim();
+
+                if (selectedValue !== '') {
+                    forwardViewGroupFid.value = selectedValue;
+                }
+            }
+        };
+
+        sendForm?.addEventListener('submit', syncForwardReviewFormFields);
 
         const renderSendModalFiles = (circularId, rawFiles) => {
             if (!sendModal) return;
@@ -2406,6 +3023,11 @@ ob_start();
             const rawFiles = button.getAttribute('data-files') || '[]';
             const rawReadStats = button.getAttribute('data-read-stats') || '[]';
             const rawForwardedPids = button.getAttribute('data-forwarded-pids') || '[]';
+            const directorComment = String(button.getAttribute('data-director-comment') || '').trim();
+            const isRegistryHandoffAction = String(button.getAttribute('data-registry-handoff') || '').trim() === '1';
+            const isDeputyDistributeAction = String(button.getAttribute('data-deputy-distribute') || '').trim() === '1';
+            const groupFid = String(button.getAttribute('data-group-fid') || '').trim();
+            const groupLabel = String(button.getAttribute('data-group') || '').trim();
 
             const targetInput = sendModal.querySelector('#forwardTargetCircularId');
             const inboxInput = sendModal.querySelector('[data-send-inbox-id]');
@@ -2413,6 +3035,11 @@ ob_start();
             const subjectInput = sendModal.querySelector('input[name="subject"]');
             const detailInput = sendModal.querySelector('textarea[name="detail"]');
             const linkInput = sendModal.querySelector('input[name="linkURL"]');
+
+            if (sendForm) {
+                sendForm.dataset.registryHandoff = isRegistryHandoffAction ? '1' : '0';
+                sendForm.dataset.deputyDistributeAction = isDeputyDistributeAction ? '1' : '0';
+            }
 
             if (targetInput) targetInput.value = circularId;
             if (inboxInput) inboxInput.value = inboxId;
@@ -2426,8 +3053,27 @@ ob_start();
             setNoticeInput(forwardViewIssuedDate, button.getAttribute('data-issued'));
             setNoticeInput(forwardViewSubject, subject);
             setNoticeInput(forwardViewFrom, button.getAttribute('data-from'));
-            setNoticeInput(forwardViewGroup, button.getAttribute('data-group'));
+            setNoticeInput(forwardViewGroup, groupLabel);
+            scheduleForwardGroupSelection(groupFid, groupLabel);
             setForwardViewEditorContent(detail);
+            const shouldShowDirectorComment = forwardIsReviewerReturnPage || isRegistryHandoffAction || isDeputyDistributeAction;
+            [forwardDirectorCommentDivider, forwardDirectorCommentSection].forEach((element) => {
+                if (element) {
+                    element.style.display = shouldShowDirectorComment ? '' : 'none';
+                }
+            });
+            setForwardDirectorCommentContent(directorComment, shouldShowDirectorComment && !forwardIsReviewerReturnPage ? '-' : '');
+            [forwardDeputyCommentDivider, forwardDeputyCommentSection, forwardAnnouncementSection].forEach((element) => {
+                if (element) {
+                    element.style.display = isDeputyDistributeAction ? '' : 'none';
+                }
+            });
+            setForwardDeputyCommentContent('');
+            if (forwardPublishAnnouncement) {
+                forwardPublishAnnouncement.checked = false;
+                forwardPublishAnnouncement.disabled = !isDeputyDistributeAction;
+            }
+            updateForwardActionButtonState();
             setNoticeInput(forwardViewLink, linkUrl);
             setNoticeInput(forwardViewProposer, senderName);
             renderSendModalFiles(circularId, rawFiles);

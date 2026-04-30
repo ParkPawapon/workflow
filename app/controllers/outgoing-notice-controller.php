@@ -15,6 +15,68 @@ require_once __DIR__ . '/../modules/system/system.php';
 require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../modules/audit/logger.php';
 
+if (!function_exists('outgoing_notice_deputy_forward_pids')) {
+    function outgoing_notice_deputy_forward_pids(mysqli $connection, array $deputy_position_ids, ?string $acting_pid): array
+    {
+        $deputy_position_ids = array_values(array_unique(array_filter(array_map('intval', $deputy_position_ids), static function (int $position_id): bool {
+            return $position_id > 0;
+        })));
+
+        if ($deputy_position_ids === []) {
+            return [];
+        }
+
+        $joins = [];
+        $conditions = [];
+        $types = '';
+        $params = [];
+
+        $append_position_condition = static function (string $column) use (&$conditions, &$types, &$params, $deputy_position_ids): void {
+            $conditions[] = $column . ' IN (' . implode(', ', array_fill(0, count($deputy_position_ids), '?')) . ')';
+            $types .= str_repeat('i', count($deputy_position_ids));
+            array_push($params, ...$deputy_position_ids);
+        };
+
+        $append_position_condition('t.positionID');
+
+        if (db_table_exists($connection, 'dh_user_positions')) {
+            $joins[] = 'LEFT JOIN dh_user_positions AS dup ON dup.pID = t.pID';
+            $append_position_condition('dup.positionID');
+        }
+
+        if (db_table_exists($connection, 'user_positions')) {
+            $joins[] = 'LEFT JOIN user_positions AS up ON up.teacher_id = t.pID';
+            $append_position_condition('up.position_id');
+        }
+
+        $rows = db_fetch_all(
+            'SELECT DISTINCT t.pID, t.fName
+             FROM teacher AS t
+             ' . implode("\n", $joins) . '
+             WHERE t.status = 1
+               AND (' . implode(' OR ', $conditions) . ')
+             ORDER BY t.fName ASC',
+            $types,
+            ...$params
+        );
+
+        $acting_pid = trim((string) $acting_pid);
+        $pids = [];
+
+        foreach ($rows as $row) {
+            $pid = trim((string) ($row['pID'] ?? ''));
+
+            if ($pid === '' || !ctype_digit($pid) || ($acting_pid !== '' && $pid === $acting_pid)) {
+                continue;
+            }
+
+            $pids[$pid] = true;
+        }
+
+        return array_keys($pids);
+    }
+}
+
 if (!function_exists('outgoing_notice_index')) {
     function outgoing_notice_index(): void
     {
@@ -22,6 +84,7 @@ if (!function_exists('outgoing_notice_index')) {
         $current_user = current_user() ?? [];
         $current_pid = (string) ($current_user['pID'] ?? '');
         $factions = user_list_factions();
+        $roles = user_list_roles();
         $teachers = user_list_teachers();
 
         $connection = db_connection();
@@ -41,6 +104,7 @@ if (!function_exists('outgoing_notice_index')) {
 
         $acting_pid = system_get_acting_director_pid();
         $director_pid = system_get_current_director_pid();
+        $deputy_forward_pids = outgoing_notice_deputy_forward_pids($connection, $deputy_position_ids, $acting_pid);
         $is_director_box = $director_pid !== null && $director_pid === $current_pid;
         $is_acting_director = $acting_pid !== null && $acting_pid !== '' && $acting_pid === $current_pid;
         $is_reviewer_box = $is_director_box || $is_acting_director || $is_deputy_reviewer;
@@ -140,6 +204,11 @@ if (!function_exists('outgoing_notice_index')) {
 
         $table_status_filter = $table_status_map[$box_key] ?? $table_status_map['default'];
         $table_status_filter = $table_status_filter[$filter_view] ?? [];
+        $registry_tracking_sender_pids = [];
+
+        if ($box_key === 'normal' && $filter_type === 'external') {
+            $registry_tracking_sender_pids = array_fill_keys(circular_registry_pids(), true);
+        }
 
         $alert = flash_get('circular_notice_alert');
         $forward_open_inbox_id = (int) (flash_get('circular_notice_forward_open_inbox_id') ?? 0);
@@ -226,6 +295,9 @@ if (!function_exists('outgoing_notice_index')) {
                     $circular_id = (int) ($_POST['circular_id'] ?? 0);
                     $forward_open_inbox_id = $inbox_id;
                     $selected_factions = array_values(array_filter(array_map('intval', (array) ($_POST['faction_ids'] ?? []))));
+                    $selected_roles = array_values(array_filter(array_map('intval', (array) ($_POST['role_ids'] ?? [])), static function (int $role_id): bool {
+                        return $role_id > 0;
+                    }));
                     $selected_people = array_values(array_filter(array_map(static function ($value): string {
                         return trim((string) $value);
                     }, (array) ($_POST['person_ids'] ?? [])), static function (string $value): bool {
@@ -304,30 +376,7 @@ if (!function_exists('outgoing_notice_index')) {
                                 'message' => 'ไม่พบรายการที่ต้องการส่งต่อ',
                             ];
                         } else {
-                            $allowed_deputy_pids = [];
-
-                            if (!empty($deputy_position_ids)) {
-                                $placeholders = implode(', ', array_fill(0, count($deputy_position_ids), '?'));
-                                $types = str_repeat('i', count($deputy_position_ids));
-                                $rows = db_fetch_all(
-                                    'SELECT pID
-                                     FROM teacher
-                                     WHERE status = 1
-                                       AND positionID IN (' . $placeholders . ')',
-                                    $types,
-                                    ...$deputy_position_ids
-                                );
-                                $acting_pid_value = trim((string) ($acting_pid ?? ''));
-
-                                foreach ($rows as $row) {
-                                    $pid = trim((string) ($row['pID'] ?? ''));
-
-                                    if ($pid === '' || $pid === $current_pid || ($acting_pid_value !== '' && $pid === $acting_pid_value)) {
-                                        continue;
-                                    }
-                                    $allowed_deputy_pids[$pid] = true;
-                                }
-                            }
+                            $allowed_deputy_pids = array_fill_keys($deputy_forward_pids, true);
 
                             $target_deputy_pids = array_values(array_filter($selected_people, static function (string $pid) use ($allowed_deputy_pids): bool {
                                 return isset($allowed_deputy_pids[$pid]);
@@ -360,7 +409,11 @@ if (!function_exists('outgoing_notice_index')) {
                         ];
                     } else {
                         $inbox_row = db_fetch_one(
-                            'SELECT inboxID, circularID FROM dh_circular_inboxes WHERE inboxID = ? AND pID = ? AND isArchived = 0 LIMIT 1',
+                            'SELECT i.inboxID, i.circularID, i.inboxType, c.circularType, c.status, c.createdByPID
+                             FROM dh_circular_inboxes AS i
+                             INNER JOIN dh_circulars AS c ON c.circularID = i.circularID
+                             WHERE i.inboxID = ? AND i.pID = ? AND i.isArchived = 0
+                             LIMIT 1',
                             'is',
                             $inbox_id,
                             $current_pid
@@ -373,13 +426,8 @@ if (!function_exists('outgoing_notice_index')) {
                                 'message' => 'ไม่พบรายการที่ต้องการส่งต่อ',
                             ];
                         } else {
-                            $owner_row = db_fetch_one(
-                                'SELECT createdByPID FROM dh_circulars WHERE circularID = ? LIMIT 1',
-                                'i',
-                                $circular_id
-                            );
-                            $owner_pid = trim((string) ($owner_row['createdByPID'] ?? ''));
-                            $resolved_pids = circular_resolve_person_ids($selected_factions, [], $selected_people);
+                            $owner_pid = trim((string) ($inbox_row['createdByPID'] ?? ''));
+                            $resolved_pids = circular_resolve_person_ids($selected_factions, $selected_roles, $selected_people);
                             $resolved_pids = array_values(array_filter(array_map(static function ($value): string {
                                 return trim((string) $value);
                             }, $resolved_pids), static function (string $value): bool {
@@ -405,18 +453,72 @@ if (!function_exists('outgoing_notice_index')) {
                                 ];
                             }
 
+                            foreach ($selected_factions as $faction_id) {
+                                if ($faction_id <= 0) {
+                                    continue;
+                                }
+
+                                $targets[] = [
+                                    'targetType' => 'UNIT',
+                                    'fID' => $faction_id,
+                                    'roleID' => null,
+                                    'pID' => null,
+                                    'isCc' => 0,
+                                ];
+                            }
+
+                            foreach ($selected_roles as $role_id) {
+                                if ($role_id <= 0) {
+                                    continue;
+                                }
+
+                                $targets[] = [
+                                    'targetType' => 'ROLE',
+                                    'fID' => null,
+                                    'roleID' => $role_id,
+                                    'pID' => null,
+                                    'isCc' => 0,
+                                ];
+                            }
+
                             try {
-                                circular_forward($circular_id, $current_pid, [
-                                    'pids' => $resolved_pids,
-                                    'targets' => $targets,
-                                ]);
+                                $item_type = strtoupper((string) ($inbox_row['circularType'] ?? ''));
+                                $item_status = strtoupper((string) ($inbox_row['status'] ?? ''));
+                                $item_inbox_type = (string) ($inbox_row['inboxType'] ?? '');
+                                $can_deputy_distribute = $is_deputy_reviewer
+                                    && $item_type === CIRCULAR_TYPE_EXTERNAL
+                                    && $item_status === EXTERNAL_STATUS_FORWARDED
+                                    && $item_inbox_type === INBOX_TYPE_NORMAL;
+
+                                if ($can_deputy_distribute) {
+                                    $comment = trim((string) ($_POST['deputy_comment'] ?? ''));
+                                    $publish_announcement = (string) ($_POST['publish_announcement'] ?? '') === '1';
+                                    $recipient_payload = $publish_announcement
+                                        ? ['pids' => [], 'targets' => [], 'allow_empty' => true]
+                                        : ['pids' => $resolved_pids, 'targets' => $targets, 'allow_empty' => false];
+
+                                    circular_deputy_distribute($circular_id, $current_pid, $recipient_payload, $comment !== '' ? $comment : null);
+
+                                    if ($publish_announcement) {
+                                        circular_set_announcement($circular_id, $current_pid);
+                                    }
+                                } else {
+                                    circular_forward($circular_id, $current_pid, [
+                                        'pids' => $resolved_pids,
+                                        'targets' => $targets,
+                                    ]);
+                                }
+
+                                circular_mark_read($inbox_id, $current_pid);
 
                                 flash_set('circular_notice_alert', [
                                     'type' => 'success',
-                                    'title' => 'ส่งต่อเรียบร้อย',
+                                    'title' => ($can_deputy_distribute && $publish_announcement) ? 'ขึ้นข่าวประชาสัมพันธ์เรียบร้อย' : ($can_deputy_distribute ? 'กระจายหนังสือเรียบร้อย' : 'ส่งต่อเรียบร้อย'),
                                     'message' => '',
                                 ]);
-                                flash_set('circular_notice_forward_open_inbox_id', $inbox_id);
+                                if (!$can_deputy_distribute || !$publish_announcement) {
+                                    flash_set('circular_notice_forward_open_inbox_id', $inbox_id);
+                                }
                                 header('Location: ' . (string) ($_SERVER['REQUEST_URI'] ?? 'outgoing-notice.php'));
                                 exit;
                             } catch (Throwable $exception) {
@@ -442,9 +544,15 @@ if (!function_exists('outgoing_notice_index')) {
         if (!empty($circular_ids)) {
             $placeholders = implode(', ', array_fill(0, count($circular_ids), '?'));
             $types = str_repeat('i', count($circular_ids));
-            $sql = 'SELECT circularID, dh_year, circularType, subject, detail, linkURL, extPriority, extBookNo, extIssuedDate, extFromText, extGroupFID, status, createdAt, createdByPID
-                FROM dh_circulars
-                WHERE circularID IN (' . $placeholders . ')';
+            $has_receive_seq = db_column_exists($connection, 'dh_circulars', 'extReceiveSeq');
+            $sql = 'SELECT c.circularID, c.dh_year, c.circularType, c.subject, c.detail, c.linkURL,
+                    c.extPriority, c.extBookNo, c.extIssuedDate, c.extFromText, c.extGroupFID,
+                    ' . ($has_receive_seq ? 'c.extReceiveSeq' : 'NULL AS extReceiveSeq') . ',
+                    COALESCE(f.fName, "") AS extGroupName,
+                    c.status, c.createdAt, c.createdByPID
+                FROM dh_circulars AS c
+                LEFT JOIN faction AS f ON c.extGroupFID = f.fID
+                WHERE c.circularID IN (' . $placeholders . ')';
             $rows = db_fetch_all($sql, $types, ...$circular_ids);
 
             foreach ($rows as $row) {
@@ -461,9 +569,11 @@ if (!function_exists('outgoing_notice_index')) {
             $item['linkURL'] = $detail['linkURL'] ?? '';
             $item['extPriority'] = $detail['extPriority'] ?? '';
             $item['extBookNo'] = $detail['extBookNo'] ?? '';
+            $item['extReceiveSeq'] = $detail['extReceiveSeq'] ?? null;
             $item['extIssuedDate'] = $detail['extIssuedDate'] ?? '';
             $item['extFromText'] = $detail['extFromText'] ?? '';
             $item['extGroupFID'] = $detail['extGroupFID'] ?? '';
+            $item['extGroupName'] = $detail['extGroupName'] ?? '';
             $item['dh_year'] = $detail['dh_year'] ?? ($item['dh_year'] ?? null);
             $item['status'] = $detail['status'] ?? ($item['status'] ?? '');
             $item['createdByPID'] = $detail['createdByPID'] ?? ($item['createdByPID'] ?? '');
@@ -497,7 +607,7 @@ if (!function_exists('outgoing_notice_index')) {
             $selected_dh_year = 0;
         }
 
-        $items = array_values(array_filter($items, static function (array $item) use ($filter_type, $filter_search, $selected_dh_year): bool {
+        $items = array_values(array_filter($items, static function (array $item) use ($filter_type, $filter_search, $selected_dh_year, $box_key, $current_pid, $registry_tracking_sender_pids, $can_manage_external): bool {
             $type = strtoupper((string) ($item['circularType'] ?? ''));
 
             if ($filter_type === 'internal' && $type !== 'INTERNAL') {
@@ -506,6 +616,18 @@ if (!function_exists('outgoing_notice_index')) {
 
             if ($filter_type === 'external' && $type !== 'EXTERNAL') {
                 return false;
+            }
+
+            if ($box_key === 'normal' && $filter_type === 'external') {
+                $delivered_by_pid = trim((string) ($item['deliveredByPID'] ?? ''));
+
+                if ($delivered_by_pid === '' || $delivered_by_pid === $current_pid) {
+                    return false;
+                }
+
+                if ($can_manage_external && isset($registry_tracking_sender_pids[$delivered_by_pid])) {
+                    return false;
+                }
             }
 
             if ($selected_dh_year > 0 && (int) ($item['dh_year'] ?? 0) !== $selected_dh_year) {
@@ -548,6 +670,7 @@ if (!function_exists('outgoing_notice_index')) {
 
         $attachments_map = [];
         $forwarded_recipients_map = [];
+        $director_review_map = [];
 
         if (!empty($items) && db_table_exists($connection, 'dh_file_refs')) {
             $entity_ids = array_values(array_unique(array_filter(array_map(static function (array $item): int {
@@ -594,6 +717,47 @@ if (!function_exists('outgoing_notice_index')) {
                         'mimeType' => trim((string) ($row['mimeType'] ?? '')),
                         'fileSize' => (int) ($row['fileSize'] ?? 0),
                         'fileNote' => trim((string) ($row['fileNote'] ?? '')),
+                    ];
+                }
+            }
+        }
+
+        if (!empty($items) && db_table_exists($connection, 'dh_circular_routes')) {
+            $entity_ids = array_values(array_unique(array_filter(array_map(static function (array $item): int {
+                return (int) ($item['circularID'] ?? 0);
+            }, $items), static function (int $id): bool {
+                return $id > 0;
+            })));
+
+            if (!empty($entity_ids)) {
+                $placeholders = implode(', ', array_fill(0, count($entity_ids), '?'));
+                $types = str_repeat('i', count($entity_ids));
+                $rows = db_fetch_all(
+                    'SELECT r.circularID, r.note, r.fromPID, COALESCE(t.fName, "") AS reviewerName
+                     FROM dh_circular_routes AS r
+                     INNER JOIN (
+                         SELECT circularID, MAX(routeID) AS routeID
+                         FROM dh_circular_routes
+                         WHERE action = \'RETURN\'
+                           AND circularID IN (' . $placeholders . ')
+                         GROUP BY circularID
+                     ) AS latest ON latest.routeID = r.routeID
+                     LEFT JOIN teacher AS t ON t.pID = r.fromPID',
+                    $types,
+                    ...$entity_ids
+                );
+
+                foreach ($rows as $row) {
+                    $circular_id_key = (string) ((int) ($row['circularID'] ?? 0));
+
+                    if ($circular_id_key === '0') {
+                        continue;
+                    }
+
+                    $director_review_map[$circular_id_key] = [
+                        'comment' => trim((string) ($row['note'] ?? '')),
+                        'reviewer_pid' => trim((string) ($row['fromPID'] ?? '')),
+                        'reviewer_name' => trim((string) ($row['reviewerName'] ?? '')),
                     ];
                 }
             }
@@ -778,6 +942,7 @@ if (!function_exists('outgoing_notice_index')) {
             $status_label = $resolve_status_label($status_key, $box_key);
             $consider_class = $consider_class_map[$status_key] ?? 'considering';
             $files = $attachments_map[(string) $circular_id] ?? [];
+            $director_review = $director_review_map[(string) $circular_id] ?? [];
             $files_json = json_encode($files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $forwarded_recipient_pids = array_keys($forwarded_recipients_map[(string) $circular_id] ?? []);
             $forwarded_recipient_pids_json = json_encode($forwarded_recipient_pids, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -855,11 +1020,15 @@ if (!function_exists('outgoing_notice_index')) {
                 'ext_priority' => $priority,
                 'ext_priority_label' => $priority_label,
                 'urgency_class' => $urgency_class,
+                'ext_receive_seq' => (int) ($item['extReceiveSeq'] ?? 0),
                 'ext_book_no' => (string) ($item['extBookNo'] ?? ''),
                 'ext_issued_date' => $format_thai_date((string) ($item['extIssuedDate'] ?? '')),
                 'ext_issued_date_raw' => (string) ($item['extIssuedDate'] ?? ''),
                 'ext_from_text' => (string) ($item['extFromText'] ?? ''),
                 'ext_group_fid' => (int) ($item['extGroupFID'] ?? 0),
+                'ext_group_name' => trim((string) ($item['extGroupName'] ?? '')),
+                'director_comment' => (string) ($director_review['comment'] ?? ''),
+                'director_reviewer_name' => (string) ($director_review['reviewer_name'] ?? ''),
                 'status_key' => $status_key,
                 'status_label' => $status_label,
                 'consider_class' => $consider_class,
@@ -876,6 +1045,7 @@ if (!function_exists('outgoing_notice_index')) {
             'alert' => $alert,
             'items' => $display_items,
             'factions' => $factions,
+            'roles' => $roles,
             'teachers' => $teachers,
             'box_key' => $box_key,
             'archived' => $archived,
@@ -894,6 +1064,7 @@ if (!function_exists('outgoing_notice_index')) {
             'is_deputy_reviewer' => $is_deputy_reviewer,
             'acting_pid' => $acting_pid,
             'deputy_position_ids' => $deputy_position_ids,
+            'deputy_forward_pids' => $deputy_forward_pids,
             'forward_open_inbox_id' => $forward_open_inbox_id,
             'show_type_filter' => false,
             'show_book_type_column' => false,

@@ -13,6 +13,7 @@ $search = trim((string) ($search ?? ''));
 $status_filter = (string) ($status_filter ?? 'all');
 $filtered_total = (int) ($filtered_total ?? 0);
 $pagination_base_url = (string) ($pagination_base_url ?? 'memo-inbox.php');
+$archived = (bool) ($archived ?? false);
 $dh_year_options = array_values(array_filter(array_map('intval', (array) ($dh_year_options ?? [])), static function (int $year): bool {
     return $year > 0;
 }));
@@ -252,6 +253,7 @@ ob_start();
 
     <form id="bulkActionForm" method="POST">
         <?= csrf_field() ?>
+        <input type="hidden" name="action" value="archive_selected">
         <div class="table-circular-notice-index memo-inbox-table">
             <table>
                 <thead>
@@ -289,7 +291,7 @@ ob_start();
                             $reviewer_role = strtoupper(trim((string) ($item['reviewerRole'] ?? '')));
                             $effective_flow_stage = strtoupper(trim((string) ($item['effectiveFlowStage'] ?? ($item['flowStage'] ?? ''))));
                             $status = (string) ($item['status'] ?? '');
-                            $status_meta = memo_status_meta($status);
+                            $status_meta = memo_status_meta_for_record($item);
                             $status_class = (string) ($status_meta['pill_variant'] ?? 'pending');
                             $submitted_at = trim((string) ($item['submittedAt'] ?? ''));
                             $created_at = trim((string) ($item['createdAt'] ?? ''));
@@ -494,10 +496,8 @@ ob_start();
         class="button-keep"
         type="submit"
         form="bulkActionForm"
-        data-confirm="<? //= h($archived ? 'ต้องการย้ายหนังสือเวียนที่เลือกกลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนที่เลือกหรือไม่')
-                        ?>"
-        data-confirm-title="<? //= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ')
-                            ?>"
+        data-confirm="ต้องการจัดเก็บบันทึกข้อความที่เลือกหรือไม่"
+        data-confirm-title="ยืนยันการจัดเก็บ"
         data-confirm-ok="ยืนยัน"
         data-confirm-cancel="ยกเลิก">
         <i class="fa-solid fa-file-import"></i>
@@ -1127,6 +1127,10 @@ ob_start();
             ];
         }
 
+        if (reviewerRole === 'DIRECTOR') {
+            return directorManagementActions;
+        }
+
         if (flowMode === 'DIRECT') {
             return [{
                     key: 'approve_unsigned',
@@ -1147,10 +1151,6 @@ ob_start();
                     submitLabel: 'ตีกลับแก้ไข',
                 },
             ];
-        }
-
-        if (reviewerRole === 'DIRECTOR') {
-            return directorManagementActions;
         }
 
         return [];

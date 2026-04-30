@@ -237,7 +237,6 @@ if (!function_exists('memo_pdf_render_html')) {
             </div>
 
             <div class="detail-block">
-                <p class="detail-label">รายละเอียด:</p>
                 <?php if ($body_paragraphs === []) : ?>
                     <div class="detail-placeholder"></div>
                 <?php else : ?>

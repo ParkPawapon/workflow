@@ -1972,7 +1972,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const trigger = wrapper.querySelector(".custom-select-trigger");
         const options = wrapper.querySelectorAll(".custom-option");
-        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const targetId = wrapper.getAttribute("data-target") || "";
+        const targetInput = targetId ? document.getElementById(targetId) : null;
+        const hiddenInput =
+            wrapper.querySelector('input[type="hidden"]') ||
+            (targetInput && targetInput.matches('input[type="hidden"]')
+                ? targetInput
+                : null);
         const selectInput = wrapper.querySelector("select");
         const valueDisplay = wrapper.querySelector(".select-value");
         const defaultLabel = valueDisplay ? valueDisplay.textContent : "";
@@ -2069,6 +2075,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (selectInput) {
             selectInput.addEventListener("change", function () {
+                syncDisplay();
+            });
+        }
+
+        if (hiddenInput) {
+            hiddenInput.addEventListener("input", function () {
+                syncDisplay();
+            });
+            hiddenInput.addEventListener("change", function () {
                 syncDisplay();
             });
         }

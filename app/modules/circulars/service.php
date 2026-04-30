@@ -24,6 +24,85 @@ if (!function_exists('circular_document_type')) {
     }
 }
 
+if (!function_exists('circular_external_receive_sequence_supported')) {
+    function circular_external_receive_sequence_supported(): bool
+    {
+        static $supported = null;
+
+        if ($supported !== null) {
+            return $supported;
+        }
+
+        $connection = db_connection();
+        $supported = db_column_exists($connection, CIRCULAR_ENTITY_NAME, 'extReceiveSeq');
+
+        return $supported;
+    }
+}
+
+if (!function_exists('circular_next_external_receive_sequence')) {
+    function circular_next_external_receive_sequence(int $year): ?int
+    {
+        if ($year <= 0 || !circular_external_receive_sequence_supported()) {
+            return null;
+        }
+
+        $connection = db_connection();
+        $sequence_key = 'external_receive:' . $year;
+
+        if (db_table_exists($connection, 'dh_sequences')) {
+            $sequence = db_fetch_one(
+                'SELECT currentValue FROM dh_sequences WHERE seqKey = ? FOR UPDATE',
+                's',
+                $sequence_key
+            );
+
+            if ($sequence) {
+                $next = (int) ($sequence['currentValue'] ?? 0) + 1;
+                db_execute('UPDATE dh_sequences SET currentValue = ? WHERE seqKey = ?', 'is', $next, $sequence_key);
+
+                return $next;
+            }
+
+            $latest = db_fetch_one(
+                'SELECT extReceiveSeq
+                 FROM dh_circulars
+                 WHERE dh_year = ?
+                    AND circularType = ?
+                    AND extReceiveSeq IS NOT NULL
+                    AND deletedAt IS NULL
+                 ORDER BY extReceiveSeq DESC
+                 LIMIT 1
+                 FOR UPDATE',
+                'is',
+                $year,
+                CIRCULAR_TYPE_EXTERNAL
+            );
+            $next = ((int) ($latest['extReceiveSeq'] ?? 0)) + 1;
+            db_execute('INSERT INTO dh_sequences (seqKey, currentValue) VALUES (?, ?)', 'si', $sequence_key, $next);
+
+            return $next;
+        }
+
+        $latest = db_fetch_one(
+            'SELECT extReceiveSeq
+             FROM dh_circulars
+             WHERE dh_year = ?
+                AND circularType = ?
+                AND extReceiveSeq IS NOT NULL
+                AND deletedAt IS NULL
+             ORDER BY extReceiveSeq DESC
+             LIMIT 1
+             FOR UPDATE',
+            'is',
+            $year,
+            CIRCULAR_TYPE_EXTERNAL
+        );
+
+        return ((int) ($latest['extReceiveSeq'] ?? 0)) + 1;
+    }
+}
+
 if (!function_exists('circular_sync_document')) {
     function circular_sync_document(int $circularID): ?int
     {
@@ -455,6 +534,17 @@ if (!function_exists('circular_create_external')) {
         db_begin();
 
         try {
+            if (
+                strtoupper((string) ($data['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL
+                && !array_key_exists('extReceiveSeq', $data)
+            ) {
+                $receiveSeq = circular_next_external_receive_sequence((int) ($data['dh_year'] ?? 0));
+
+                if ($receiveSeq !== null) {
+                    $data['extReceiveSeq'] = $receiveSeq;
+                }
+            }
+
             $circularID = circular_create_record($data);
             circular_add_route($circularID, 'CREATE', $registryPID, null, null, $registryNote ? (string) $registryNote : null);
 
@@ -534,6 +624,28 @@ if (!function_exists('circular_director_review')) {
                 $update['extGroupFID'] = $newFID;
             }
             circular_update_record($circularID, $update);
+            $reviewer_inboxes = db_fetch_all(
+                'SELECT inboxID
+                 FROM dh_circular_inboxes
+                 WHERE circularID = ?
+                   AND pID = ?
+                   AND inboxType IN (?, ?)
+                   AND isArchived = 0',
+                'isss',
+                $circularID,
+                $directorPID,
+                INBOX_TYPE_SPECIAL_PRINCIPAL,
+                INBOX_TYPE_ACTING_PRINCIPAL
+            );
+
+            foreach ($reviewer_inboxes as $reviewer_inbox) {
+                $reviewer_inbox_id = (int) ($reviewer_inbox['inboxID'] ?? 0);
+
+                if ($reviewer_inbox_id > 0) {
+                    circular_mark_read($reviewer_inbox_id, $directorPID);
+                }
+            }
+
             circular_add_route($circularID, 'RETURN', $directorPID, null, $newFID, $comment);
 
             $registryPIDs = circular_registry_pids();
@@ -748,8 +860,9 @@ if (!function_exists('circular_deputy_distribute')) {
             }
 
             $recipientPIDs = array_filter(array_unique(array_diff($recipients['pids'], [$deputyPID])));
+            $allowEmptyRecipients = !empty($recipients['allow_empty']);
 
-            if (empty($recipientPIDs)) {
+            if (empty($recipientPIDs) && !$allowEmptyRecipients) {
                 throw new RuntimeException('กรุณาเลือกผู้รับอย่างน้อย 1 คน');
             }
 

@@ -153,6 +153,29 @@ ob_start();
         color: var(--color-primary-dark);
     }
 
+    #outgoingMine .outgoing-receive-doc-line {
+        color: var(--color-primary-dark);
+        font-size: var(--font-size-body-1);
+        font-weight: 700;
+        line-height: 1.45;
+        word-break: break-word;
+    }
+
+    #outgoingMine .outgoing-receive-doc-line + .outgoing-receive-doc-line {
+        margin-top: 2px;
+    }
+
+    #outgoingMine .outgoing-receive-doc-subject {
+        color: var(--color-neutral-dark);
+        font-size: var(--font-size-desc-1);
+        font-weight: 600;
+        line-height: 1.45;
+        margin-top: 4px;
+        min-width: 260px;
+        max-width: 420px;
+        word-break: break-word;
+    }
+
     .form-group.receive button p {
         color: var(--color-neutral-lightest);
     }
@@ -2419,7 +2442,7 @@ ob_start();
                 <button
                     class="submit"
                     type="submit"
-                    data-confirm="ยืนยันการบันทึกออกเลขทะเบียนส่งใช่หรือไม่?"
+                    data-confirm="ยืนยันการบันทึกเอกสารใช่หรือไม่?"
                     data-confirm-title="ยืนยันการบันทึก"
                     data-confirm-ok="ยืนยัน"
                     data-confirm-cancel="ยกเลิก">
@@ -2519,7 +2542,7 @@ ob_start();
         <table class="custom-table circular-my-table">
             <thead>
                 <tr>
-                    <th>เรื่อง</th>
+                    <th>เลขรับ / เลขที่ / เรื่อง</th>
                     <th>จาก</th>
                     <th>วันที่ดำเนินการ</th>
                     <th>สถานะ</th>
@@ -2537,17 +2560,21 @@ ob_start();
                         $circular_id = (int) ($item['circularID'] ?? 0);
                         $status_key = strtoupper(trim((string) ($item['status'] ?? '')));
                         $status_meta = $track_status_map[$status_key] ?? ['label' => ($status_key !== '' ? $status_key : '-'), 'pill' => 'pending'];
-                        $date_display_parts = $format_thai_datetime_parts((string) (($item['updatedAt'] ?? '') !== '' ? ($item['updatedAt'] ?? '') : ($item['createdAt'] ?? '')));
+                        $date_display_parts = $format_thai_datetime_parts((string) ($item['createdAt'] ?? ''));
+                        $receive_seq = (int) ($item['extReceiveSeq'] ?? 0);
                         $book_no = trim((string) ($item['extBookNo'] ?? ''));
                         $priority_key = outgoing_normalize_priority_key((string) ($item['extPriority'] ?? 'ปกติ'));
                         $is_editable = $status_key === EXTERNAL_STATUS_SUBMITTED;
                         ?>
                         <tr>
                             <td>
-                                <div class="circular-my-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
-                                <?php if ($book_no !== '') : ?>
-                                    <div class="circular-my-meta">เลขที่หนังสือ <?= h($book_no) ?></div>
+                                <?php if ($receive_seq > 0) : ?>
+                                    <div class="outgoing-receive-doc-line">เลขรับหนังสือ <?= h((string) $receive_seq) ?></div>
                                 <?php endif; ?>
+                                <?php if ($book_no !== '') : ?>
+                                    <div class="outgoing-receive-doc-line">เลขที่หนังสือ <?= h($book_no) ?></div>
+                                <?php endif; ?>
+                                <div class="outgoing-receive-doc-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
                             </td>
                             <td><?= h(trim((string) ($item['extFromText'] ?? '')) !== '' ? (string) ($item['extFromText'] ?? '') : '-') ?></td>
                             <td>

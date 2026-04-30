@@ -300,6 +300,28 @@ if (!function_exists('memo_resolve_first_reviewer')) {
     }
 }
 
+if (!function_exists('memo_resolve_direct_recipient_stage')) {
+    function memo_resolve_direct_recipient_stage(string $targetPID, ?string $directorPID = null): string
+    {
+        $targetPID = trim($targetPID);
+        $directorPID = trim((string) ($directorPID ?? ''));
+
+        if ($directorPID === '') {
+            $directorPID = trim((string) (system_get_current_director_pid() ?? ''));
+        }
+
+        if ($targetPID !== '' && $directorPID !== '' && $targetPID === $directorPID) {
+            return 'DIRECTOR';
+        }
+
+        if ($targetPID !== '' && memo_is_valid_deputy_candidate($targetPID)) {
+            return 'DEPUTY';
+        }
+
+        return 'HEAD';
+    }
+}
+
 if (!function_exists('memo_latest_return_actor_pid')) {
     function memo_latest_return_actor_pid(array $routes): string
     {
@@ -795,16 +817,16 @@ if (!function_exists('memo_submit')) {
 
                 $toType = $flowStage === 'DIRECTOR' ? 'DIRECTOR' : 'PERSON';
             } else {
+                if ($directorPID === '') {
+                    $directorPID = trim((string) (system_get_current_director_pid() ?? ''));
+                }
+
                 if ($returnReviewerPID !== '' && preg_match('/^\d{1,13}$/', $returnReviewerPID)) {
-                    $returnDirectorPID = trim((string) ($directorPID !== '' ? $directorPID : (system_get_current_director_pid() ?? '')));
                     $toPID = $returnReviewerPID;
-                    $flowStage = $returnDirectorPID !== '' && $returnReviewerPID === $returnDirectorPID
-                        ? 'DIRECTOR'
-                        : (memo_is_valid_deputy_candidate($returnReviewerPID) ? 'DEPUTY' : 'HEAD');
+                    $flowStage = memo_resolve_direct_recipient_stage($returnReviewerPID, $directorPID);
                     $toType = $flowStage === 'DIRECTOR' ? 'DIRECTOR' : 'PERSON';
                 } elseif ($toType === 'DIRECTOR') {
-                    $resolved = system_get_current_director_pid();
-                    $toPID = $resolved ? trim((string) $resolved) : '';
+                    $toPID = $directorPID;
                 } elseif ($toType !== 'PERSON') {
                     // For older records, treat as PERSON when PID is set.
                     $toType = $toPID !== '' ? 'PERSON' : '';
@@ -813,7 +835,28 @@ if (!function_exists('memo_submit')) {
                 if ($toPID === '' || !preg_match('/^\\d{1,13}$/', $toPID)) {
                     throw new RuntimeException('กรุณาเลือกผู้พิจารณา (เรียน)');
                 }
-                $flowStage = $toType === 'DIRECTOR' ? 'DIRECTOR' : 'HEAD';
+
+                if ($flowStage === 'OWNER') {
+                    $flowStage = $toType === 'DIRECTOR'
+                        ? 'DIRECTOR'
+                        : memo_resolve_direct_recipient_stage($toPID, $directorPID);
+                }
+
+                if ($flowStage === 'DIRECTOR') {
+                    $flowMode = 'CHAIN';
+                    $toType = 'DIRECTOR';
+                    $directorPID = $toPID;
+                } elseif ($flowStage === 'DEPUTY') {
+                    $flowMode = 'CHAIN';
+                    $toType = 'PERSON';
+                    $deputyPID = $toPID;
+
+                    if ($directorPID === '') {
+                        $directorPID = trim((string) (system_get_current_director_pid() ?? ''));
+                    }
+                } else {
+                    $toType = 'PERSON';
+                }
             }
 
             if ($toPID === '' || !preg_match('/^\\d{1,13}$/', $toPID)) {
@@ -964,15 +1007,10 @@ if (!function_exists('memo_return')) {
             }
 
             $now = date('Y-m-d H:i:s');
-            $toPID = trim((string) ($memo['toPID'] ?? ''));
-            $toType = (string) ($memo['toType'] ?? '');
-            $flowStage = strtoupper(trim((string) ($memo['flowStage'] ?? 'OWNER')));
+            $toPID = trim((string) ($memo['createdByPID'] ?? ''));
+            $toType = 'PERSON';
+            $flowStage = 'OWNER';
 
-            if (memo_is_chain_mode($memo)) {
-                $toPID = trim((string) ($memo['createdByPID'] ?? ''));
-                $toType = 'PERSON';
-                $flowStage = 'OWNER';
-            }
             $updates = [
                 'status' => MEMO_STATUS_RETURNED,
                 'reviewNote' => $note,
@@ -995,6 +1033,10 @@ if (!function_exists('memo_return')) {
             if ($documentID) {
                 document_mark_read($documentID, $actorPID);
                 document_record_read_receipt($documentID, $actorPID);
+
+                if ($toPID !== '') {
+                    document_add_recipients($documentID, [$toPID], INBOX_TYPE_NORMAL);
+                }
             }
 
             db_commit();
@@ -1520,6 +1562,9 @@ if (!function_exists('memo_approve_unsigned')) {
 
             $now = date('Y-m-d H:i:s');
             $ownerPID = trim((string) ($memo['createdByPID'] ?? ''));
+            $directorPID = trim((string) ($memo['directorPID'] ?? ''));
+            $actorStage = memo_resolve_direct_recipient_stage($actorPID, $directorPID);
+            $shouldReturnToOwner = memo_is_chain_mode($memo) || $actorStage === 'DEPUTY';
             $updates = [
                 'status' => MEMO_STATUS_APPROVED_UNSIGNED,
                 'reviewNote' => $note,
@@ -1529,19 +1574,24 @@ if (!function_exists('memo_approve_unsigned')) {
                 'updatedByPID' => $actorPID,
             ];
 
-            if (memo_is_chain_mode($memo)) {
-                $stage = memo_infer_chain_stage_by_actor($memo, $actorPID);
+            if ($shouldReturnToOwner) {
+                $stage = memo_is_chain_mode($memo) ? memo_infer_chain_stage_by_actor($memo, $actorPID) : $actorStage;
 
                 if ($stage !== 'DEPUTY') {
                     throw new RuntimeException('โหมดเสนอแฟ้มตามลำดับรองรับสถานะ "ลงนามแล้ว" เฉพาะรองผู้อำนวยการ');
                 }
 
+                $updates['flowMode'] = 'CHAIN';
                 $updates['flowStage'] = 'OWNER';
                 $updates['toType'] = 'PERSON';
                 $updates['toPID'] = $ownerPID;
                 $updates['deputyPID'] = trim((string) ($memo['deputyPID'] ?? '')) !== ''
                     ? trim((string) $memo['deputyPID'])
                     : $actorPID;
+
+                if ($directorPID === '') {
+                    $updates['directorPID'] = trim((string) (system_get_current_director_pid() ?? ''));
+                }
             }
 
             if (empty($memo['firstReadAt'])) {
@@ -1557,7 +1607,7 @@ if (!function_exists('memo_approve_unsigned')) {
                 document_mark_read($documentID, $actorPID);
                 document_record_read_receipt($documentID, $actorPID);
 
-                if (memo_is_chain_mode($memo) && $ownerPID !== '') {
+                if ($shouldReturnToOwner && $ownerPID !== '') {
                     document_add_recipients($documentID, [$ownerPID], INBOX_TYPE_NORMAL);
                 }
             }
@@ -1756,6 +1806,85 @@ if (!function_exists('memo_set_archived')) {
             db_rollback();
             error_log('Memo archive failed: ' . $e->getMessage());
             audit_log('memos', 'ARCHIVE', 'FAIL', MEMO_ENTITY_NAME, $memoID, $e->getMessage());
+            throw $e;
+        }
+    }
+}
+
+if (!function_exists('memo_set_reviewer_archived')) {
+    function memo_set_reviewer_archived(int $memoID, string $actorPID, bool $archived): void
+    {
+        $actorPID = trim($actorPID);
+
+        if ($actorPID === '') {
+            throw new RuntimeException('ไม่พบผู้ใช้งาน');
+        }
+
+        memo_ensure_inbox_archives_table();
+        db_begin();
+
+        try {
+            $memo = db_fetch_one(
+                'SELECT memoID, createdByPID, status
+                 FROM dh_memos
+                 WHERE memoID = ? AND deletedAt IS NULL
+                 FOR UPDATE',
+                'i',
+                $memoID
+            );
+
+            if (!$memo) {
+                throw new RuntimeException('ไม่พบบันทึกข้อความ');
+            }
+
+            if ((string) ($memo['createdByPID'] ?? '') === $actorPID) {
+                throw new RuntimeException('รายการนี้เป็นบันทึกข้อความของคุณ กรุณาจัดเก็บจากหน้าบันทึกข้อความของฉัน');
+            }
+
+            $visible = db_fetch_one(
+                'SELECT 1 AS ok
+                 FROM dh_memos AS m
+                 WHERE m.memoID = ? AND ' . memo_reviewer_visibility_sql('m', 'mr_archive') . '
+                 LIMIT 1',
+                'iss',
+                $memoID,
+                $actorPID,
+                $actorPID
+            );
+
+            if (!$visible) {
+                throw new RuntimeException('ไม่มีสิทธิ์จัดเก็บรายการนี้');
+            }
+
+            $flag = $archived ? 1 : 0;
+            $archivedAt = $archived ? date('Y-m-d H:i:s') : null;
+
+            db_query(
+                'INSERT INTO dh_memo_inbox_archives (memoID, pID, isArchived, archivedAt)
+                 VALUES (?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE isArchived = VALUES(isArchived), archivedAt = VALUES(archivedAt)',
+                'isis',
+                $memoID,
+                $actorPID,
+                $flag,
+                $archivedAt
+            );
+
+            memo_add_route(
+                $memoID,
+                'ARCHIVE',
+                (string) ($memo['status'] ?? ''),
+                (string) ($memo['status'] ?? ''),
+                $actorPID,
+                $archived ? 'archive_inbox' : 'unarchive_inbox'
+            );
+
+            db_commit();
+            audit_log('memos', $archived ? 'ARCHIVE_INBOX' : 'UNARCHIVE_INBOX', 'SUCCESS', MEMO_ENTITY_NAME, $memoID);
+        } catch (Throwable $e) {
+            db_rollback();
+            error_log('Memo inbox archive failed: ' . $e->getMessage());
+            audit_log('memos', 'ARCHIVE_INBOX', 'FAIL', MEMO_ENTITY_NAME, $memoID, $e->getMessage());
             throw $e;
         }
     }

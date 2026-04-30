@@ -343,7 +343,7 @@ ob_start();
         </div>
 
 
-        <div class="form-group receive" data-recipients-section="" data-owner-flat-list="true">
+        <div class="form-group receive" data-recipients-section="" data-owner-flat-list="disabled" hidden style="display: none;" aria-hidden="true">
             <label><strong>เจ้าของเรื่อง :</strong></label>
             <div class="dropdown-container">
                 <div class="search-input-wrapper" id="recipientToggle">
@@ -2264,11 +2264,11 @@ ob_start();
                 <button
                     class="submit"
                     type="submit"
-                    data-confirm="ยืนยันการบันทึกออกเลขทะเบียนส่งใช่หรือไม่?"
-                    data-confirm-title="ยืนยันการบันทึก"
+                    data-confirm="ยืนยันการเวียนเลขทะเบียนส่งใช่หรือไม่?"
+                    data-confirm-title="ยืนยันการเวียน"
                     data-confirm-ok="ยืนยัน"
                     data-confirm-cancel="ยกเลิก">
-                    <p>บันทึกออกเลข</p>
+                    <p>เวียน</p>
                 </button>
             </div>
         </div>
@@ -2397,7 +2397,7 @@ ob_start();
                     <?php foreach ($items as $item) : ?>
                         <?php
                         $outgoing_id = (int) ($item['outgoingID'] ?? 0);
-                        $outgoing_no = trim((string) ($item['outgoingNo'] ?? ''));
+                        $outgoing_no = outgoing_display_number($item);
                         $status_key = strtoupper(trim((string) ($item['status'] ?? '')));
                         $status_meta = $track_status_map[$status_key] ?? ['label' => ($status_key !== '' ? $status_key : '-'), 'pill' => 'pending'];
                         $date_display_parts = $format_thai_datetime_parts((string) ($item['createdAt'] ?? ''));
@@ -2568,7 +2568,7 @@ ob_start();
 
                     </div>
 
-                    <div class="form-group receive edit" data-recipients-section="" data-owner-flat-list="true">
+                    <div class="form-group receive edit" data-recipients-section="" data-owner-flat-list="disabled" hidden style="display: none;" aria-hidden="true">
                         <label><strong>เจ้าของเรื่อง :</strong></label>
                         <div class="dropdown-container">
                             <div class="search-input-wrapper js-recipient-toggle">
@@ -4514,7 +4514,14 @@ ob_start();
 
 
             <div class="footer-modal">
-                <button type="submit" id="modalOrderEditSaveBtn" form="modalOutgoingAttachForm">
+                <button
+                    type="submit"
+                    id="modalOrderEditSaveBtn"
+                    form="modalOutgoingAttachForm"
+                    data-confirm="ยืนยันการบันทึกไฟล์เอกสารออกเลขทะเบียนส่งใช่หรือไม่?"
+                    data-confirm-title="ยืนยันการบันทึก"
+                    data-confirm-ok="ยืนยัน"
+                    data-confirm-cancel="ยกเลิก">
                     <p>บันทึก</p>
                 </button>
             </div>
@@ -4572,7 +4579,7 @@ ob_start();
                         <p><strong>ผู้ออกเลข</strong></p>
                         <input type="text" id="modalOutgoingViewIssuerName" class="order-no-display" value="" disabled>
                     </div>
-                    <div class="more-details">
+                    <div class="more-details" hidden style="display: none;" aria-hidden="true">
                         <p><strong>เจ้าของเรื่อง</strong></p>
                         <input type="text" id="modalOutgoingViewOwnerNames" class="order-no-display" value="" disabled>
                     </div>
@@ -4638,7 +4645,6 @@ ob_start();
         const modalOutgoingEditEffectiveDate = document.getElementById('modalOutgoingEditEffectiveDate');
         const modalOutgoingEditIssuer = document.getElementById('modalOutgoingEditIssuer');
         const modalOutgoingEditFileList = document.getElementById('existingFileListContainer_modal');
-        const modalOutgoingEditOwnerSection = editModal?.querySelector('[data-recipients-section][data-owner-flat-list="true"]') ?? null;
         const modalOutgoingEditUrgentRadios = editModal ? Array.from(editModal.querySelectorAll('[data-outgoing-edit-urgent]')) : [];
         const modalOutgoingViewTitle = document.getElementById('modalOutgoingViewTitle');
         const modalOutgoingViewNo = document.getElementById('modalOutgoingViewNo');
@@ -4863,9 +4869,6 @@ ob_start();
                 renderOutgoingEditFiles('', []);
             }
 
-            if (modalOutgoingEditOwnerSection && modalOutgoingEditOwnerSection.__recipientSelectorApi && typeof modalOutgoingEditOwnerSection.__recipientSelectorApi.setSelectedMembersByNames === 'function') {
-                modalOutgoingEditOwnerSection.__recipientSelectorApi.setSelectedMembersByNames([]);
-            }
         };
 
         const resolveOutgoingPriorityKey = (payload, fallbackPriorityKey = 'normal') => {
@@ -4908,9 +4911,6 @@ ob_start();
 
                 renderOutgoingEditFiles(outgoingId, Array.isArray(payload.attachments) ? payload.attachments : []);
 
-                if (modalOutgoingEditOwnerSection && modalOutgoingEditOwnerSection.__recipientSelectorApi && typeof modalOutgoingEditOwnerSection.__recipientSelectorApi.setSelectedMembersByNames === 'function') {
-                    modalOutgoingEditOwnerSection.__recipientSelectorApi.setSelectedMembersByNames(payload.ownerNames);
-                }
             }
 
             editModal.style.display = 'flex';

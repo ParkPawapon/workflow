@@ -6,6 +6,7 @@ $dashboard_shortcuts = (array) ($dashboard_shortcuts ?? []);
 $dashboard_user = (array) ($dashboard_user ?? []);
 $dashboard_access = (array) ($dashboard_access ?? []);
 $dashboard_calendar_events = (array) ($dashboard_calendar_events ?? []);
+$dashboard_announcements = array_slice((array) ($dashboard_announcements ?? []), 0, 9);
 $dashboard_current_date_label = trim((string) ($dashboard_current_date_label ?? ''));
 $dashboard_name = trim((string) ($dashboard_user['fName'] ?? ''));
 $dashboard_pid = trim((string) ($dashboard_user['pID'] ?? ($_SESSION['pID'] ?? '')));
@@ -347,33 +348,23 @@ ob_start();
                 <div class="news-bar">
                     <div class="details-news-bar">
                         <ul>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
-                            <li>
-                                <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
-                            </li>
+                            <?php if ($dashboard_announcements === []) : ?>
+                                <li>
+                                    <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
+                                </li>
+                            <?php else : ?>
+                                <?php foreach ($dashboard_announcements as $announcement) : ?>
+                                    <?php
+                                    $announcement_title = trim((string) ($announcement['subject'] ?? ''));
+                                    if ($announcement_title === '') {
+                                        $announcement_title = 'ข่าวประชาสัมพันธ์';
+                                    }
+                                    ?>
+                                    <li>
+                                        <p><?= h($announcement_title) ?></p>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>

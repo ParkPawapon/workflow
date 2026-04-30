@@ -538,6 +538,7 @@ if (!function_exists('memo_pdf_resolve_chain_from_routes')) {
     function memo_pdf_resolve_chain_from_routes(array $memo, array $chain, array $routes): array
     {
         $flow_stage = strtoupper(trim((string) ($memo['flowStage'] ?? '')));
+        $to_pid = trim((string) ($memo['toPID'] ?? ''));
         $forward_actors = [];
         $has_director_review = false;
         $deputy_candidate_cache = [];
@@ -575,6 +576,11 @@ if (!function_exists('memo_pdf_resolve_chain_from_routes')) {
 
             return $deputy_candidate_cache[$pid];
         };
+
+        if ($flow_stage === 'HEAD' && $to_pid !== '' && $is_deputy_candidate($to_pid)) {
+            $chain['HEAD'] = '';
+            $chain['DEPUTY'] = $to_pid;
+        }
 
         foreach ($routes as $route) {
             $actor_pid = trim((string) ($route['actorPID'] ?? ''));

@@ -88,7 +88,10 @@ if (!function_exists('memo_inbox_resolve_chain_reviewer_pids')) {
             }
         }
 
-        if (in_array($flow_stage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true) && $to_pid !== '') {
+        if ($flow_stage === 'HEAD' && $to_pid !== '' && memo_is_valid_deputy_candidate($to_pid)) {
+            $chain['HEAD'] = '';
+            $chain['DEPUTY'] = $to_pid;
+        } elseif (in_array($flow_stage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true) && $to_pid !== '') {
             if ($flow_stage === 'HEAD' && $skips_head_stage) {
                 $chain['DEPUTY'] = $to_pid;
             } else {
@@ -117,6 +120,10 @@ if (!function_exists('memo_inbox_resolve_current_reviewer_role')) {
         $to_pid = trim((string) ($item['toPID'] ?? ''));
 
         if ($current_pid === $to_pid && in_array($flow_stage, ['HEAD', 'DEPUTY', 'DIRECTOR'], true)) {
+            if ($flow_stage === 'HEAD' && memo_is_valid_deputy_candidate($current_pid)) {
+                return 'DEPUTY';
+            }
+
             if (
                 $flow_stage === 'HEAD'
                 && trim((string) ($chain['HEAD'] ?? '')) !== $to_pid
@@ -143,6 +150,10 @@ if (!function_exists('memo_inbox_resolve_effective_flow_stage')) {
     {
         $flow_stage = strtoupper(trim((string) ($item['flowStage'] ?? '')));
         $to_pid = trim((string) ($item['toPID'] ?? ''));
+
+        if ($flow_stage === 'HEAD' && $to_pid !== '' && memo_is_valid_deputy_candidate($to_pid)) {
+            return 'DEPUTY';
+        }
 
         if (
             $flow_stage === 'HEAD'
@@ -741,6 +752,50 @@ if (!function_exists('memo_inbox_index')) {
                     'title' => 'ไม่สามารถยืนยันความปลอดภัย',
                     'message' => 'กรุณาลองใหม่อีกครั้ง',
                 ];
+            } elseif ($post_action === 'archive_selected') {
+                try {
+                    if (!$has_table || !$has_routes) {
+                        throw new RuntimeException('ยังไม่พบตาราง memo workflow กรุณารัน migrations/011_update_memos_workflow.sql');
+                    }
+
+                    $selected_ids = array_values(array_unique(array_filter(array_map(static function ($value): int {
+                        return (int) $value;
+                    }, (array) ($_POST['selected_ids'] ?? [])), static function (int $memo_id): bool {
+                        return $memo_id > 0;
+                    })));
+
+                    if ($selected_ids === []) {
+                        throw new RuntimeException('กรุณาเลือกรายการที่ต้องการจัดเก็บ');
+                    }
+
+                    $archived_count = 0;
+                    $last_error = '';
+
+                    foreach ($selected_ids as $selected_memo_id) {
+                        try {
+                            memo_set_reviewer_archived($selected_memo_id, $current_pid, true);
+                            $archived_count++;
+                        } catch (Throwable $itemError) {
+                            $last_error = $itemError->getMessage();
+                        }
+                    }
+
+                    if ($archived_count <= 0) {
+                        throw new RuntimeException($last_error !== '' ? $last_error : 'ไม่สามารถจัดเก็บรายการที่เลือกได้');
+                    }
+
+                    $alert = [
+                        'type' => 'success',
+                        'title' => 'จัดเก็บรายการเรียบร้อย',
+                        'message' => $archived_count . ' รายการ',
+                    ];
+                } catch (Throwable $e) {
+                    $alert = [
+                        'type' => 'danger',
+                        'title' => 'เกิดข้อผิดพลาด',
+                        'message' => $e->getMessage(),
+                    ];
+                }
             } elseif (in_array($post_action, array_merge(['forward', 'return', 'director_approve', 'director_reject', 'approve_unsigned', 'reject'], array_keys($director_actions)), true)) {
                 try {
                     $memo_id = (int) ($_POST['memo_id'] ?? 0);

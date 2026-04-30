@@ -32,8 +32,8 @@ if (!function_exists('outgoing_receive_track_status_map')) {
         return [
             EXTERNAL_STATUS_SUBMITTED => ['label' => 'รับเข้าแล้ว', 'pill' => 'pending'],
             EXTERNAL_STATUS_PENDING_REVIEW => ['label' => 'กำลังเสนอ', 'pill' => 'pending'],
-            EXTERNAL_STATUS_REVIEWED => ['label' => 'พิจารณาแล้ว', 'pill' => 'considered'],
-            EXTERNAL_STATUS_FORWARDED => ['label' => 'ส่งแล้ว', 'pill' => 'success'],
+            EXTERNAL_STATUS_REVIEWED => ['label' => 'พิจารณาแล้ว', 'pill' => 'info'],
+            EXTERNAL_STATUS_FORWARDED => ['label' => 'ส่งแล้ว', 'pill' => 'approved'],
         ];
     }
 }
@@ -60,6 +60,36 @@ if (!function_exists('outgoing_receive_normalize_track_filter_sort')) {
     }
 }
 
+if (!function_exists('outgoing_receive_receive_sequence')) {
+    function outgoing_receive_receive_sequence(int $circular_id): int
+    {
+        if ($circular_id <= 0 || !db_column_exists(db_connection(), 'dh_circulars', 'extReceiveSeq')) {
+            return 0;
+        }
+
+        $row = db_fetch_one(
+            'SELECT extReceiveSeq FROM dh_circulars WHERE circularID = ? LIMIT 1',
+            'i',
+            $circular_id
+        );
+
+        return max(0, (int) ($row['extReceiveSeq'] ?? 0));
+    }
+}
+
+if (!function_exists('outgoing_receive_success_message')) {
+    function outgoing_receive_success_message(int $circular_id): string
+    {
+        $receive_sequence = outgoing_receive_receive_sequence($circular_id);
+
+        if ($receive_sequence > 0) {
+            return 'เลขรับหนังสือ ' . $receive_sequence;
+        }
+
+        return 'เลขที่รายการ #' . $circular_id;
+    }
+}
+
 if (!function_exists('outgoing_receive_list_registered')) {
     function outgoing_receive_list_registered(string $current_pid, string $search = '', string $status_filter = 'all', string $sort = 'newest'): array
     {
@@ -67,6 +97,7 @@ if (!function_exists('outgoing_receive_list_registered')) {
         $status_filter = outgoing_receive_normalize_track_filter_status($status_filter);
         $sort = outgoing_receive_normalize_track_filter_sort($sort);
         $can_manage_external = in_array(trim($current_pid), circular_external_manager_pids(), true);
+        $has_receive_seq = db_column_exists(db_connection(), 'dh_circulars', 'extReceiveSeq');
         $params = [CIRCULAR_TYPE_EXTERNAL];
         $types = 's';
         $sql = 'SELECT
@@ -76,6 +107,7 @@ if (!function_exists('outgoing_receive_list_registered')) {
                 c.linkURL,
                 c.extPriority,
                 c.extBookNo,
+                ' . ($has_receive_seq ? 'c.extReceiveSeq' : 'NULL AS extReceiveSeq') . ',
                 c.extIssuedDate,
                 c.extFromText,
                 c.extGroupFID,
@@ -102,12 +134,16 @@ if (!function_exists('outgoing_receive_list_registered')) {
             $sql .= ' AND (
                 c.subject LIKE ?
                 OR c.extBookNo LIKE ?
+                ' . ($has_receive_seq ? 'OR CAST(c.extReceiveSeq AS CHAR) LIKE ?' : '') . '
                 OR c.extFromText LIKE ?
                 OR c.detail LIKE ?
             )';
-            $types .= 'ssss';
+            $types .= $has_receive_seq ? 'sssss' : 'ssss';
             $params[] = $like;
             $params[] = $like;
+            if ($has_receive_seq) {
+                $params[] = $like;
+            }
             $params[] = $like;
             $params[] = $like;
         }
@@ -129,7 +165,7 @@ if (!function_exists('outgoing_receive_list_registered')) {
         }
 
         $sort_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
-        $sql .= ' ORDER BY COALESCE(c.updatedAt, c.createdAt) ' . $sort_direction . ', c.circularID ' . $sort_direction;
+        $sql .= ' ORDER BY c.createdAt ' . $sort_direction . ', c.circularID ' . $sort_direction;
 
         return db_fetch_all($sql, $types, ...$params);
     }
@@ -244,6 +280,7 @@ if (!function_exists('outgoing_receive_build_track_payload_map')) {
 
             $payload_map[(string) $circular_id] = [
                 'outgoingID' => $circular_id,
+                'receiveSeq' => (int) ($item['extReceiveSeq'] ?? 0),
                 'outgoingNo' => trim((string) ($item['extBookNo'] ?? '')),
                 'subject' => trim((string) ($item['subject'] ?? '')),
                 'priorityKey' => outgoing_normalize_priority_key($priority_label),
@@ -657,7 +694,7 @@ if (!function_exists('outgoing_receive_submit')) {
                 $state['alert'] = [
                     'type' => 'success',
                     'title' => 'แก้ไขและส่งใหม่เรียบร้อย',
-                    'message' => 'เลขที่รายการ #' . $edit_circular_id,
+                    'message' => outgoing_receive_success_message($edit_circular_id),
                 ];
                 $state['values'] = outgoing_receive_default_values();
                 $state['values']['reviewerPID'] = outgoing_receive_default_reviewer_pid((array) ($state['reviewers'] ?? []));
@@ -689,7 +726,7 @@ if (!function_exists('outgoing_receive_submit')) {
             $state['alert'] = [
                 'type' => 'success',
                 'title' => 'ลงทะเบียนรับหนังสือเรียบร้อย',
-                'message' => 'เลขที่รายการ #' . $circular_id,
+                'message' => outgoing_receive_success_message($circular_id),
             ];
             $state['values'] = outgoing_receive_default_values();
             $state['values']['reviewerPID'] = outgoing_receive_default_reviewer_pid((array) ($state['reviewers'] ?? []));
