@@ -22635,7 +22635,7 @@ label {
     font-size: var(--font-size-desc-1);
   }
 
-    .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
+  .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
     height: 30px;
     font-size: var(--font-size-desc-1);
     padding: 0 10px;
@@ -24651,9 +24651,10 @@ label {
     flex-wrap: nowrap;
     align-items: center;
     justify-content: start;
-    gap: 20px;
-    font-size: var(--font-size-body-1);
+    gap: 15px;
+    font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
+    margin: 0;
   }
 
   .type-urgent .radio-group-urgent {
@@ -24662,7 +24663,7 @@ label {
     flex-wrap: wrap;
     align-items: center;
     justify-content: start;
-    gap: 10px;
+    gap: 5px;
   }
 
   .type-urgent .radio-group-urgent .urgency-status {
@@ -24670,17 +24671,17 @@ label {
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin: 0 20px 0 0;
+    margin: 0;
   }
 
   .type-urgent .radio-group-urgent input[type="radio"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
+    width: 15px;
+    height: 15px;
     background-color: transparent;
     border: 1px solid var(--color-secondary);
-    border-radius: 8px;
+    border-radius: 4px;
     margin: 0;
     transition: all 0.2s;
     cursor: pointer;
@@ -24734,6 +24735,11 @@ label {
       inset 0 0 0 3px var(--color-danger);
   }
 
+  .type-urgent p {
+    font-size: var(--font-size-desc-1);
+    font-weight: bold;
+  }
+
   .content-memo .memo-header {
     display: flex;
     justify-content: space-between;
@@ -24748,10 +24754,14 @@ label {
   }
 
   .content-memo .memo-header p {
-    font-size: var(--font-size-body-1);
+    font-size: var(--font-size-desc-1);
     font-weight: bold;
     color: var(--color-secondary);
     margin: 0;
+  }
+
+  .type-urgent .radio-group-urgent label {
+    font-size: var(--font-size-desc-1);
   }
 
   .content-memo .memo-header div {
@@ -25317,7 +25327,7 @@ label {
   .content-order .form-group input,
   .content-order .form-group select {
     height: 30px;
-    font-size: var(--font-size-decs-1);
+    font-size: var(--font-size-desc-1);
     padding: 0 10px;
   }
 
@@ -25326,6 +25336,7 @@ label {
   .content-order .form-group input.order-no-display[disabled],
   .order-no-display {
     max-height: 30px !important;
+    min-height: 30px !important;
   }
 
   .content-order .custom-select-trigger {
@@ -25336,9 +25347,81 @@ label {
     font-size: var(--font-size-desc-1);
     padding: 5px 10px;
   }
+
   .content-order .custom-select-wrapper i {
     font-size: var(--font-size-desc-1);
   }
+
+  .form-group.receive label {
+    font-size: var(--font-size-desc-1);
+  }
+
+
+  .content-order .form-group {
+    gap: 20px;
+  }
+
+  .form-group.receive .search-input-wrapper .search-input {
+    height: 30px;
+    font-size: var(--font-size-desc-1) !important;
+    padding: 0 10px 0 10px;
+  }
+  
+  .form-group.receive .search-input-wrapper .search-input::placeholder{
+
+    font-size: var(--font-size-desc-1) !important;
+  }
+  .form-group.receive .search-input-wrapper i {
+  font-size: var(--font-size-desc-1) !important;
+  transform: translateX(-10px);
+}
+
+.dropdown-content .item-group .item-title {
+  font-size: var(--font-size-desc-1);
+}
+
+.dropdown-content .item-group .item-subtext {
+  font-size: var(--font-size-desc-2);
+  
+}
+
+.dropdown-content .item.member-item .member-name {
+  font-size: var(--font-size-desc-1);
+
+}
+.outgoing .category-items input[type="checkbox"] {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.dropdown-content .item.item-group {
+  padding: 7px 10px !important;
+}
+
+.dropdown-content .item-group .group-toggle {
+  width: 25px;
+  height: 25px;
+  font-size: var(--font-size-desc-1);
+}
+
+.circular-track-modal-host #modalOrderViewOverlay .content-topic-sec input {
+  font-size: var(--font-size-desc-1);
+  padding: 0 10px;
+}
+
+.circular-track-modal-host #modalOrderViewOverlay .content-topic-sec {
+    align-items: flex-start;
+    gap: 10px 20px;
+    margin: 0 0 10px;
+    border-bottom-width: 1px;
+}
+
+.content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .existing-file-empty {
+  font-size: var(--font-size-desc-1);
+  min-height: 30px;
+  max-height: 30px;
+}
+
 }
 
 /* =========================================
@@ -32709,7 +32792,7 @@ label {
     min-width: auto;
     font-size: var(--font-size-desc-3);
   }
-  
+
   .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
     height: 25px;
     font-size: var(--font-size-desc-3);
@@ -33923,12 +34006,14 @@ label {
 
   .type-urgent {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: start;
-    gap: 20px;
-    font-size: var(--font-size-body-1);
+    gap: 0 10px;
+    font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
+    margin: 0;
+
   }
 
   .type-urgent .radio-group-urgent {
@@ -33937,7 +34022,8 @@ label {
     flex-wrap: wrap;
     align-items: center;
     justify-content: start;
-    gap: 10px;
+    gap: 5px;
+    min-width: 270px;
   }
 
   .type-urgent .radio-group-urgent .urgency-status {
@@ -33945,17 +34031,17 @@ label {
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin: 0 20px 0 0;
+    margin: 0;
   }
 
   .type-urgent .radio-group-urgent input[type="radio"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
+    width: 10px;
+    height: 10px;
     background-color: transparent;
     border: 1px solid var(--color-secondary);
-    border-radius: 8px;
+    border-radius: 2px;
     margin: 0;
     transition: all 0.2s;
     cursor: pointer;
@@ -34009,6 +34095,12 @@ label {
       inset 0 0 0 3px var(--color-danger);
   }
 
+  .type-urgent p {
+    font-size: var(--font-size-desc-3);
+    font-weight: bold;
+    margin: 0;
+  }
+
   .content-memo .memo-header {
     display: flex;
     justify-content: space-between;
@@ -34023,10 +34115,14 @@ label {
   }
 
   .content-memo .memo-header p {
-    font-size: var(--font-size-desc-1);
+    font-size: var(--font-size-desc-3);
     font-weight: bold;
     color: var(--color-secondary);
     margin: 0;
+  }
+
+  .type-urgent .radio-group-urgent label {
+    font-size: var(--font-size-desc-3);
   }
 
   .content-memo .memo-header div {
@@ -35339,6 +35435,7 @@ label {
   .content-order .form-group input.order-no-display[disabled],
   .order-no-display {
     max-height: 25px !important;
+    min-height: 25px !important;
   }
 
   .content-order .custom-select-trigger {
@@ -35350,15 +35447,86 @@ label {
     font-size: var(--font-size-desc-3);
     padding: 2px 10px;
   }
-   .content-order .custom-select-wrapper i {
+
+  .content-order .custom-select-wrapper i {
     font-size: var(--font-size-desc-3);
   }
+
   .content-order {
     padding: 10px;
   }
+
   .content-order .form-group .input-group {
     gap: 0px;
   }
+
+  .form-group.receive label {
+    font-size: var(--font-size-desc-3);
+  }
+
+  .content-order .form-group {
+    gap: 0 5px;
+  }
+
+  .form-group.receive .search-input-wrapper .search-input {
+    height: 25px;
+    font-size: var(--font-size-desc-3) !important;
+    padding: 0 10px 0 10px;
+  }
+  .form-group.receive .search-input-wrapper .search-input::placeholder{
+
+    font-size: var(--font-size-desc-3) !important;
+  }
+  .form-group.receive .search-input-wrapper i {
+  font-size: var(--font-size-desc-3) !important;
+  transform: translateX(-10px);
+}
+
+.dropdown-content .item-group .item-title {
+  font-size: var(--font-size-desc-3);
+}
+
+.dropdown-content .item-group .item-subtext {
+  font-size: var(--font-size-desc-4);
+
+}
+.dropdown-content .item.member-item .member-name {
+  font-size: var(--font-size-desc-3);
+
+}
+.outgoing .category-items input[type="checkbox"] {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.dropdown-content .item.item-group {
+  padding: 5px 10px !important;
+}
+
+.dropdown-content .item-group .group-toggle {
+  width: 15px;
+  height: 15px;
+  
+}
+
+.circular-track-modal-host #modalOrderViewOverlay .content-topic-sec input {
+  font-size: var(--font-size-desc-3);
+    padding: 0 10px;
+
+}
+
+.circular-track-modal-host #modalOrderViewOverlay .content-topic-sec {
+    align-items: flex-start;
+    gap: 5px 10px;
+    margin: 0 0 10px;
+}
+
+.content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .existing-file-empty {
+  font-size: var(--font-size-desc-3);
+  min-height: 30px;
+  max-height: 30px;
+}
+
 }
 
 @media screen and (max-width: 400px) {
