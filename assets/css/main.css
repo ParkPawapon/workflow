@@ -8937,6 +8937,10 @@ label {
   border: 1px solid var(--color-neutral-lightest);
 }
 
+.table-circular-notice-keep table tbody td p {
+  margin: 0;
+}
+
 .table-circular-notice-keep table tbody td:nth-child(n + 4) {
   text-align: center;
 }

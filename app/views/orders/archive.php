@@ -104,6 +104,14 @@ ob_start();
     .table-circular-notice-keep table thead th:nth-child(1) {
         min-width: 150px;
     }
+
+    .table-circular-notice-keep table thead th:nth-child(2) {
+        min-width: 160px;
+    }
+
+    .table-circular-notice-keep table thead th:nth-child(3) {
+        min-width: 120px;
+    }
 </style>
 
 <div class="content-header">
@@ -195,6 +203,7 @@ ob_start();
                     <th>ผู้ส่งคำสั่ง</th>
                     <th>วันที่รับ</th>
                     <th>สถานะ</th>
+                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -228,12 +237,102 @@ ob_start();
                             <td>
                                 <span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span>
                             </td>
+                            <td>
+                                <button class="booking-action-btn secondary js-open-order-view-modal" type="button">
+                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    <span class="tooltip">รายละเอียด</span>
+                                </button>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
 
         </table>
+    </div>
+
+    <div class="content-circular-notice-index circular-track-modal-host">
+        <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
+            <div class="modal-content">
+                <div class="header-modal">
+                    <div class="first-header">
+                        <p>ติดตามการส่งคำสั่งราชการ</p>
+                    </div>
+                    <div class="sec-header">
+                        <i class="fa-solid fa-xmark" id="closeModalOrderView"></i>
+                    </div>
+                </div>
+                <div class="content-modal">
+                    <div class="content-topic-sec">
+                        <div class="more-details">
+                            <p><strong>คำสั่งที่</strong></p>
+                            <input type="text" id="modalOrderViewNo" class="order-no-display" value="-" disabled>
+                        </div>
+                        <div class="more-details">
+                            <p><strong>เรื่อง</strong></p>
+                            <input type="text" id="modalOrderViewSubject" class="order-no-display" value="-" disabled>
+                        </div>
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details">
+                            <p><strong>ทั้งนี้ตั้งแต่วันที่</strong></p>
+                            <input type="date" id="modalOrderViewEffectiveDate" class="order-no-display" value="" disabled>
+                        </div>
+                        <div class="more-details">
+                            <p><strong>สั่ง ณ วันที่</strong></p>
+                            <input type="date" id="modalOrderViewDate" class="order-no-display" value="" disabled>
+                        </div>
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details">
+                            <p><strong>ผู้สร้างเลขคำสั่ง</strong></p>
+                            <input type="text" id="modalOrderViewIssuer" class="order-no-display" value="-" disabled>
+                        </div>
+                        <div class="more-details">
+                            <p><strong>กลุ่ม</strong></p>
+                            <input type="text" id="modalOrderViewGroup" class="order-no-display" value="-" disabled>
+                        </div>
+                    </div>
+
+                    <div class="orders-send-modal-shell orders-send-card">
+                        <div id="modalOrderViewFormSection">
+                            <form method="POST" action="orders-create.php" class="orders-send-form" id="modalOrderViewForm">
+                                <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
+                                <input type="hidden" name="order_action" value="send">
+                                <input type="hidden" name="send_order_id" id="modalOrderViewOrderId" value="">
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="content-file-sec">
+                        <p><strong>ไฟล์เอกสารแนบจากระบบ</strong></p>
+                        <div class="file-section" id="modalOrderViewFileSection"></div>
+                    </div>
+
+                    <div class="content-table-sec">
+                        <div class="table-responsive">
+                            <table class="custom-table orders-send-track-table">
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อจริง-นามสกุล</th>
+                                        <th style="width: 20%">สถานะ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalOrderViewTrackBody">
+                                    <tr>
+                                        <td colspan="2" class="orders-send-track-empty">ไม่พบข้อมูลผู้รับ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <!-- <div class="modal-overlay-circular-notice-keep" id="orderArchiveModalOverlay" style="display: none;">
@@ -601,6 +700,46 @@ ob_start();
             }
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const orderViewModal = document.getElementById('modalOrderViewOverlay');
+        const closeIconOrderView = document.getElementById('closeModalOrderView');
+
+        const closeOrderViewModal = () => {
+            if (orderViewModal) {
+                orderViewModal.style.display = 'none';
+            }
+        };
+
+        if (closeIconOrderView) {
+            closeIconOrderView.addEventListener('click', closeOrderViewModal);
+        }
+
+        if (orderViewModal) {
+            orderViewModal.addEventListener('click', (event) => {
+                if (event.target === orderViewModal) {
+                    closeOrderViewModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeOrderViewModal();
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            const viewButton = event.target.closest('.js-open-order-view-modal');
+            if (viewButton) {
+                event.preventDefault();
+
+                if (orderViewModal) {
+                    orderViewModal.style.display = 'flex';
+                }
+            }
+        });
+    })
 </script>
 
 <?php
