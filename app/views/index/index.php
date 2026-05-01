@@ -5,9 +5,14 @@ $announcement_items = (array) ($announcement_items ?? []);
 $room_booking_events = (array) ($room_booking_events ?? []);
 $calendar_events = (array) ($calendar_events ?? []);
 $dh_year_value = (int) ($dh_year_value ?? 0);
+$dh_version_value = trim((string) ($dh_version_value ?? '1.0.0'));
 
 if ($dh_year_value <= 0) {
     $dh_year_value = (int) date('Y') + 543;
+}
+
+if ($dh_version_value === '') {
+    $dh_version_value = '1.0.0';
 }
 ?>
 
@@ -74,7 +79,7 @@ if ($dh_year_value <= 0) {
 
             <footer class="footer-login">
                 <p>ระบบงานสารบรรณออนไลน์ โรงเรียนดีบุกพังงาวิทยายน</p>
-                <p>DB SARABUN V.1.0.0 Copyright © 2026 TPH. All rights reserved</p>
+                <p>DB SARABUN <?= htmlspecialchars($dh_version_value, ENT_QUOTES, 'UTF-8') ?> Copyright © 2026 TPH. All rights reserved</p>
                 <p>Paperless office พ.ศ.<?= htmlspecialchars((string) $dh_year_value, ENT_QUOTES, 'UTF-8') ?></p>
             </footer>
 

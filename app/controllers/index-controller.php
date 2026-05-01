@@ -26,6 +26,7 @@ if (!function_exists('index_page_index')) {
         $announcement_items = circular_get_announcements(10);
         $vehicle_events = vehicle_booking_events($room_booking_year);
         $calendar_events = (array) ($room_booking_events ?? []);
+        $dh_version_value = system_get_dh_version();
 
         foreach ($vehicle_events as $date_key => $events) {
             if (!isset($calendar_events[$date_key])) {
@@ -41,6 +42,7 @@ if (!function_exists('index_page_index')) {
             'room_booking_events' => (array) ($room_booking_events ?? []),
             'calendar_events' => $calendar_events,
             'dh_year_value' => $dh_year_value,
+            'dh_version_value' => $dh_version_value,
         ]);
     }
 }
