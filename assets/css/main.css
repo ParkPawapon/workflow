@@ -9431,7 +9431,7 @@ label {
 }
 
 .table-circular-notice-index table thead th:nth-child(5) {
-  min-width: 130px;
+  min-width: 140px;
 }
 
 .table-circular-notice-index table thead th:nth-child(6) {
@@ -9449,6 +9449,10 @@ label {
 .table-circular-notice-index table tbody td {
   padding: 10px;
   border: 1px solid var(--color-neutral-lightest);
+}
+
+.table-circular-notice-index table tbody td p {
+  margin: 0;
 }
 
 .table-circular-notice-index table tbody td:nth-child(n + 5) {
@@ -22001,7 +22005,7 @@ label {
   }
 
   .table-circular-notice-index table thead th:nth-child(5) {
-    min-width: 100px;
+    min-width: 110px;
   }
 
   .table-circular-notice-index table thead th:nth-child(6) {
@@ -25343,6 +25347,7 @@ label {
   .table-circular-notice-index table,
   .table-circular-notice-keep table {
     border: 0;
+    min-width: 1000px;
   }
 
   .button-circular-notice-index {
@@ -35291,8 +35296,8 @@ label {
   }
 
   .memo-inbox-table table thead th:nth-child(5) {
-    width: 11%;
-    min-width: 0;
+    width: 100px;
+    min-width: 100px;
   }
 
   .memo-inbox-table table thead th:nth-child(6) {
@@ -35420,6 +35425,7 @@ label {
   .table-circular-notice-index table,
   .table-circular-notice-keep table {
     border: 0;
+    min-width: 800px;
   }
 
 }

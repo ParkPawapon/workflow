@@ -163,6 +163,14 @@ ob_start();
     #modalEditOverlay [data-memo-review-comment-row] .custom-options {
         z-index: 35;
     }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        min-width: 230px;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        min-width: 150px;
+    }
 </style>
 
 <div class="content-header">
@@ -1091,8 +1099,7 @@ ob_start();
                 label: candidate.name,
                 submitLabel: 'เสนอแฟ้ม',
                 targetPid: candidate.pID,
-            })) :
-            [{
+            })) : [{
                 key: 'forward:' + (deputyPid || directorPid || 'fallback'),
                 value: 'forward',
                 label: deputyName || directorName || 'รองผู้อำนวยการ',
