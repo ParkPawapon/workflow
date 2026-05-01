@@ -369,6 +369,7 @@ if (!function_exists('outgoing_index')) {
         $form_values = [
             'subject' => '',
             'priority' => 'normal',
+            'issue_type' => 'regular',
             'effective_date' => date('Y-m-d'),
             'person_ids' => [],
         ];
@@ -389,6 +390,7 @@ if (!function_exists('outgoing_index')) {
             if ($is_create_request) {
                 $form_values['subject'] = trim((string) ($_POST['subject'] ?? ''));
                 $form_values['priority'] = outgoing_normalize_priority_key((string) ($_POST['priority'] ?? 'normal'));
+                $form_values['issue_type'] = $is_circular_issue ? 'circular' : 'regular';
                 $form_values['effective_date'] = trim((string) ($_POST['effective_date'] ?? ''));
                 $form_values['person_ids'] = outgoing_normalize_person_ids((array) ($_POST['person_ids'] ?? []));
             }
@@ -450,13 +452,14 @@ if (!function_exists('outgoing_index')) {
 
                             $alert = [
                                 'type' => 'success',
-                                'title' => $is_circular_issue ? 'เวียนเรียบร้อย' : 'ออกเลขทะเบียนเรียบร้อย',
+                                'title' => 'ออกเลขทะเบียนเรียบร้อย',
                                 'message' => $created_number !== '' ? 'เลขทะเบียนส่ง ' . $created_number : '',
                             ];
 
                             $form_values = [
                                 'subject' => '',
                                 'priority' => 'normal',
+                                'issue_type' => 'regular',
                                 'effective_date' => date('Y-m-d'),
                                 'person_ids' => [],
                             ];
