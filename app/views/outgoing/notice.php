@@ -250,6 +250,21 @@ $forward_show_deputy_distribute_controls = !$is_outside_view
     && $box_key === 'normal'
     && (bool) ($is_deputy_reviewer ?? false)
     && !$archived;
+$format_external_doc_heading = static function (array $item): string {
+    $parts = [];
+    $receive_seq = (int) ($item['ext_receive_seq'] ?? 0);
+    $book_no = trim((string) ($item['ext_book_no'] ?? ''));
+
+    if ($receive_seq > 0) {
+        $parts[] = '#' . $receive_seq;
+    }
+
+    if ($book_no !== '') {
+        $parts[] = $book_no;
+    }
+
+    return implode(' , ', $parts);
+};
 $deputy_forward_pids_for_forward = array_fill_keys(array_filter(array_map(static function ($pid): string {
     return trim((string) $pid);
 }, (array) ($deputy_forward_pids ?? [])), static function (string $pid): bool {
@@ -572,6 +587,7 @@ ob_start();
                                 $sender_modal_text = trim((string) ($item['sender_name'] ?? '-'));
                                 $ext_group_id = (int) ($item['ext_group_fid'] ?? 0);
                                 $ext_group_name = trim((string) ($item['ext_group_name'] ?? ''));
+                                $external_doc_heading = $format_external_doc_heading($item);
                                 $can_deputy_distribute_item = $box_key === 'normal'
                                     && (bool) ($is_deputy_reviewer ?? false)
                                     && strtoupper((string) ($item['type'] ?? '')) === 'EXTERNAL'
@@ -593,8 +609,8 @@ ob_start();
                                         <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
                                     <?php endif; ?>
                                     <td>
-                                        <?php if (trim((string) ($item['ext_book_no'] ?? '')) !== '') : ?>
-                                            <p><?= h((string) ($item['ext_book_no'] ?? '')) ?></p>
+                                        <?php if ($external_doc_heading !== '') : ?>
+                                            <p><?= h($external_doc_heading) ?></p>
                                         <?php endif; ?>
                                         <p><?= h((string) ($item['subject'] ?? '')) ?></p>
                                     </td>
@@ -709,6 +725,7 @@ ob_start();
                             $priority_label = (string) ($item['ext_priority_label'] ?? 'ปกติ');
                             $ext_group_id = (int) ($item['ext_group_fid'] ?? 0);
                             $ext_group_name = trim((string) ($item['ext_group_name'] ?? ''));
+                            $external_doc_heading = $format_external_doc_heading($item);
 
                             if ($ext_group_name === '' && $ext_group_id > 0) {
                                 $ext_group_name = (string) ($faction_name_map[$ext_group_id] ?? '');
@@ -733,7 +750,7 @@ ob_start();
                                     <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
                                 </td>
                                 <td>
-                                    <p><?= h((string) ($item['ext_book_no'] ?? '-')) ?></p>
+                                    <p><?= h($external_doc_heading !== '' ? $external_doc_heading : '-') ?></p>
                                     <p><?= h((string) ($item['subject'] ?? '')) ?></p>
                                 </td>
                                 <td><button class="urgency-status <?= h((string) ($item['urgency_class'] ?? 'normal')) ?>">
@@ -2893,7 +2910,7 @@ ob_start();
             const hasLatestComment = button.hasAttribute('data-latest-comment');
             const latestComment = hasLatestComment
                 ? String(button.getAttribute('data-latest-comment') || '').trim()
-                : String(button.getAttribute('data-director-comment') || '').trim();
+                : '';
             const latestCommentLabel = String(button.getAttribute('data-latest-comment-label') || 'ความคิดเห็นของผู้ส่งล่าสุด').trim() || 'ความคิดเห็นของผู้ส่งล่าสุด';
 
             if (noticeDetailLatestCommentLabel) {
@@ -3047,7 +3064,7 @@ ob_start();
             const directorComment = String(button.getAttribute('data-director-comment') || '').trim();
             const latestComment = button.hasAttribute('data-latest-comment')
                 ? String(button.getAttribute('data-latest-comment') || '').trim()
-                : directorComment;
+                : '';
             const latestCommentLabel = String(button.getAttribute('data-latest-comment-label') || 'ความคิดเห็นของผู้ส่งล่าสุด').trim() || 'ความคิดเห็นของผู้ส่งล่าสุด';
             const isRegistryHandoffAction = String(button.getAttribute('data-registry-handoff') || '').trim() === '1';
             const isDeputyDistributeAction = String(button.getAttribute('data-deputy-distribute') || '').trim() === '1';

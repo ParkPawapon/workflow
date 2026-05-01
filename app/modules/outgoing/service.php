@@ -46,16 +46,23 @@ if (!function_exists('outgoing_document_number')) {
 }
 
 if (!function_exists('outgoing_sequence_label')) {
-    function outgoing_sequence_label(int $seq): string
+    function outgoing_sequence_label(int $seq, bool $is_circular = false): string
     {
-        return 'ว' . str_pad((string) max(0, $seq), 3, '0', STR_PAD_LEFT);
+        return ($is_circular ? 'ว' : '') . str_pad((string) max(0, $seq), 3, '0', STR_PAD_LEFT);
     }
 }
 
 if (!function_exists('outgoing_format_number')) {
-    function outgoing_format_number(int $seq): string
+    function outgoing_format_number(int $seq, bool $is_circular = false): string
     {
-        return outgoing_prefix() . '/' . outgoing_sequence_label($seq);
+        return outgoing_prefix() . '/' . outgoing_sequence_label($seq, $is_circular);
+    }
+}
+
+if (!function_exists('outgoing_number_is_circular')) {
+    function outgoing_number_is_circular(string $number): bool
+    {
+        return preg_match('/\/\s*ว/u', trim($number)) === 1;
     }
 }
 
@@ -86,7 +93,7 @@ if (!function_exists('outgoing_display_number')) {
         }
 
         if ($seq > 0) {
-            return outgoing_format_number($seq);
+            return outgoing_format_number($seq, outgoing_number_is_circular((string) ($outgoing['outgoingNo'] ?? '')));
         }
 
         return outgoing_document_number($outgoing);
@@ -142,22 +149,22 @@ if (!function_exists('outgoing_prefix')) {
 }
 
 if (!function_exists('outgoing_generate_number')) {
-    function outgoing_generate_number(int $year): array
+    function outgoing_generate_number(int $year, bool $is_circular = false): array
     {
         $row = db_fetch_one('SELECT outgoingSeq FROM dh_outgoing_letters WHERE dh_year = ? ORDER BY outgoingSeq DESC LIMIT 1 FOR UPDATE', 'i', $year);
         $seq = $row ? ((int) $row['outgoingSeq'] + 1) : 1;
-        $number = outgoing_format_number($seq);
+        $number = outgoing_format_number($seq, $is_circular);
 
         return [$number, $seq];
     }
 }
 
 if (!function_exists('outgoing_preview_number')) {
-    function outgoing_preview_number(int $year): string
+    function outgoing_preview_number(int $year, bool $is_circular = false): string
     {
         $row = db_fetch_one('SELECT outgoingSeq FROM dh_outgoing_letters WHERE dh_year = ? ORDER BY outgoingSeq DESC LIMIT 1', 'i', $year);
         $seq = $row ? ((int) $row['outgoingSeq'] + 1) : 1;
-        $number = outgoing_format_number($seq);
+        $number = outgoing_format_number($seq, $is_circular);
 
         return $number;
     }
@@ -186,13 +193,14 @@ if (!function_exists('outgoing_create_draft')) {
             'subject' => trim((string) ($data['subject'] ?? '')),
             'requestedStatus' => trim((string) ($data['status'] ?? '')),
             'createdByPID' => trim((string) ($data['createdByPID'] ?? '')),
+            'issueType' => !empty($data['isCircular']) ? 'circular' : 'regular',
             'incomingAttachmentCount' => count($normalized_files),
         ]);
 
         db_begin();
 
         try {
-            [$outgoingNo, $seq] = outgoing_generate_number((int) $data['dh_year']);
+            [$outgoingNo, $seq] = outgoing_generate_number((int) $data['dh_year'], !empty($data['isCircular']));
             $data['outgoingNo'] = $outgoingNo;
             $data['outgoingSeq'] = $seq;
             $outgoingID = outgoing_create_record($data);

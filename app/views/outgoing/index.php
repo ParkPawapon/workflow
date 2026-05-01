@@ -136,6 +136,10 @@ ob_start();
         font-size: 18px;
     }
 
+    .content-outgoing #outgoing .form-group.button .input-group {
+        gap: 12px;
+    }
+
     .outgoing .select-all-box input {
         width: 20px;
         height: 20px;
@@ -3341,7 +3345,13 @@ ob_start();
 
         <div class="form-group last button">
             <div class="input-group">
-                <button class="submit" type="submit" data-confirm="ยืนยันการเวียนเลขทะเบียนส่งใช่หรือไม่?"
+                <button class="submit" type="submit" name="issue_type" value="regular"
+                    data-confirm="ยืนยันการออกเลขทะเบียนส่งใช่หรือไม่?"
+                    data-confirm-title="ยืนยันการออกเลขทะเบียน" data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
+                    <p>ออกเลขทะเบียน</p>
+                </button>
+                <button class="submit" type="submit" name="issue_type" value="circular"
+                    data-confirm="ยืนยันการเวียนเลขทะเบียนส่งใช่หรือไม่?"
                     data-confirm-title="ยืนยันการเวียน" data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
                     <p>เวียน</p>
                 </button>
