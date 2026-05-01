@@ -112,6 +112,15 @@ ob_start();
     .table-circular-notice-keep table thead th:nth-child(3) {
         min-width: 120px;
     }
+
+    .circular-track-modal-host {
+        width: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+    }
 </style>
 
 <div class="content-header">

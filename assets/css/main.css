@@ -15769,7 +15769,7 @@ label {
   cursor: not-allowed;
 }
 
-.circular-track-modal-host #modalOrderViewOverlay .content-file-sec {
+/* .circular-track-modal-host #modalOrderViewOverlay .content-file-sec {
   margin: 18px 0;
   padding-bottom: 0;
   border-bottom: none;
@@ -15780,20 +15780,20 @@ label {
   flex-direction: column;
   gap: 12px;
   margin-top: 8px;
-}
+} */
 
 .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-banner {
-  display: flex;
+  /* display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-radius: 10px;
+  border-radius: 10px; */
   background-color: var(--color-secondary);
   color: var(--color-neutral-lightest);
-  padding: 16px 12px;
+  /* padding: 16px 12px;
   width: 40%;
   min-width: none;
-  max-width: none
+  max-width: none */
 }
 
 .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-info {
@@ -15804,19 +15804,19 @@ label {
 }
 
 .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-icon {
-  width: 56px;
+  /* width: 56px;
   height: 56px;
   border-radius: 8px;
-  background-color: rgba(var(--rgb-neutral-lightest), 0.92);
+  background-color: rgba(var(--rgb-neutral-lightest), 0.92); */
   color: var(--color-secondary);
-  display: flex;
+  /* display: flex;
   justify-content: center;
   align-items: center;
   font-size: var(--font-size-h2);
-  flex-shrink: 0;
+  flex-shrink: 0; */
 }
 
-.circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-text {
+/* .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -15845,7 +15845,7 @@ label {
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
-}
+} */
 
 .circular-track-modal-host #modalOrderViewOverlay .content-file-sec .file-actions a {
   color: var(--color-secondary);
