@@ -21,6 +21,7 @@ $is_track_active = (bool) ($is_track_active ?? false);
 $track_status_map = (array) ($track_status_map ?? []);
 $send_modal_payload_map = (array) ($send_modal_payload_map ?? []);
 $selected_priority = trim((string) ($form_values['priority'] ?? 'normal'));
+$selected_issue_type = strtolower(trim((string) ($form_values['issue_type'] ?? 'regular')));
 $selected_person_ids = array_values(array_unique(array_filter(array_map(static function ($value): string {
     return trim((string) $value);
 }, (array) ($form_values['person_ids'] ?? [])), static function (string $value): bool {
@@ -278,8 +279,9 @@ ob_start();
         </div>
 
         <div class="circular-btn">
-            <label>เป็นเอกสารเวียน?</label>
-            <input type="checkbox">
+            <label for="outgoingIssueCircular">เป็นเอกสารเวียน?</label>
+            <input type="hidden" name="issue_type" value="regular">
+            <input type="checkbox" id="outgoingIssueCircular" name="issue_type" value="circular" <?= $selected_issue_type === 'circular' ? 'checked' : '' ?>>
         </div>
 
         <?= csrf_field() ?>
@@ -3391,7 +3393,7 @@ ob_start();
 
         <div class="form-group last button">
             <div class="input-group">
-                <button class="submit" type="submit" name="issue_type" value="regular"
+                <button class="submit" type="submit"
                     data-confirm="ยืนยันการออกเลขทะเบียนส่งใช่หรือไม่?"
                     data-confirm-title="ยืนยันการออกเลขทะเบียน" data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
                     <p>ออกเลขทะเบียน</p>
