@@ -33,6 +33,33 @@ if (!function_exists('system_get_dh_status')) {
     }
 }
 
+if (!function_exists('system_get_dh_version')) {
+    function system_get_dh_version(): string
+    {
+        static $cached_version = null;
+
+        if ($cached_version !== null) {
+            return $cached_version;
+        }
+
+        $fallback = '1.0.0';
+        $connection = db_connection();
+
+        if (!db_column_exists($connection, 'thesystem', 'dh_version')) {
+            $cached_version = $fallback;
+
+            return $cached_version;
+        }
+
+        $row = db_fetch_one('SELECT dh_version FROM thesystem ORDER BY ID DESC LIMIT 1');
+        $version = trim((string) ($row['dh_version'] ?? ''));
+
+        $cached_version = $version !== '' ? $version : $fallback;
+
+        return $cached_version;
+    }
+}
+
 if (!function_exists('system_get_exec_duty')) {
     function system_get_exec_duty(): array
     {

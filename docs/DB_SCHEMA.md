@@ -22,6 +22,7 @@ This file describes the current schema families used by the application. It is a
 ### Global configuration
 - `dh_status`
 - `dh_year`
+- `dh_version`
 - `dh_exec_duty_logs`
 
 ## 2. Audit, Files, and Shared Workflow Infrastructure
