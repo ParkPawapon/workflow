@@ -155,7 +155,7 @@ ob_start();
 
     #outgoingMine .outgoing-receive-doc-line {
         color: var(--color-primary-dark);
-        font-size: var(--font-size-body-1);
+        font-size: var(--font-size-desc-1);
         font-weight: 700;
         line-height: 1.45;
         word-break: break-word;
@@ -2569,7 +2569,7 @@ ob_start();
                         <tr>
                             <td>
                                 <?php if ($receive_seq > 0) : ?>
-                                    <div class="outgoing-receive-doc-line">เลขรับหนังสือ <?= h((string) $receive_seq) ?></div>
+                                    <div class="outgoing-receive-doc-line">#<?= h((string) $receive_seq) ?></div>
                                 <?php endif; ?>
                                 <?php if ($book_no !== '') : ?>
                                     <div class="outgoing-receive-doc-line">เลขที่หนังสือ <?= h($book_no) ?></div>

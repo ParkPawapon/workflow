@@ -377,6 +377,8 @@ if (!function_exists('outgoing_index')) {
             $action = trim((string) ($_POST['action'] ?? ''));
             $outgoing_id = isset($_POST['outgoing_id']) ? (int) $_POST['outgoing_id'] : 0;
             $destination_name = trim((string) ($_POST['destination_name'] ?? ''));
+            $issue_type = strtolower(trim((string) ($_POST['issue_type'] ?? 'regular')));
+            $is_circular_issue = $issue_type === 'circular';
             $is_create_request = $action === 'create'
                 || ($action === '' && $outgoing_id <= 0 && (
                     array_key_exists('subject', $_POST)
@@ -404,6 +406,7 @@ if (!function_exists('outgoing_index')) {
                 $post_audit_payload['subject'] = $form_values['subject'] !== '' ? $form_values['subject'] : null;
                 $post_audit_payload['priority'] = $form_values['priority'];
                 $post_audit_payload['effectiveDate'] = $form_values['effective_date'] !== '' ? $form_values['effective_date'] : null;
+                $post_audit_payload['issueType'] = $is_circular_issue ? 'circular' : 'regular';
             }
 
             if (!csrf_validate($_POST['csrf_token'] ?? null)) {
@@ -439,6 +442,7 @@ if (!function_exists('outgoing_index')) {
                                 'detail' => outgoing_build_detail($form_values['effective_date'], $issuer_name, [], (string) ($form_values['priority'] ?? 'normal')),
                                 'status' => OUTGOING_STATUS_WAITING_ATTACHMENT,
                                 'createdByPID' => $current_pid,
+                                'isCircular' => $is_circular_issue,
                             ]);
 
                             $created_outgoing = outgoing_get($outgoing_id);
@@ -446,7 +450,7 @@ if (!function_exists('outgoing_index')) {
 
                             $alert = [
                                 'type' => 'success',
-                                'title' => 'เวียนเรียบร้อย',
+                                'title' => $is_circular_issue ? 'เวียนเรียบร้อย' : 'ออกเลขทะเบียนเรียบร้อย',
                                 'message' => $created_number !== '' ? 'เลขทะเบียนส่ง ' . $created_number : '',
                             ];
 
