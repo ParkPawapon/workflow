@@ -204,6 +204,47 @@ ob_start();
         border: 0;
         background: transparent;
     }
+
+    .file-section:last-child {
+        margin: 20px 0 0;
+    }
+
+    .file-banner {
+        max-width: 400px;
+    }
+
+    .file-list {
+        margin: 20px 0;
+    }
+
+    @media screen and (max-width: 1024px) {
+        .file-section:last-child {
+            margin: 10px 0 0;
+        }
+
+        .file-banner {
+            max-width: 300px;
+        }
+
+        .file-list {
+            margin: 10px 0;
+        }
+
+    }
+
+    @media screen and (max-width: 768px) {
+        .file-section:last-child {
+            margin: 10px 0 0;
+        }
+
+        .file-banner {
+            max-width: 250px;
+        }
+
+        .file-list {
+            margin: 5px 0;
+        }
+    }
 </style>
 
 <div class="content-header">
@@ -234,6 +275,11 @@ ob_start();
                     id="outgoingPriorityHigh"><label for="outgoingPriorityHigh">ด่วนมาก</label>
                 <input type="radio" name="priority" value="highest" <?= $selected_priority === 'highest' ? 'checked' : '' ?> id="outgoingPriorityHighest"><label for="outgoingPriorityHighest">ด่วนที่สุด</label>
             </div>
+        </div>
+
+        <div class="circular-btn">
+            <label>เป็นเอกสารเวียน?</label>
+            <input type="checkbox">
         </div>
 
         <?= csrf_field() ?>
@@ -3349,11 +3395,6 @@ ob_start();
                     data-confirm="ยืนยันการออกเลขทะเบียนส่งใช่หรือไม่?"
                     data-confirm-title="ยืนยันการออกเลขทะเบียน" data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
                     <p>ออกเลขทะเบียน</p>
-                </button>
-                <button class="submit" type="submit" name="issue_type" value="circular"
-                    data-confirm="ยืนยันการเวียนเลขทะเบียนส่งใช่หรือไม่?"
-                    data-confirm-title="ยืนยันการเวียน" data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
-                    <p>เวียน</p>
                 </button>
             </div>
         </div>
@@ -7363,13 +7404,13 @@ ob_start();
         });
 
         const closeActions = [{
-            btn: editModal?.querySelector('#closeModalOrderSend') ?? null,
-            modal: editModal,
-        },
-        {
-            btn: viewModal?.querySelector('#modalOrderViewCloseBtn') ?? null,
-            modal: viewModal,
-        }
+                btn: editModal?.querySelector('#closeModalOrderSend') ?? null,
+                modal: editModal,
+            },
+            {
+                btn: viewModal?.querySelector('#modalOrderViewCloseBtn') ?? null,
+                modal: viewModal,
+            }
         ];
 
         closeActions.forEach(action => {
@@ -7390,7 +7431,7 @@ ob_start();
         });
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('outgointForm');
         if (!form) return;
         const initialSelectedPersonIds = new Set(<?= $selected_person_ids_json ?: '[]' ?>);
@@ -7491,12 +7532,12 @@ ob_start();
             const requestNo = ++recipientSearchRequestNo;
             const url = `${recipientSearchEndpoint}?q=${encodeURIComponent(query)}`;
             fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                credentials: 'same-origin'
-            })
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
                 .then((res) => {
                     if (!res.ok) throw new Error();
                     return res.json();
@@ -7792,12 +7833,12 @@ ob_start();
                 const requestNo = ++recipientSearchRequestNo;
                 const url = `${recipientSearchEndpoint}?q=${encodeURIComponent(query)}`;
                 fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'same-origin'
-                })
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    })
                     .then((res) => {
                         if (!res.ok) throw new Error();
                         return res.json();
@@ -8031,7 +8072,7 @@ ob_start();
 
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
 
         function setupFileUpload(inputId, listId, maxFiles = 1, options = {}) {
             const fileInput = document.getElementById(inputId);
@@ -8221,17 +8262,17 @@ ob_start();
             "coverFileInput_modal",
             "coverFileListContainer_modal",
             1, {
-            addButtonId: "btnCoverAddFile_modal"
-        }
+                addButtonId: "btnCoverAddFile_modal"
+            }
         );
 
         window.__outgoingModalAttachmentUpload = setupFileUpload(
             "fileInput_modal",
             "existingFileListContainer_modal",
             4, {
-            dropzoneId: "dropzone_modal",
-            addButtonId: "btnAddFiles_modal"
-        }
+                dropzoneId: "dropzone_modal",
+                addButtonId: "btnAddFiles_modal"
+            }
         );
 
         const outgoingAttachForm = document.getElementById("modalOutgoingAttachForm");
