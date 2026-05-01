@@ -97,6 +97,62 @@ $format_thai_received_datetime = static function (?string $datetime_value) use (
     return ['date' => trim($date_label), 'time' => $time_label];
 };
 
+$parse_order_detail = static function (?string $detail): array {
+    $text = trim((string) $detail);
+    $result = [
+        'effective_date' => '',
+        'order_date' => '',
+        'issuer_name' => '',
+        'group_name' => '',
+    ];
+
+    if ($text === '') {
+        return $result;
+    }
+
+    if (preg_match('/^ทั้งนี้ตั้งแต่วันที่:\s*(.+)$/m', $text, $matches) === 1) {
+        $date = trim((string) ($matches[1] ?? ''));
+        $result['effective_date'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1 ? $date : '';
+    }
+
+    if (preg_match('/^สั่ง ณ วันที่:\s*(.+)$/m', $text, $matches) === 1) {
+        $date = trim((string) ($matches[1] ?? ''));
+        $result['order_date'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1 ? $date : '';
+    }
+
+    if (preg_match('/^ผู้(?:ออก|สร้าง)เลขคำสั่ง:\s*(.+)$/m', $text, $matches) === 1) {
+        $value = trim((string) ($matches[1] ?? ''));
+        $result['issuer_name'] = $value !== '-' ? $value : '';
+    }
+
+    if (preg_match('/^กลุ่ม:\s*(.+)$/m', $text, $matches) === 1) {
+        $value = trim((string) ($matches[1] ?? ''));
+        $result['group_name'] = $value !== '-' ? $value : '';
+    }
+
+    return $result;
+};
+
+$normalize_order_files = static function (array $files): array {
+    $normalized = [];
+
+    foreach ($files as $file) {
+        $file_id = (int) ($file['fileID'] ?? 0);
+
+        if ($file_id <= 0) {
+            continue;
+        }
+
+        $normalized[] = [
+            'fileID' => $file_id,
+            'fileName' => trim((string) ($file['fileName'] ?? '')),
+            'mimeType' => trim((string) ($file['mimeType'] ?? '')),
+        ];
+    }
+
+    return $normalized;
+};
+
 ob_start();
 ?>
 
@@ -218,7 +274,7 @@ ob_start();
             <tbody>
                 <?php if (empty($items)) : ?>
                     <tr>
-                        <td colspan="4" class="enterprise-empty">ไม่พบรายการคำสั่งราชการที่จัดเก็บ</td>
+                        <td colspan="5" class="enterprise-empty">ไม่พบรายการคำสั่งราชการที่จัดเก็บ</td>
                     </tr>
                 <?php else : ?>
                     <?php foreach ($items as $item) : ?>
@@ -230,6 +286,13 @@ ob_start();
                         $delivered_at = trim((string) ($item['deliveredAt'] ?? '-'));
                         $received_display = $format_thai_received_datetime($delivered_at);
                         $is_read = (int) ($item['isRead'] ?? 0) === 1;
+                        $detail_meta = $parse_order_detail((string) ($item['detail'] ?? ''));
+                        $modal_files = $normalize_order_files((array) ($item['attachments'] ?? []));
+                        $modal_files_json = json_encode($modal_files, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+
+                        if (!is_string($modal_files_json)) {
+                            $modal_files_json = '[]';
+                        }
                         ?>
                         <tr>
                             <td class="orders-inbox-topic-cell">
@@ -247,7 +310,17 @@ ob_start();
                                 <span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span>
                             </td>
                             <td>
-                                <button class="booking-action-btn secondary js-open-order-view-modal" type="button">
+                                <button
+                                    class="booking-action-btn secondary js-open-order-view-modal"
+                                    type="button"
+                                    data-order-id="<?= h((string) $order_id) ?>"
+                                    data-order-no="<?= h($order_no !== '' ? $order_no : ('#' . $order_id)) ?>"
+                                    data-order-subject="<?= h($subject !== '' ? $subject : '-') ?>"
+                                    data-order-effective-date="<?= h((string) ($detail_meta['effective_date'] ?? '')) ?>"
+                                    data-order-date="<?= h((string) ($detail_meta['order_date'] ?? '')) ?>"
+                                    data-order-issuer="<?= h((string) ($detail_meta['issuer_name'] ?? '')) ?>"
+                                    data-order-group="<?= h((string) ($detail_meta['group_name'] ?? '')) ?>"
+                                    data-order-files="<?= h($modal_files_json) ?>">
                                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                     <span class="tooltip">รายละเอียด</span>
                                 </button>
@@ -318,24 +391,6 @@ ob_start();
                     <div class="content-file-sec">
                         <p><strong>ไฟล์เอกสารแนบจากระบบ</strong></p>
                         <div class="file-section" id="modalOrderViewFileSection"></div>
-                    </div>
-
-                    <div class="content-table-sec">
-                        <div class="table-responsive">
-                            <table class="custom-table orders-send-track-table">
-                                <thead>
-                                    <tr>
-                                        <th>ชื่อจริง-นามสกุล</th>
-                                        <th style="width: 20%">สถานะ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modalOrderViewTrackBody">
-                                    <tr>
-                                        <td colspan="2" class="orders-send-track-empty">ไม่พบข้อมูลผู้รับ</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
 
                 </div>
@@ -713,6 +768,76 @@ ob_start();
     document.addEventListener('DOMContentLoaded', function() {
         const orderViewModal = document.getElementById('modalOrderViewOverlay');
         const closeIconOrderView = document.getElementById('closeModalOrderView');
+        const orderViewFileSection = document.getElementById('modalOrderViewFileSection');
+
+        const escapeOrderViewHtml = (text) => String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        const setOrderViewInput = (id, value) => {
+            const input = document.getElementById(id);
+
+            if (!input) {
+                return;
+            }
+
+            const normalizedValue = String(value || '').trim();
+            input.value = normalizedValue !== '' ? normalizedValue : '-';
+        };
+
+        const setOrderViewDateInput = (id, value) => {
+            const input = document.getElementById(id);
+
+            if (!input) {
+                return;
+            }
+
+            const normalizedValue = String(value || '').trim();
+            input.value = /^\d{4}-\d{2}-\d{2}$/.test(normalizedValue) ? normalizedValue : '';
+        };
+
+        const parseOrderViewFiles = (rawValue) => {
+            try {
+                const files = JSON.parse(String(rawValue || '[]'));
+                return Array.isArray(files) ? files : [];
+            } catch (error) {
+                return [];
+            }
+        };
+
+        const buildOrderViewFileBanner = (orderId, file) => {
+            const fileId = String(file.fileID || '').trim();
+            const fileName = String(file.fileName || '').trim() || '-';
+            const mimeType = String(file.mimeType || '').trim();
+            const viewHref = 'public/api/file-download.php?module=orders&entity_id=' +
+                encodeURIComponent(String(orderId || '')) +
+                '&file_id=' +
+                encodeURIComponent(fileId);
+
+            return '<div class="file-banner">' +
+                '<div class="file-info">' +
+                '<div class="file-icon"><i class="fa-solid fa-file"></i></div>' +
+                '<div class="file-text"><span class="file-name">' + escapeOrderViewHtml(fileName) + '</span><span class="file-type">' + escapeOrderViewHtml(mimeType) + '</span></div>' +
+                '</div>' +
+                '<div class="file-actions"><a href="' + escapeOrderViewHtml(viewHref) + '" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i></a></div>' +
+                '</div>';
+        };
+
+        const renderOrderViewFiles = (orderId, files) => {
+            if (!orderViewFileSection) {
+                return;
+            }
+
+            if (!Array.isArray(files) || files.length === 0) {
+                orderViewFileSection.innerHTML = '<div class="file-banner"><div class="file-info"><div class="file-text"><span class="file-name">ไม่มีไฟล์แนบ</span></div></div></div>';
+                return;
+            }
+
+            orderViewFileSection.innerHTML = files.map((file) => buildOrderViewFileBanner(orderId, file)).join('');
+        };
 
         const closeOrderViewModal = () => {
             if (orderViewModal) {
@@ -742,6 +867,21 @@ ob_start();
             const viewButton = event.target.closest('.js-open-order-view-modal');
             if (viewButton) {
                 event.preventDefault();
+                const orderId = String(viewButton.dataset.orderId || '').trim();
+
+                setOrderViewInput('modalOrderViewNo', viewButton.dataset.orderNo || '-');
+                setOrderViewInput('modalOrderViewSubject', viewButton.dataset.orderSubject || '-');
+                setOrderViewDateInput('modalOrderViewEffectiveDate', viewButton.dataset.orderEffectiveDate || '');
+                setOrderViewDateInput('modalOrderViewDate', viewButton.dataset.orderDate || '');
+                setOrderViewInput('modalOrderViewIssuer', viewButton.dataset.orderIssuer || '-');
+                setOrderViewInput('modalOrderViewGroup', viewButton.dataset.orderGroup || '-');
+
+                const orderIdInput = document.getElementById('modalOrderViewOrderId');
+                if (orderIdInput) {
+                    orderIdInput.value = orderId;
+                }
+
+                renderOrderViewFiles(orderId, parseOrderViewFiles(viewButton.dataset.orderFiles || '[]'));
 
                 if (orderViewModal) {
                     orderViewModal.style.display = 'flex';
