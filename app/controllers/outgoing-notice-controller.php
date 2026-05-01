@@ -672,6 +672,13 @@ if (!function_exists('outgoing_notice_index')) {
         $forwarded_recipients_map = [];
         $director_review_map = [];
         $latest_sender_comment_map = [];
+        $system_route_notes = [
+            'CLERK_FORWARD_TO_DEPUTY',
+            'REVIEWER_FORWARD_TO_DEPUTY',
+            'EDIT_RESEND',
+            'RESEND',
+            'EXTERNAL_BEFORE_REVIEW',
+        ];
 
         if (!empty($items) && db_table_exists($connection, 'dh_file_refs')) {
             $entity_ids = array_values(array_unique(array_filter(array_map(static function (array $item): int {
@@ -771,16 +778,12 @@ if (!function_exists('outgoing_notice_index')) {
                             COALESCE(t.fName, "") AS senderName,
                             COALESCE(p.positionName, "") AS senderPositionName
                      FROM dh_circular_routes AS r
-                     INNER JOIN (
-                         SELECT circularID, fromPID, MAX(routeID) AS routeID
-                         FROM dh_circular_routes
-                         WHERE circularID IN (' . $placeholders . ')
-                           AND fromPID IS NOT NULL
-                           AND fromPID <> \'\'
-                         GROUP BY circularID, fromPID
-                     ) AS latest ON latest.routeID = r.routeID
                      LEFT JOIN teacher AS t ON t.pID = r.fromPID
-                     LEFT JOIN dh_positions AS p ON p.positionID = t.positionID',
+                     LEFT JOIN dh_positions AS p ON p.positionID = t.positionID
+                     WHERE r.circularID IN (' . $placeholders . ')
+                       AND r.fromPID IS NOT NULL
+                       AND r.fromPID <> \'\'
+                     ORDER BY r.routeID ASC',
                     $types,
                     ...$entity_ids
                 );
@@ -788,8 +791,14 @@ if (!function_exists('outgoing_notice_index')) {
                 foreach ($rows as $row) {
                     $circular_id_key = (string) ((int) ($row['circularID'] ?? 0));
                     $from_pid = trim((string) ($row['fromPID'] ?? ''));
+                    $route_note = trim((string) ($row['note'] ?? ''));
 
-                    if ($circular_id_key === '0' || $from_pid === '') {
+                    if (
+                        $circular_id_key === '0'
+                        || $from_pid === ''
+                        || $route_note === ''
+                        || in_array(strtoupper($route_note), $system_route_notes, true)
+                    ) {
                         continue;
                     }
 
@@ -799,7 +808,7 @@ if (!function_exists('outgoing_notice_index')) {
 
                     $latest_sender_comment_map[$circular_id_key][$from_pid] = [
                         'action' => strtoupper(trim((string) ($row['action'] ?? ''))),
-                        'comment' => trim((string) ($row['note'] ?? '')),
+                        'comment' => $route_note,
                         'sender_pid' => $from_pid,
                         'sender_name' => trim((string) ($row['senderName'] ?? '')),
                         'sender_position_name' => trim((string) ($row['senderPositionName'] ?? '')),
@@ -1008,6 +1017,15 @@ if (!function_exists('outgoing_notice_index')) {
 
             return 'ความคิดเห็นของผู้ส่งล่าสุด';
         };
+        $append_comment_section = static function (array &$sections, string $label, string $comment): void {
+            $comment = trim($comment);
+
+            if ($comment === '') {
+                return;
+            }
+
+            $sections[] = '<p><strong>' . h($label) . '</strong></p>' . $comment;
+        };
 
         $display_items = [];
 
@@ -1029,16 +1047,29 @@ if (!function_exists('outgoing_notice_index')) {
             $delivered_by_pid = trim((string) ($item['deliveredByPID'] ?? ''));
             $latest_sender_comment = $latest_sender_comment_map[(string) $circular_id][$delivered_by_pid] ?? [];
             $latest_sender_comment_text = trim((string) ($latest_sender_comment['comment'] ?? ''));
-            $system_route_notes = [
-                'CLERK_FORWARD_TO_DEPUTY',
-                'REVIEWER_FORWARD_TO_DEPUTY',
-                'EDIT_RESEND',
-                'RESEND',
-                'EXTERNAL_BEFORE_REVIEW',
-            ];
+            $registry_route = $latest_sender_comment_map[(string) $circular_id][trim((string) ($item['createdByPID'] ?? ''))] ?? [];
+            $registry_comment_text = trim((string) ($registry_route['comment'] ?? ''));
+            $director_comment_text = trim((string) ($director_review['comment'] ?? ''));
+            $comment_display_text = $latest_sender_comment_text;
+            $comment_display_label = $latest_sender_comment_text !== '' ? $latest_comment_label($latest_sender_comment) : '';
+            $show_review_chain_comments = strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL
+                && (
+                    ($box_key === 'clerk' && $status_key === EXTERNAL_STATUS_REVIEWED)
+                    || $can_deputy_distribute_item
+                );
 
-            if (in_array(strtoupper($latest_sender_comment_text), $system_route_notes, true)) {
-                $latest_sender_comment_text = '';
+            if ($show_review_chain_comments) {
+                $comment_sections = [];
+                $append_comment_section($comment_sections, 'ความคิดเห็นของเจ้าหน้าที่สารบรรณ', $registry_comment_text);
+                $append_comment_section($comment_sections, 'ความคิดเห็นของผู้อำนวยการโรงเรียน', $director_comment_text);
+
+                if (!empty($comment_sections)) {
+                    $comment_display_text = implode('<hr>', $comment_sections);
+                    $comment_display_label = 'ความคิดเห็นประกอบการพิจารณา';
+                }
+            } elseif ($box_key === 'director' && $status_key === EXTERNAL_STATUS_REVIEWED && $director_comment_text !== '') {
+                $comment_display_text = $director_comment_text;
+                $comment_display_label = 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
             }
             $files_json = json_encode($files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $forwarded_recipient_pids = array_keys($forwarded_recipients_map[(string) $circular_id] ?? []);
@@ -1138,10 +1169,10 @@ if (!function_exists('outgoing_notice_index')) {
                 'ext_from_text' => (string) ($item['extFromText'] ?? ''),
                 'ext_group_fid' => (int) ($item['extGroupFID'] ?? 0),
                 'ext_group_name' => trim((string) ($item['extGroupName'] ?? '')),
-                'director_comment' => (string) ($director_review['comment'] ?? ''),
+                'director_comment' => $director_comment_text,
                 'director_reviewer_name' => (string) ($director_review['reviewer_name'] ?? ''),
-                'latest_sender_comment' => $latest_sender_comment_text,
-                'latest_sender_comment_label' => $latest_sender_comment_text !== '' ? $latest_comment_label($latest_sender_comment) : '',
+                'latest_sender_comment' => $comment_display_text,
+                'latest_sender_comment_label' => $comment_display_label,
                 'latest_sender_name' => (string) ($latest_sender_comment['sender_name'] ?? ''),
                 'latest_sender_position_name' => (string) ($latest_sender_comment['sender_position_name'] ?? ''),
                 'status_key' => $status_key,
