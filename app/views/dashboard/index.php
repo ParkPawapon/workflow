@@ -558,9 +558,9 @@ ob_start();
             <div class="content-modal">
 
                 <div class="content-topic-sec">
-                    <div class="more-details">
+                    <div class="more-details row-format">
                         <p><strong>เรื่อง</strong></p>
-                        <textarea rows="4" disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias dolore, eligendi minus error numquam provident rerum dolorum voluptate est neque aliquid eos? Sapiente ullam aperiam facilis iure corrupti at est alias, nesciunt nostrum nisi commodi assumenda sit repudiandae quibusdam illo doloribus veniam doloremque laudantium esse asperiores. Veniam animi harum temporibus.</textarea>
+                        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Omnis pariatur quidem expedita autem, magnam numquam assumenda non a odit voluptate officia maxime maiores dolorum id ut sequi repellendus laboriosam distinctio amet tempora? Consequatur itaque, labore quasi ab dolores aliquam commodi odio quod nulla iste, laboriosam minus. Sint autem possimus ullam.</p>
                     </div>
                 </div>
 
@@ -606,17 +606,16 @@ ob_start();
 
 
                 <div class="content-topic-sec">
-                    <div class="more-details">
+                    <div class="more-details column-format">
                         <p><strong>แนบลิ้งก์</strong></p>
-                        <input type="url" id="" class="order-no-display" value="ASDASDASDASDASDSDASDASDASSDAS"
-                            disabled>
+                        <a href="https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s" target="_blank">https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s</a>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
-                    <div class="more-details">
+                    <div class="more-details column-format">
                         <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
-                        <textarea name="detail" id="memo_editor_compose"></textarea>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo architecto necessitatibus voluptate dignissimos atque perferendis aperiam voluptas placeat culpa et, corrupti optio deserunt consectetur iure numquam porro in dolores nostrum nobis quibusdam. Sint ipsum eum eos repudiandae dignissimos provident nostrum rem, sunt fuga eius vitae exercitationem culpa, ea totam autem.</p>
                     </div>
                 </div>
 

@@ -39,6 +39,16 @@ if ($dh_version_value === '') {
         width: 100%;
     }
 
+    .file-list {
+        margin: 10px 0 40px;
+    }
+
+    @media screen and (max-width: 1024px) {
+        .file-list {
+            margin: 5px 0 20px;
+        }
+    }
+
     @media screen and (max-width: 768px) {
         .file-list {
             margin: 5px 0;
@@ -246,7 +256,7 @@ if ($dh_version_value === '') {
         </div>
     </div>
 
-    <div class="content-circular-notice-index circular-track-modal-host">
+    <!-- <div class="content-circular-notice-index circular-track-modal-host">
         <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
             <div class="modal-content">
                 <div class="header-modal">
@@ -320,6 +330,89 @@ if ($dh_version_value === '') {
                         <div class="more-details">
                             <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
                             <textarea name="detail" id="memo_editor_compose"></textarea>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div> -->
+
+    <div class="content-circular-notice-index circular-track-modal-host">
+        <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
+            <div class="modal-content">
+                <div class="header-modal">
+                    <div class="first-header">
+                        <p id="modalOutgoingViewTitle">รายละเอียดประชาสัมพันธ์</p>
+                    </div>
+                    <div class="sec-header">
+                        <i class="fa-solid fa-xmark js-modal-close-btn"></i>
+                    </div>
+                </div>
+
+                <div class="content-modal">
+
+                    <div class="content-topic-sec">
+                        <div class="more-details row-format">
+                            <p><strong>เรื่อง</strong></p>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, officia quos? Fugit, magnam. Blanditiis quaerat recusandae eos expedita earum sint cupiditate minus consequuntur natus iure nobis praesentium odio, at fuga repudiandae porro est quas accusantium non doloribus magnam. Quis repellat aut distinctio blanditiis, vel praesentium rem est in ipsam reiciendis.</p>
+                        </div>
+                    </div>
+
+                    <div class="file-section" id="sectionViewCover">
+                        <p><strong>ไฟล์หนังสือนำ</strong></p>
+                        <div class="file-list" id="containerViewCover" aria-live="polite">
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-file-image" aria-hidden="true"></i></div>
+                                    <div class="file-text">
+                                        <span class="file-name">timeTable1-2.png</span>
+                                        <span class="file-type">image/png</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=181" target="_blank" rel="noopener">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="file-section" id="sectionViewAttachments">
+                        <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
+                        <div class="file-list" id="containerViewAttachments" aria-live="polite">
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></div>
+                                    <div class="file-text">
+                                        <span class="file-name">Getting started with OneDrive.pdf</span>
+                                        <span class="file-type">application/pdf</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=182" target="_blank" rel="noopener">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="content-topic-sec">
+                        <div class="more-details column-format">
+                            <p><strong>แนบลิ้งก์</strong></p>
+                            <a href="https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s" target="_blank">https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s</a>
+                        </div>
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details column-format">
+                            <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam quibusdam optio beatae minima incidunt laborum recusandae eaque. Molestias ab tenetur iste eveniet neque ducimus et a natus blanditiis aliquam mollitia ipsum iusto perferendis quae eaque, aliquid error fuga veniam laudantium placeat? Repudiandae odio mollitia nostrum quidem nihil officiis quas adipisci?</p>
                         </div>
                     </div>
 
