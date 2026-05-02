@@ -1220,6 +1220,7 @@ select {
 
 .container-notification-section .news-bar .details-news-bar li p {
   margin: 20px 0 0;
+  cursor: pointer;
 }
 
 .container-notification-section .news-bar .details-news-bar li::after {
@@ -10700,14 +10701,29 @@ label {
   font-size: var(--font-size-body-1);
 }
 
+.content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details textarea:disabled {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 20px;
+  background-color: var(--color-neutral-lightest);
+  border-radius: 6px;
+  font-size: var(--font-size-body-1);
+  color: var(--color-secondary);
+  border: 1px solid rgba(var(--rgb-secondary), 0.5);
+  transition: 0.3s;
+  resize: vertical;
+}
+
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input {
   width: 100%;
-  height: 50px;
-  border-radius: 8px;
+  min-height: 50px;
   padding: 0 20px;
-  background-color: rgba(var(--rgb-neutral-medium), 0.25);
+  background-color: var(--color-neutral-lightest);
+  border-radius: 6px;
   font-size: var(--font-size-body-1);
-  border: none;
+  color: var(--color-secondary);
+  border: 1px solid rgba(var(--rgb-secondary), 0.5);
+  transition: 0.3s;
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input::placeholder {
@@ -22681,6 +22697,12 @@ label {
     font-size: var(--font-size-desc-1);
   }
 
+  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details textarea:disabled {
+  min-height: 40px;
+  padding: 0 10px;
+  font-size: var(--font-size-desc-1);
+}
+
   .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
     height: 30px;
     font-size: var(--font-size-desc-1);
@@ -22688,11 +22710,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input {
-    width: 200px;
     height: 30px;
     border-radius: 4px;
-    background-color: rgba(var(--rgb-neutral-medium), 0.25);
-    border: none;
+    padding: 0 10px;
+    font-size: var(--font-size-desc-1);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input::placeholder {
@@ -25472,19 +25493,19 @@ label {
   }
 
   .circular-btn {
-  gap: 10px;
-  font-size: var(--font-size-desc-1);
-  padding: 5px;
-  border-radius: 6px;
-  max-width: 150px;
-  margin: 0 0 10px;
-}
+    gap: 10px;
+    font-size: var(--font-size-desc-1);
+    padding: 5px;
+    border-radius: 6px;
+    max-width: 150px;
+    margin: 0 0 10px;
+  }
 
-.circular-btn input[type='checkbox'] {
-  width: 15px;
-  height: 15px;
-  border-radius: 4px;
-}
+  .circular-btn input[type='checkbox'] {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+  }
 
 }
 
@@ -32857,6 +32878,12 @@ label {
     font-size: var(--font-size-desc-3);
   }
 
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details textarea:disabled {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: var(--font-size-desc-3);
+}
+
   .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
     height: 25px;
     font-size: var(--font-size-desc-3);
@@ -32864,11 +32891,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input {
-    width: 160px;
     height: 25px;
     border-radius: 4px;
-    background-color: rgba(var(--rgb-neutral-medium), 0.25);
-    border: none;
+    padding: 0 10px;
+    font-size: var(--font-size-desc-3);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec input::placeholder {
@@ -35596,21 +35622,21 @@ label {
     max-height: 30px;
   }
 
-    .circular-btn {
-  gap: 5px;
-  font-size: var(--font-size-desc-3);
-  padding: 0;
-  border-radius: 6px;
-  max-width: 120px;
-  max-height: 25px;
-  margin: 10px 0;
-}
+  .circular-btn {
+    gap: 5px;
+    font-size: var(--font-size-desc-3);
+    padding: 0;
+    border-radius: 6px;
+    max-width: 120px;
+    max-height: 25px;
+    margin: 10px 0;
+  }
 
-.circular-btn input[type='checkbox'] {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-}
+  .circular-btn input[type='checkbox'] {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
 
 }
 

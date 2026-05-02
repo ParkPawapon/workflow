@@ -16,20 +16,40 @@ if ($dh_version_value === '') {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="th">
+<?php require_once __DIR__ . '/../../../public/components/x-head.php'; ?>
+
 <style>
     .modal-title,
     .close-modal-btn {
-        color:var(--color-secondary) !important
+        color: var(--color-secondary) !important
     }
 
     .modal-header {
         margin: 0 40px;
     }
-</style>
 
-<!DOCTYPE html>
-<html lang="th">
-<?php require_once __DIR__ . '/../../../public/components/x-head.php'; ?>
+    .file-banner {
+        max-width: 400px;
+        min-width: 400px;
+    }
+
+    .tox-tinymce {
+        width: 100%;
+    }
+
+    @media screen and (max-width: 768px) {
+        .file-list {
+            margin: 5px 0;
+        }
+
+        .file-banner {
+            max-width: 250px;
+            min-width: 250px;
+        }
+    }
+</style>
 
 <body>
     <?php require_once __DIR__ . '/../../../public/components/layout/preloader.php'; ?>
@@ -111,17 +131,27 @@ if ($dh_version_value === '') {
 
                 <div class="details-news-bar">
                     <ul>
-                        <?php if (empty($announcement_items)) : ?>
+                        <!-- <? //php if (empty($announcement_items)) : 
+                                ?>
                             <li>
                                 <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
                             </li>
-                        <?php else : ?>
-                            <?php foreach ($announcement_items as $announcement) : ?>
+                        <? //php else : 
+                        ?>
+                            <? //php foreach ($announcement_items as $announcement) : 
+                            ?>
                                 <li>
                                     <p><?= htmlspecialchars((string) ($announcement['subject'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
                                 </li>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            <? //php endforeach; 
+                            ?>
+                        <? //php endif; 
+                        ?> -->
+
+                        <li>
+                            <p class="js-open-order-view-modal">ASD</p>
+                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -215,6 +245,167 @@ if ($dh_version_value === '') {
             </div>
         </div>
     </div>
+
+    <div class="content-circular-notice-index circular-track-modal-host">
+        <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
+            <div class="modal-content">
+                <div class="header-modal">
+                    <div class="first-header">
+                        <p id="modalOutgoingViewTitle">รายละเอียดประชาสัมพันธ์</p>
+                    </div>
+                    <div class="sec-header">
+                        <i class="fa-solid fa-xmark js-modal-close-btn"></i>
+                    </div>
+                </div>
+
+                <div class="content-modal">
+
+                    <div class="content-topic-sec">
+                        <div class="more-details">
+                            <p><strong>เรื่อง</strong></p>
+                            <textarea rows="4" disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias dolore, eligendi minus error numquam provident rerum dolorum voluptate est neque aliquid eos? Sapiente ullam aperiam facilis iure corrupti at est alias, nesciunt nostrum nisi commodi assumenda sit repudiandae quibusdam illo doloribus veniam doloremque laudantium esse asperiores. Veniam animi harum temporibus.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="file-section" id="sectionViewCover">
+                        <p><strong>ไฟล์หนังสือนำ</strong></p>
+                        <div class="file-list" id="containerViewCover" aria-live="polite">
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-file-image" aria-hidden="true"></i></div>
+                                    <div class="file-text">
+                                        <span class="file-name">timeTable1-2.png</span>
+                                        <span class="file-type">image/png</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=181" target="_blank" rel="noopener">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="file-section" id="sectionViewAttachments">
+                        <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
+                        <div class="file-list" id="containerViewAttachments" aria-live="polite">
+                            <div class="file-banner">
+                                <div class="file-info">
+                                    <div class="file-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></div>
+                                    <div class="file-text">
+                                        <span class="file-name">Getting started with OneDrive.pdf</span>
+                                        <span class="file-type">application/pdf</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=182" target="_blank" rel="noopener">
+                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="content-topic-sec">
+                        <div class="more-details">
+                            <p><strong>แนบลิ้งก์</strong></p>
+                            <input type="url" id="" class="order-no-display" value="ASDASDASDASDASDSDASDASDASSDAS"
+                                disabled>
+                        </div>
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details">
+                            <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
+                            <textarea name="detail" id="memo_editor_compose"></textarea>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- <div class="footer-modal"> -->
+                <!-- <button type="button" id="modalOrderViewCloseBtn">
+                    <p>ปิดหน้าต่าง</p>
+                </button> -->
+                <!-- </div> -->
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+
+    <script>
+        if (window.tinymce && typeof window.tinymce.init === 'function') {
+            tinymce.init({
+                selector: '#memo_editor_compose',
+                height: 500,
+                menubar: false,
+                language: 'th_TH',
+                plugins: 'searchreplace autolink directionality visualblocks visualchars image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap emoticons',
+                toolbar: 'undo redo | fontfamily | fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons',
+                font_family_formats: 'TH Sarabun New=Sarabun, sans-serif;',
+                font_size_formats: '8pt 9pt 10pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 36pt 48pt 72pt',
+                content_style: `
+            @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+            body {
+                font-family: 'Sarabun', sans-serif;
+                font-size: 16pt;
+                line-height: 1.5;
+                color: #000;
+                background-color: #fff;
+                padding: 0 20px;
+                margin: 0 auto;
+            }
+            p {
+                margin-bottom: 0px;
+            }
+        `,
+                nonbreaking_force_tab: true,
+                promotion: false,
+                branding: false
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', (event) => {
+                const viewButton = event.target.closest('.js-open-order-view-modal');
+                if (viewButton) {
+                    event.preventDefault();
+                    const modal = document.querySelector('.js-modal-overlay');
+                    if (modal) {
+                        modal.style.display = 'flex';
+                    }
+                }
+
+                const closeBtn = event.target.closest('.js-modal-close-btn');
+                if (closeBtn) {
+                    const modal = closeBtn.closest('.js-modal-overlay');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                }
+
+                if (event.target.classList.contains('js-modal-overlay')) {
+                    event.target.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    const openModals = document.querySelectorAll('.js-modal-overlay[style*="display: flex"]');
+                    openModals.forEach(modal => {
+                        modal.style.display = 'none';
+                    });
+                }
+            });
+        });
+    </script>
 
     <script>
         window.roomBookingEvents = <?= json_encode($room_booking_events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
