@@ -1681,6 +1681,16 @@ select {
   pointer-events: none;
 }
 
+.date .event-icons .building-icon {
+  order: 1;
+  margin-right: auto;
+}
+
+.date .event-icons .car-icon {
+  order: 2;
+  margin-left: auto;
+}
+
 /* ----- START DASH-BOARD-MAIN ----- */
 
 /* ----- START NOTIFICATION SYSTEM -----  */

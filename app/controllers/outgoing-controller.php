@@ -519,7 +519,6 @@ if (!function_exists('outgoing_index')) {
         $outgoing_items = outgoing_list([
             'q' => $search,
             'status' => $status_filter_for_query,
-            'created_by_pid' => $current_pid,
             'sort' => $filter_sort,
         ]);
         $summary_counts = outgoing_count_by_status();

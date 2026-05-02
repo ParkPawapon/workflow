@@ -258,7 +258,7 @@ ob_start();
         <button class="tab-btn <?= $is_track_active ? '' : 'active' ?>"
             onclick="openTab('outgoing', event)">ออกเลขทะเบียนส่ง</button>
         <button class="tab-btn <?= $is_track_active ? 'active' : '' ?>"
-            onclick="openTab('outgoingMine', event)">เลขทะเบียนส่งของฉัน</button>
+            onclick="openTab('outgoingMine', event)">เลขทะเบียนส่งทั้งหมด</button>
     </div>
 </div>
 
@@ -3500,7 +3500,7 @@ ob_start();
 
     <div class="enterprise-card-header order-mine-list-header">
         <div class="enterprise-card-title-group">
-            <h2 class="enterprise-card-title">รายการเลขทะเบียนส่งของฉัน</h2>
+            <h2 class="enterprise-card-title">รายการเลขทะเบียนส่งทั้งหมด</h2>
         </div>
     </div>
 
@@ -3520,7 +3520,7 @@ ob_start();
             <tbody>
                 <?php if (empty($items)): ?>
                     <tr>
-                        <td colspan="4" class="enterprise-empty">ไม่พบรายการเลขทะเบียนส่งของฉัน</td>
+                        <td colspan="4" class="enterprise-empty">ไม่พบรายการเลขทะเบียนส่ง</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($items as $item): ?>
