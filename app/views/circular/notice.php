@@ -257,6 +257,32 @@ ob_start();
         background-color: rgba(var(--rgb-neutral-medium), 0.25);
         cursor: not-allowed;
     }
+
+    @media screen and (max-width: 768px) {
+        .container-circular-notice-sending .form-group {
+            gap: 0px;
+            margin: 0 0 10px;
+        }
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index .sender-row {
+            gap: 10px;
+        }
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index .sender-row .form-group {
+            margin-bottom: 0;
+            gap: 10px;
+        }
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 0;
+        }
+        .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-section {
+            padding: 0 0 20px;
+        }
+    }
 </style>
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
@@ -352,8 +378,7 @@ ob_start();
     <?php if (!$is_outside_view) : ?>
         <form
             id="bulkActionForm"
-            method="POST"
-        >
+            method="POST">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="<?= h($archived ? 'unarchive_selected' : 'archive_selected') ?>">
             <div class="table-circular-notice-index">
@@ -582,8 +607,7 @@ ob_start();
                             data-confirm="<?= h($archived ? 'ต้องการย้ายหนังสือเวียนนี้กลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนนี้หรือไม่') ?>"
                             data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>"
                             data-confirm-ok="ยืนยัน"
-                            data-confirm-cancel="ยกเลิก"
-                        >
+                            data-confirm-cancel="ยกเลิก">
                             <p><?= h($archived ? 'ย้ายกลับ' : 'จัดเก็บ') ?></p>
                         </button>
                     </form>
@@ -607,11 +631,11 @@ ob_start();
 
                 <div class="content-modal">
                     <form method="POST" enctype="multipart/form-data" data-validate class="container-circular-notice-sending" id="circularEditForm" style="box-shadow:none; padding: 0;">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="inbox_id" data-send-inbox-id value="">
-                    <input type="hidden" name="circular_id" data-send-circular-id value="">
-                    <input type="hidden" name="action" value="forward">
-                    <input type="hidden" name="edit_circular_id" id="editTargetCircularId" value="">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="inbox_id" data-send-inbox-id value="">
+                        <input type="hidden" name="circular_id" data-send-circular-id value="">
+                        <input type="hidden" name="action" value="forward">
+                        <input type="hidden" name="edit_circular_id" id="editTargetCircularId" value="">
 
                         <div class="form-group">
                             <label for="edit_subject"><b>หัวเรื่อง</b></label>
@@ -1370,8 +1394,7 @@ ob_start();
             data-confirm="<?= h($archived ? 'ต้องการย้ายหนังสือเวียนที่เลือกกลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนที่เลือกหรือไม่') ?>"
             data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>"
             data-confirm-ok="ยืนยัน"
-            data-confirm-cancel="ยกเลิก"
-        >
+            data-confirm-cancel="ยกเลิก">
             <i class="fa-solid fa-file-import"></i>
             <p><?= h($archived ? 'ย้ายกลับ' : 'จัดเก็บ') ?></p>
         </button>
@@ -1926,11 +1949,10 @@ ob_start();
 
             form.applyRecipientSelection = (selectedPids) => {
                 const selectedSet = new Set(
-                    Array.isArray(selectedPids)
-                        ? selectedPids
-                              .map((value) => String(value || '').trim())
-                              .filter((value) => value !== '')
-                        : []
+                    Array.isArray(selectedPids) ?
+                    selectedPids
+                    .map((value) => String(value || '').trim())
+                    .filter((value) => value !== '') : []
                 );
 
                 memberChecks.forEach((item) => {

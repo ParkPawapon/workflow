@@ -9175,10 +9175,10 @@ label {
 }
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
-  flex: 1;
+  /* flex: 1; */
   max-width: 420px;
   min-width: 420px;
-  height: 70px;
+  /* height: 70px;
   background-color: var(--color-danger);
   border-radius: 8px;
   padding: 10px;
@@ -9186,7 +9186,7 @@ label {
   align-items: center;
   justify-content: space-between;
   color: var(--color-neutral-lightest);
-  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
 }
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-info {
@@ -9198,7 +9198,7 @@ label {
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-icon {
   font-size: var(--font-size-h3);
-  color: var(--color-danger);
+  /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 50px;
   height: 50px;
@@ -9243,7 +9243,7 @@ label {
 }
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-actions a {
-  color: var(--color-danger);
+  color: var(--color-secondary);
 }
 
 /* ----- END CIRCULAR-NOTICE-ARCHIVE-A ----- */
@@ -9727,18 +9727,18 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-banner {
-  flex: 1;
+  /* flex: 1; */
   max-width: 420px;
   min-width: 420px;
-  height: 80px;
-  background-color: var(--color-danger);
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--color-neutral-lightest);
-  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+  /* height: 80px; */
+  /* background-color: var(--color-danger); */
+  /* border-radius: 8px; */
+  /* padding: 10px; */
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: space-between; */
+  /* color: var(--color-neutral-lightest); */
+  /* box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-info {
@@ -9750,7 +9750,7 @@ label {
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
   font-size: var(--font-size-h3);
-  color: var(--color-danger);
+  /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 60px;
   height: 60px;
@@ -9795,7 +9795,7 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-actions a {
-  color: var(--color-danger);
+  color: var(--color-secondary);
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .footer-modal {
@@ -10844,10 +10844,10 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-banner {
-  flex: 1;
+  /* flex: 1; */
   max-width: 420px;
   min-width: 420px;
-  height: 80px;
+  /* height: 80px;
   background-color: var(--color-danger);
   border-radius: 8px;
   padding: 8px;
@@ -10856,7 +10856,7 @@ label {
   justify-content: space-between;
   gap: 4px;
   color: var(--color-neutral-lightest);
-  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-info {
@@ -10868,7 +10868,7 @@ label {
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-icon {
   font-size: var(--font-size-h2);
-  color: var(--color-danger);
+  /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 60px;
   height: 60px;
@@ -10913,7 +10913,7 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-actions a {
-  color: var(--color-danger);
+  color: var(--color-secondary);
 }
 
 /* ----- END CIRCULAR-NOTICE-INBOX-B ----- */
@@ -16895,7 +16895,7 @@ label {
 
   .custom-table th,
   .custom-table td {
-    padding: 0px 5px;
+    padding: 0px 10px;
     text-align: left;
   }
 
@@ -20570,7 +20570,7 @@ label {
   }
 
   .vehicle-row .btn.btn-upload-small {
-    width: 100px;
+    width: 10 0px;
     height: 30px;
     padding: 0 10px;
     border-radius: 8px;
@@ -20697,7 +20697,7 @@ label {
   .container-circular-notice-sending .form-group label {
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
-    margin: 0 0 6px;
+    margin: 0;
   }
 
   .container-circular-notice-sending .form-group label b {
@@ -20712,7 +20712,7 @@ label {
     border: 1px solid var(--color-primary-dark);
     border-radius: 4px;
     outline: none;
-    padding: 0 10px;
+    padding: 10px;
     margin: 0 0 10px;
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
@@ -20912,12 +20912,12 @@ label {
   .container-circular-notice-sending .form-group.receive .search-input-wrapper i {
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
-    transform: translateX(-40px);
+    transform: translateX(-10px);
     transition: 0.2s;
   }
 
   .container-circular-notice-sending .form-group.receive .search-input-wrapper.active i {
-    transform: translateX(-40px) rotate(180deg);
+    transform: translateX(-10px) rotate(180deg);
   }
 
   .container-circular-notice-sending .dropdown-content {
@@ -21731,18 +21731,29 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal {
     width: 100%;
-    min-height: 70px;
+    min-height: 60px;
     background-color: var(--color-secondary);
-    font-size: var(--font-size-body-2);
+    font-size: var(--font-size-desc-1);
     color: var(--color-neutral-lightest);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 20px;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal i {
     cursor: pointer;
+  }
+
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal {
+    padding: 0 20px;
+    height: 60px;
+  }
+  
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal button {
+    font-size: var(--font-size-desc-1);
+    height: 30px;
+    width: 100px;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal {
@@ -21751,7 +21762,7 @@ label {
     overflow-y: scroll;
     scrollbar-width: none;
     -ms-scrollbar-style: none;
-    padding: 20px 40px;
+    padding: 10px 20px;
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
   }
@@ -21800,10 +21811,10 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 350px;
     min-width: 350px;
-    height: 60px;
+    /* height: 60px;
     background-color: var(--color-danger);
     border-radius: 8px;
     padding: 8px;
@@ -21812,7 +21823,7 @@ label {
     justify-content: space-between;
     color: var(--color-neutral-lightest);
     box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
-    gap: 0;
+    gap: 0; */
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-info {
@@ -21824,7 +21835,7 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 40px;
     height: 40px;
@@ -21847,7 +21858,7 @@ label {
     text-overflow: ellipsis;
     min-width: 220px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-type {
@@ -21868,7 +21879,7 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-ARCHIVE-A ----- */
@@ -22273,7 +22284,7 @@ label {
   .content-circular-notice-index .circular-track-modal-host .modal-overlay-circular-notice-index.outside-person .content-read-sec td {
     text-align: left;
     vertical-align: middle;
-    font-size: var(--font-size-body-2)
+    font-size: var(--font-size-desc-1)
   }
 
   .content-circular-notice-index .circular-track-modal-host .modal-overlay-circular-notice-index.outside-person .content-read-sec td:nth-child(2),
@@ -22303,14 +22314,14 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .header-modal {
     width: 100%;
-    min-height: 70px;
+    min-height: 60px;
     background-color: var(--color-secondary);
     font-size: var(--font-size-body-2);
     color: var(--color-neutral-lightest);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 20px;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .header-modal i {
@@ -22323,7 +22334,7 @@ label {
     overflow-y: scroll;
     scrollbar-width: none;
     -ms-scrollbar-style: none;
-    padding: 20px 40px;
+    padding: 10px 20px;
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
   }
@@ -22372,10 +22383,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 300px;
     min-width: 300px;
-    height: 60px;
+    /* height: 60px;
     background-color: var(--color-danger);
     border-radius: 8px;
     padding: 8px;
@@ -22383,19 +22394,19 @@ label {
     align-items: center;
     justify-content: space-between;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 80%;
+    width: 75%;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 40px;
     height: 40px;
@@ -22416,9 +22427,10 @@ label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
     max-width: 250px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-type {
@@ -22439,7 +22451,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .footer-modal {
@@ -22466,6 +22478,10 @@ label {
     font-size: var(--font-size-desc-1);
     font-family: "THSarabunNew";
     color: var(--color-neutral-lightest);
+  }
+
+  .content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .content-modal p {
+    font-size: var(--font-size-desc-1);
   }
 
   /* ----- END CIRCULAR-NOTICE-INDEX-A ----- */
@@ -22857,10 +22873,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
-    max-width: 200px;
-    min-width: 200px;
-    height: 40px;
+    /* flex: 1; */
+    max-width: 250px;
+    min-width: 250px;
+    /* height: 40px;
     background-color: var(--color-danger);
     border-radius: 3px;
     padding: 5px;
@@ -22869,7 +22885,7 @@ label {
     justify-content: space-between;
     gap: 4px;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-info {
@@ -22881,7 +22897,7 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 30px;
     height: 30px;
@@ -22927,7 +22943,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-INBOX-B ----- */
@@ -26492,7 +26508,7 @@ label {
   }
 
   .custom-table td {
-    padding: 5px 0;
+    padding: 0 5px;
   }
 
   .custom-table th {
@@ -30876,7 +30892,7 @@ label {
     border: 1px solid var(--color-primary-dark);
     border-radius: 4px;
     outline: none;
-    padding: 0 10px;
+    padding: 10px;
     margin: 0;
     font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
@@ -31022,7 +31038,7 @@ label {
 
   .container-circular-notice-sending .form-group.receive .dropdown-container {
     position: relative;
-    width: 50%;
+    width: 60%;
     margin: 0;
   }
 
@@ -31044,7 +31060,7 @@ label {
     border-radius: 8px;
     background-color: var(--color-neutral-lightest);
     border: 0.5px solid var(--color-secondary);
-    padding: 0 30px 0 10px;
+    padding: 0 10px 0 10px;
     margin: 0;
     font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
@@ -31438,9 +31454,11 @@ label {
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    margin: 5px 0;
+    margin: 10px 0;
   }
-
+.upload-layout {
+  gap: 0px;
+}
   .file-item-wrapper {
     display: flex;
     align-items: center;
@@ -31956,14 +31974,27 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal {
     width: 100%;
-    height: 60px;
+    height: 40px;
+    max-height: 40px;
+    min-height: 40px;
     background-color: var(--color-secondary);
-    font-size: var(--font-size-desc-1);
+    font-size: var(--font-size-desc-3);
     color: var(--color-neutral-lightest);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+  }
+
+   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal {
+    padding: 0 10px;
+    height: 40px;
+  }
+  
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal button {
+    font-size: var(--font-size-desc-3);
+    height: 25px;
+    width: 80px;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal i {
@@ -32019,17 +32050,17 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin: 20px 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px 0 0;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 250px;
     min-width: 250px;
-    height: 50px;
+    /* height: 50px;
     background-color: var(--color-danger);
     border-radius: 4px;
     padding: 6px;
@@ -32037,7 +32068,7 @@ label {
     align-items: center;
     justify-content: space-between;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-info {
@@ -32049,7 +32080,7 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 35px;
     height: 35px;
@@ -32072,7 +32103,7 @@ label {
     text-overflow: ellipsis;
     min-width: 120px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-type {
@@ -32093,7 +32124,7 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-ARCHIVE-A ----- */
@@ -32496,7 +32527,7 @@ label {
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .header-modal {
     width: 100%;
     height: 30px;
-    min-height: 30px;
+    min-height: 40px;
     background-color: var(--color-secondary);
     font-size: var(--font-size-desc-3);
     color: var(--color-neutral-lightest);
@@ -32526,7 +32557,7 @@ label {
     overflow-y: scroll;
     scrollbar-width: none;
     -ms-scrollbar-style: none;
-    padding: 10px 20px;
+    padding: 10px;
     font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
     flex-grow: 1;
@@ -32577,10 +32608,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 250px;
     min-width: 250px;
-    height: 50px;
+    /* height: 50px;
     background-color: var(--color-danger);
     border-radius: 4px;
     padding: 4px;
@@ -32588,19 +32619,19 @@ label {
     align-items: center;
     justify-content: space-between;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 80%;
+    width: 75%;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 35px;
     height: 35px;
@@ -32616,14 +32647,14 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-name {
-    font-size: var(--font-size-desc-2);
+    font-size: var(--font-size-desc-3);
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 250px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-type {
@@ -32644,7 +32675,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .footer-modal {
@@ -32671,6 +32702,10 @@ label {
     font-size: var(--font-size-desc-3);
     font-family: "THSarabunNew";
     color: var(--color-neutral-lightest);
+  }
+
+  .content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .content-modal p {
+    font-size: var(--font-size-desc-3);
   }
 
   /* ----- END CIRCULAR-NOTICE-INDEX-A ----- */
@@ -33064,10 +33099,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
-    max-width: 200px;
-    min-width: 200px;
-    height: 40px;
+    /* flex: 1; */
+    max-width: 220px;
+    min-width: 220px;
+    /* height: 40px;
     background-color: var(--color-danger);
     border-radius: 3px;
     padding: 5px;
@@ -33076,7 +33111,7 @@ label {
     justify-content: space-between;
     gap: 4px;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-info {
@@ -33088,7 +33123,7 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 30px;
     height: 30px;
@@ -33134,7 +33169,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-INBOX-B ----- */
