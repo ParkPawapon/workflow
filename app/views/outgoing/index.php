@@ -193,10 +193,6 @@ ob_start();
         box-shadow: inset 0 0 0 1px white, inset 0 0 0 3px #bd0000 !important;
     }
 
-    .file-list {
-        margin: 0;
-    }
-
     .circular-track-modal-host {
         width: 0;
         height: 0;
@@ -214,8 +210,10 @@ ob_start();
         max-width: 400px;
     }
 
-    .file-list {
-        margin: 20px 0;
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec:nth-child(2),
+    .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
+        border-bottom: none;
+        padding: 0;
     }
 
     @media screen and (max-width: 1024px) {
@@ -227,10 +225,6 @@ ob_start();
             max-width: 300px;
         }
 
-        .file-list {
-            margin: 10px 0;
-        }
-
     }
 
     @media screen and (max-width: 768px) {
@@ -240,10 +234,6 @@ ob_start();
 
         .file-banner {
             max-width: 250px;
-        }
-
-        .file-list {
-            margin: 5px 0;
         }
     }
 </style>
@@ -6833,7 +6823,7 @@ ob_start();
     </div>
 </div>
 
-<div class="content-circular-notice-index circular-track-modal-host">
+<!-- <div class="content-circular-notice-index circular-track-modal-host">
     <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
         <div class="modal-content">
             <div class="header-modal">
@@ -6891,6 +6881,90 @@ ob_start();
                     <div class="more-details" hidden style="display: none;" aria-hidden="true">
                         <p><strong>เจ้าของเรื่อง</strong></p>
                         <input type="text" id="modalOutgoingViewOwnerNames" class="order-no-display" value="" disabled>
+                    </div>
+                </div>
+
+                <div class="file-section" id="sectionViewCover">
+                    <p><strong>ไฟล์หนังสือนำ</strong></p>
+                    <div class="file-list" id="containerViewCover" aria-live="polite"></div>
+                </div>
+
+                <div class="file-section" id="sectionViewAttachments">
+                    <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
+                    <div class="file-list" id="containerViewAttachments" aria-live="polite"></div>
+                </div>
+
+
+            </div>
+
+            <div class="footer-modal">
+            </div>
+
+        </div>
+    </div>
+</div> -->
+
+<div class="content-circular-notice-index circular-track-modal-host">
+    <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
+        <div class="modal-content">
+            <div class="header-modal">
+                <div class="first-header">
+                    <p id="modalOutgoingViewTitle">ดูรายละเอียดออกเลขทะเบียนส่ง</p>
+                </div>
+                <div class="sec-header">
+                    <i class="fa-solid fa-xmark" id="modalOrderViewCloseBtn"></i>
+                </div>
+            </div>
+
+            <div class="content-modal">
+                <div class="type-urgent">
+                    <p>ประเภท</p>
+                    <div class="radio-group-urgent">
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="normal" checked
+                            id="modalOutgoingViewUrgentNormal"><label for="modalOutgoingViewUrgentNormal">ปกติ</label>
+                    </div>
+                </div>
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
+                        <p><strong>เลขทะเบียน</strong></p>
+                        <p>ศธ 04320.05/001</p>
+                    </div>
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
+                        <p><strong>เรื่อง</strong></p>
+                        <p>การแต่งตั้งรักษาการผู้อำนวยการ11/222่ี</p>
+                    </div>
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
+                        <p><strong>ลงวันที่</strong></p>
+                        <p>05/01/2026</p>
+                    </div>
+
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
+                        <p><strong>ส่งถึง</strong></p>
+                        <p>posermpo'jsdhtbgr p;'OLJmhfOL>P:?dcftgb mk,cfv MKP:fvc >?df</p>
+                    </div>
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
+                        <p><strong>ผู้ออกเลข</strong></p>
+                        <p>นางสาวทิพยรัตน์ บุญมณี</p>
+                    </div>
+
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format" hidden style="display: none;" aria-hidden="true">
+                        <p><strong>เจ้าของเรื่อง</strong></p>
+                        <p>นางสาวทิพยรัตน์ บุญมณี</p>
                     </div>
                 </div>
 
