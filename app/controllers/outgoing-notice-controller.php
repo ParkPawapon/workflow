@@ -1017,16 +1017,6 @@ if (!function_exists('outgoing_notice_index')) {
 
             return 'ความคิดเห็นของผู้ส่งล่าสุด';
         };
-        $append_comment_section = static function (array &$sections, string $label, string $comment): void {
-            $comment = trim($comment);
-
-            if ($comment === '') {
-                return;
-            }
-
-            $sections[] = '<p><strong>' . h($label) . '</strong></p>' . $comment;
-        };
-
         $display_items = [];
 
         foreach ($items as $item) {
@@ -1050,26 +1040,34 @@ if (!function_exists('outgoing_notice_index')) {
             $registry_route = $latest_sender_comment_map[(string) $circular_id][trim((string) ($item['createdByPID'] ?? ''))] ?? [];
             $registry_comment_text = trim((string) ($registry_route['comment'] ?? ''));
             $director_comment_text = trim((string) ($director_review['comment'] ?? ''));
+            $detail_display_text = (string) ($item['detail'] ?? '');
             $comment_display_text = $latest_sender_comment_text;
             $comment_display_label = $latest_sender_comment_text !== '' ? $latest_comment_label($latest_sender_comment) : '';
+            $is_external_item = strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL;
             $show_review_chain_comments = strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL
                 && (
-                    ($box_key === 'clerk' && $status_key === EXTERNAL_STATUS_REVIEWED)
+                    (
+                        $box_key === 'clerk'
+                        && in_array($status_key, [EXTERNAL_STATUS_REVIEWED, EXTERNAL_STATUS_FORWARDED], true)
+                    )
                     || $can_deputy_distribute_item
                 );
 
             if ($show_review_chain_comments) {
-                $comment_sections = [];
-                $append_comment_section($comment_sections, 'ความคิดเห็นของเจ้าหน้าที่สารบรรณ', $registry_comment_text);
-                $append_comment_section($comment_sections, 'ความคิดเห็นของผู้อำนวยการโรงเรียน', $director_comment_text);
-
-                if (!empty($comment_sections)) {
-                    $comment_display_text = implode('<hr>', $comment_sections);
-                    $comment_display_label = 'ความคิดเห็นประกอบการพิจารณา';
-                }
+                $detail_display_text = '';
+                $comment_display_text = '';
+                $comment_display_label = '';
             } elseif ($box_key === 'director' && $status_key === EXTERNAL_STATUS_REVIEWED && $director_comment_text !== '') {
                 $comment_display_text = $director_comment_text;
                 $comment_display_label = 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+            } elseif (
+                $is_external_item
+                && $box_key === 'normal'
+                && $status_key === EXTERNAL_STATUS_FORWARDED
+                && $delivered_by_pid !== ''
+                && $delivered_by_pid !== trim((string) ($item['createdByPID'] ?? ''))
+            ) {
+                $detail_display_text = '';
             }
             $files_json = json_encode($files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             $forwarded_recipient_pids = array_keys($forwarded_recipients_map[(string) $circular_id] ?? []);
@@ -1135,6 +1133,12 @@ if (!function_exists('outgoing_notice_index')) {
             } elseif ($sender_faction_name !== '') {
                 $sender_display = $sender_faction_name;
             }
+            $latest_sender_name = trim((string) ($latest_sender_comment['sender_name'] ?? ''));
+            $modal_sender_name = $sender_name !== '' ? $sender_name : '-';
+
+            if ($is_external_item && $latest_sender_name !== '') {
+                $modal_sender_name = $latest_sender_name;
+            }
 
             $display_items[] = [
                 'inbox_id' => (int) ($item['inboxID'] ?? 0),
@@ -1145,11 +1149,13 @@ if (!function_exists('outgoing_notice_index')) {
                 'subject' => (string) ($item['subject'] ?? ''),
                 'dh_year' => (int) ($item['dh_year'] ?? 0),
                 'sender_name' => $sender_name !== '' ? $sender_name : '-',
+                'modal_sender_name' => $modal_sender_name,
                 'sender_faction_name' => $sender_faction_name,
                 'sender_display' => $sender_display,
                 'owner_pid' => (string) ($item['createdByPID'] ?? ''),
                 'delivered_by_pid' => $delivered_by_pid,
                 'detail' => (string) ($item['detail'] ?? ''),
+                'detail_display' => $detail_display_text,
                 'link_url' => (string) ($item['linkURL'] ?? ''),
                 'delivered_date' => $received_date,
                 'delivered_date_long' => $received_date_long,
@@ -1169,11 +1175,13 @@ if (!function_exists('outgoing_notice_index')) {
                 'ext_from_text' => (string) ($item['extFromText'] ?? ''),
                 'ext_group_fid' => (int) ($item['extGroupFID'] ?? 0),
                 'ext_group_name' => trim((string) ($item['extGroupName'] ?? '')),
+                'registry_comment' => $registry_comment_text,
                 'director_comment' => $director_comment_text,
                 'director_reviewer_name' => (string) ($director_review['reviewer_name'] ?? ''),
+                'show_review_chain_comments' => $show_review_chain_comments,
                 'latest_sender_comment' => $comment_display_text,
                 'latest_sender_comment_label' => $comment_display_label,
-                'latest_sender_name' => (string) ($latest_sender_comment['sender_name'] ?? ''),
+                'latest_sender_name' => $latest_sender_name,
                 'latest_sender_position_name' => (string) ($latest_sender_comment['sender_position_name'] ?? ''),
                 'status_key' => $status_key,
                 'status_label' => $status_label,

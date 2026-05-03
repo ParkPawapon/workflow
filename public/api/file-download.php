@@ -35,19 +35,6 @@ $auditable_abort = static function (int $http_status, string $audit_status, stri
     exit();
 };
 
-if (empty($_SESSION['pID'])) {
-    if ($auditable_module !== null && $auditable_entity_name !== null && function_exists('audit_log')) {
-        audit_log('security', 'AUTH_REQUIRED', 'DENY', $auditable_entity_name, $auditable_entity_id, $auditable_module . '_file_download', array_filter([
-            'fileID' => $file_id ?: null,
-            'download' => $download,
-        ], static function ($value): bool {
-            return $value !== null && $value !== '' && $value !== [];
-        }), 'GET', 401);
-    }
-    http_response_code(401);
-    exit();
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     $auditable_abort(405, 'FAIL', 'invalid_method');
 }
@@ -93,10 +80,38 @@ if (!$file_row) {
     $auditable_abort(404, 'FAIL', 'file_reference_not_found', [], 'GET');
 }
 
-$current_pid = (string) $_SESSION['pID'];
-$authorized = false;
+$is_public_circular_announcement = false;
 
-if ($module === 'circulars') {
+if (empty($_SESSION['pID']) && $module === 'circulars' && ctype_digit($entity_id)) {
+    $check = mysqli_prepare($connection, 'SELECT 1 FROM dh_circular_announcements WHERE circularID = ? AND isActive = 1 LIMIT 1');
+
+    if ($check) {
+        $circular_id = (int) $entity_id;
+        mysqli_stmt_bind_param($check, 'i', $circular_id);
+        mysqli_stmt_execute($check);
+        $res = mysqli_stmt_get_result($check);
+        $is_public_circular_announcement = (bool) ($res && mysqli_fetch_assoc($res));
+        mysqli_stmt_close($check);
+    }
+}
+
+if (empty($_SESSION['pID']) && !$is_public_circular_announcement) {
+    if ($auditable_module !== null && $auditable_entity_name !== null && function_exists('audit_log')) {
+        audit_log('security', 'AUTH_REQUIRED', 'DENY', $auditable_entity_name, $auditable_entity_id, $auditable_module . '_file_download', array_filter([
+            'fileID' => $file_id ?: null,
+            'download' => $download,
+        ], static function ($value): bool {
+            return $value !== null && $value !== '' && $value !== [];
+        }), 'GET', 401);
+    }
+    http_response_code(401);
+    exit();
+}
+
+$current_pid = (string) ($_SESSION['pID'] ?? '');
+$authorized = $is_public_circular_announcement;
+
+if (!$authorized && $module === 'circulars') {
     $check = mysqli_prepare($connection, 'SELECT 1 FROM dh_circulars WHERE circularID = ? AND createdByPID = ? LIMIT 1');
 
     if ($check) {
@@ -112,6 +127,18 @@ if ($module === 'circulars') {
 
         if ($check) {
             mysqli_stmt_bind_param($check, 'is', $entity_id, $current_pid);
+            mysqli_stmt_execute($check);
+            $res = mysqli_stmt_get_result($check);
+            $authorized = $res && mysqli_fetch_assoc($res);
+            mysqli_stmt_close($check);
+        }
+    }
+
+    if (!$authorized) {
+        $check = mysqli_prepare($connection, 'SELECT 1 FROM dh_circular_announcements WHERE circularID = ? AND isActive = 1 LIMIT 1');
+
+        if ($check) {
+            mysqli_stmt_bind_param($check, 's', $entity_id);
             mysqli_stmt_execute($check);
             $res = mysqli_stmt_get_result($check);
             $authorized = $res && mysqli_fetch_assoc($res);

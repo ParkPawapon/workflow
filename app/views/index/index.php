@@ -14,6 +14,67 @@ if ($dh_year_value <= 0) {
 if ($dh_version_value === '') {
     $dh_version_value = '1.0.0';
 }
+
+$index_plain_text = static function ($value): string {
+    $text = (string) ($value ?? '');
+
+    if ($text === '') {
+        return '';
+    }
+
+    $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $text) ?? $text;
+    $text = preg_replace('/<\/\s*(p|div|li|tr|h[1-6])\s*>/i', "\n", $text) ?? $text;
+    $text = strip_tags($text);
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = str_replace("\xc2\xa0", ' ', $text);
+    $text = preg_replace("/[ \t]+/u", ' ', $text) ?? $text;
+    $text = preg_replace("/\n{3,}/u", "\n\n", $text) ?? $text;
+
+    return trim($text);
+};
+
+$index_announcement_payloads = [];
+
+foreach ($announcement_items as $announcement) {
+    $announcement_id = (int) ($announcement['announcementID'] ?? 0);
+    $circular_id = (int) ($announcement['circularID'] ?? 0);
+    $payload_key = $announcement_id > 0 ? (string) $announcement_id : 'circular-' . (string) $circular_id;
+    $files = [];
+
+    foreach ((array) ($announcement['files'] ?? []) as $file) {
+        $file_id = (int) ($file['fileID'] ?? 0);
+
+        if ($file_id <= 0 || $circular_id <= 0) {
+            continue;
+        }
+
+        $files[] = [
+            'fileID' => $file_id,
+            'fileName' => trim((string) ($file['fileName'] ?? '')),
+            'mimeType' => trim((string) ($file['mimeType'] ?? '')),
+            'fileNote' => trim((string) ($file['fileNote'] ?? $file['note'] ?? '')),
+            'url' => 'public/api/file-download.php?module=circulars&entity_id=' . rawurlencode((string) $circular_id) . '&file_id=' . rawurlencode((string) $file_id),
+        ];
+    }
+
+    $subject = trim((string) ($announcement['subject'] ?? ''));
+
+    $index_announcement_payloads[$payload_key] = [
+        'announcementID' => $announcement_id,
+        'circularID' => $circular_id,
+        'subject' => $subject !== '' ? $subject : 'ข่าวประชาสัมพันธ์',
+        'detailText' => $index_plain_text($announcement['detail'] ?? ''),
+        'linkURL' => trim((string) ($announcement['linkURL'] ?? '')),
+        'directorCommentText' => $index_plain_text($announcement['directorComment'] ?? ''),
+        'files' => $files,
+    ];
+}
+
+$index_announcement_payload_json = json_encode($index_announcement_payloads, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+if ($index_announcement_payload_json === false) {
+    $index_announcement_payload_json = '{}';
+}
 ?>
 
 <!DOCTYPE html>
@@ -141,27 +202,21 @@ if ($dh_version_value === '') {
 
                 <div class="details-news-bar">
                     <ul>
-                        <!-- <? //php if (empty($announcement_items)) : 
-                                ?>
+                        <?php if (empty($announcement_items)) : ?>
                             <li>
                                 <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
                             </li>
-                        <? //php else : 
-                        ?>
-                            <? //php foreach ($announcement_items as $announcement) : 
+                        <?php else : ?>
+                            <?php foreach ($announcement_items as $announcement) :
+                                $announcement_id = (int) ($announcement['announcementID'] ?? 0);
+                                $circular_id = (int) ($announcement['circularID'] ?? 0);
+                                $payload_key = $announcement_id > 0 ? (string) $announcement_id : 'circular-' . (string) $circular_id;
                             ?>
                                 <li>
-                                    <p><?= htmlspecialchars((string) ($announcement['subject'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
+                                    <p class="js-open-order-view-modal" role="button" tabindex="0" data-announcement-id="<?= htmlspecialchars($payload_key, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($announcement['subject'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
                                 </li>
-                            <? //php endforeach; 
-                            ?>
-                        <? //php endif; 
-                        ?> -->
-
-                        <li>
-                            <p class="js-open-order-view-modal">ASD</p>
-                        </li>
-
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
@@ -256,90 +311,6 @@ if ($dh_version_value === '') {
         </div>
     </div>
 
-    <!-- <div class="content-circular-notice-index circular-track-modal-host">
-        <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
-            <div class="modal-content">
-                <div class="header-modal">
-                    <div class="first-header">
-                        <p id="modalOutgoingViewTitle">รายละเอียดประชาสัมพันธ์</p>
-                    </div>
-                    <div class="sec-header">
-                        <i class="fa-solid fa-xmark js-modal-close-btn"></i>
-                    </div>
-                </div>
-
-                <div class="content-modal">
-
-                    <div class="content-topic-sec">
-                        <div class="more-details">
-                            <p><strong>เรื่อง</strong></p>
-                            <textarea rows="4" disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias dolore, eligendi minus error numquam provident rerum dolorum voluptate est neque aliquid eos? Sapiente ullam aperiam facilis iure corrupti at est alias, nesciunt nostrum nisi commodi assumenda sit repudiandae quibusdam illo doloribus veniam doloremque laudantium esse asperiores. Veniam animi harum temporibus.</textarea>
-                        </div>
-                    </div>
-
-                    <div class="file-section" id="sectionViewCover">
-                        <p><strong>ไฟล์หนังสือนำ</strong></p>
-                        <div class="file-list" id="containerViewCover" aria-live="polite">
-                            <div class="file-banner">
-                                <div class="file-info">
-                                    <div class="file-icon"><i class="fa-solid fa-file-image" aria-hidden="true"></i></div>
-                                    <div class="file-text">
-                                        <span class="file-name">timeTable1-2.png</span>
-                                        <span class="file-type">image/png</span>
-                                    </div>
-                                </div>
-                                <div class="file-actions">
-                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=181" target="_blank" rel="noopener">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="file-section" id="sectionViewAttachments">
-                        <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
-                        <div class="file-list" id="containerViewAttachments" aria-live="polite">
-                            <div class="file-banner">
-                                <div class="file-info">
-                                    <div class="file-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></div>
-                                    <div class="file-text">
-                                        <span class="file-name">Getting started with OneDrive.pdf</span>
-                                        <span class="file-type">application/pdf</span>
-                                    </div>
-                                </div>
-                                <div class="file-actions">
-                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=182" target="_blank" rel="noopener">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="content-topic-sec">
-                        <div class="more-details">
-                            <p><strong>แนบลิ้งก์</strong></p>
-                            <input type="url" id="" class="order-no-display" value="ASDASDASDASDASDSDASDASDASSDAS"
-                                disabled>
-                        </div>
-                    </div>
-
-                    <div class="content-topic-sec">
-                        <div class="more-details">
-                            <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
-                            <textarea name="detail" id="memo_editor_compose"></textarea>
-                        </div>
-                    </div>
-
-
-                </div>
-
-            </div>
-        </div>
-    </div> -->
-
     <div class="content-circular-notice-index circular-track-modal-host">
         <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
             <div class="modal-content">
@@ -357,62 +328,36 @@ if ($dh_version_value === '') {
                     <div class="content-topic-sec">
                         <div class="more-details row-format">
                             <p><strong>เรื่อง</strong></p>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, officia quos? Fugit, magnam. Blanditiis quaerat recusandae eos expedita earum sint cupiditate minus consequuntur natus iure nobis praesentium odio, at fuga repudiandae porro est quas accusantium non doloribus magnam. Quis repellat aut distinctio blanditiis, vel praesentium rem est in ipsam reiciendis.</p>
+                            <p id="indexAnnouncementViewSubject">-</p>
                         </div>
                     </div>
 
                     <div class="file-section" id="sectionViewCover">
                         <p><strong>ไฟล์หนังสือนำ</strong></p>
-                        <div class="file-list" id="containerViewCover" aria-live="polite">
-                            <div class="file-banner">
-                                <div class="file-info">
-                                    <div class="file-icon"><i class="fa-solid fa-file-image" aria-hidden="true"></i></div>
-                                    <div class="file-text">
-                                        <span class="file-name">timeTable1-2.png</span>
-                                        <span class="file-type">image/png</span>
-                                    </div>
-                                </div>
-                                <div class="file-actions">
-                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=181" target="_blank" rel="noopener">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="file-list" id="indexAnnouncementViewCover" aria-live="polite">
+                            <p>-</p>
                         </div>
                     </div>
 
                     <div class="file-section" id="sectionViewAttachments">
                         <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
-                        <div class="file-list" id="containerViewAttachments" aria-live="polite">
-                            <div class="file-banner">
-                                <div class="file-info">
-                                    <div class="file-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></div>
-                                    <div class="file-text">
-                                        <span class="file-name">Getting started with OneDrive.pdf</span>
-                                        <span class="file-type">application/pdf</span>
-                                    </div>
-                                </div>
-                                <div class="file-actions">
-                                    <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=182" target="_blank" rel="noopener">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="file-list" id="indexAnnouncementViewAttachments" aria-live="polite">
+                            <p>-</p>
                         </div>
                     </div>
 
 
                     <div class="content-topic-sec">
-                        <div class="more-details column-format">
+                        <div class="more-details column-format" id="indexAnnouncementViewLink">
                             <p><strong>แนบลิ้งก์</strong></p>
-                            <a href="https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s" target="_blank">https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s</a>
+                            <span>-</span>
                         </div>
                     </div>
 
                     <div class="content-topic-sec">
                         <div class="more-details column-format">
                             <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam quibusdam optio beatae minima incidunt laborum recusandae eaque. Molestias ab tenetur iste eveniet neque ducimus et a natus blanditiis aliquam mollitia ipsum iusto perferendis quae eaque, aliquid error fuga veniam laudantium placeat? Repudiandae odio mollitia nostrum quidem nihil officiis quas adipisci?</p>
+                            <p id="indexAnnouncementDirectorComment">-</p>
                         </div>
                     </div>
 
@@ -430,6 +375,7 @@ if ($dh_version_value === '') {
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+    <script type="application/json" id="indexAnnouncementPayloads"><?= $index_announcement_payload_json ?></script>
 
     <script>
         if (window.tinymce && typeof window.tinymce.init === 'function') {
@@ -466,14 +412,149 @@ if ($dh_version_value === '') {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const payloadElement = document.getElementById('indexAnnouncementPayloads');
+            const announcementPayloads = (() => {
+                try {
+                    return JSON.parse(payloadElement?.textContent || '{}') || {};
+                } catch (error) {
+                    return {};
+                }
+            })();
+            const modal = document.querySelector('.js-modal-overlay');
+            const subjectElement = document.getElementById('indexAnnouncementViewSubject');
+            const coverList = document.getElementById('indexAnnouncementViewCover');
+            const attachmentList = document.getElementById('indexAnnouncementViewAttachments');
+            const linkContainer = document.getElementById('indexAnnouncementViewLink');
+            const directorCommentElement = document.getElementById('indexAnnouncementDirectorComment');
+
+            const escapeHtml = (value) => String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+            const renderPlainText = (value) => {
+                const text = String(value || '').trim();
+                return text !== '' ? escapeHtml(text).replace(/\n/g, '<br>') : '-';
+            };
+
+            const isCoverFile = (file) => {
+                const note = String(file?.fileNote || file?.note || '').trim().toLowerCase();
+                return ['cover_file', 'cover_attachments', 'cover', 'lead_file', 'หนังสือนำ'].includes(note);
+            };
+
+            const splitFiles = (files) => {
+                const normalized = Array.isArray(files) ? files : [];
+                const coverFiles = normalized.filter((file) => isCoverFile(file));
+                const attachmentFiles = normalized.filter((file) => !isCoverFile(file));
+
+                if (coverFiles.length === 0 && normalized.length > 0) {
+                    return {
+                        coverFiles: [normalized[0]],
+                        attachmentFiles: normalized.slice(1),
+                    };
+                }
+
+                return {
+                    coverFiles,
+                    attachmentFiles,
+                };
+            };
+
+            const fileIconClass = (mimeType) => {
+                const mime = String(mimeType || '').toLowerCase();
+
+                if (mime.includes('pdf')) {
+                    return 'fa-file-pdf';
+                }
+
+                if (mime.startsWith('image/')) {
+                    return 'fa-file-image';
+                }
+
+                return 'fa-file-lines';
+            };
+
+            const renderFiles = (container, files) => {
+                if (!container) {
+                    return;
+                }
+
+                const normalized = Array.isArray(files) ? files : [];
+
+                if (normalized.length === 0) {
+                    container.innerHTML = '<p>-</p>';
+                    return;
+                }
+
+                container.innerHTML = normalized.map((file) => {
+                    const fileName = String(file?.fileName || '').trim() || 'ไฟล์แนบ';
+                    const mimeType = String(file?.mimeType || '').trim() || '-';
+                    const url = String(file?.url || '').trim();
+                    const actionHtml = url !== ''
+                        ? `<div class="file-actions"><a href="${escapeHtml(url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye" aria-hidden="true"></i></a></div>`
+                        : '';
+
+                    return `
+                        <div class="file-banner">
+                            <div class="file-info">
+                                <div class="file-icon"><i class="fa-solid ${fileIconClass(mimeType)}" aria-hidden="true"></i></div>
+                                <div class="file-text">
+                                    <span class="file-name">${escapeHtml(fileName)}</span>
+                                    <span class="file-type">${escapeHtml(mimeType)}</span>
+                                </div>
+                            </div>
+                            ${actionHtml}
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            const renderLink = (url) => {
+                if (!linkContainer) {
+                    return;
+                }
+
+                const link = String(url || '').trim();
+                const label = link !== '' ? escapeHtml(link) : '-';
+                const linkMarkup = link !== ''
+                    ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">${label}</a>`
+                    : '<span>-</span>';
+
+                linkContainer.innerHTML = `<p><strong>แนบลิ้งก์</strong></p>${linkMarkup}`;
+            };
+
+            const openAnnouncementModal = (payloadKey) => {
+                const payload = announcementPayloads[payloadKey] || {};
+                const subject = String(payload.subject || '').trim() || 'ข่าวประชาสัมพันธ์';
+                const {
+                    coverFiles,
+                    attachmentFiles,
+                } = splitFiles(payload.files);
+
+                if (subjectElement) {
+                    subjectElement.innerHTML = renderPlainText(subject);
+                }
+
+                renderFiles(coverList, coverFiles);
+                renderFiles(attachmentList, attachmentFiles);
+                renderLink(payload.linkURL);
+
+                if (directorCommentElement) {
+                    directorCommentElement.innerHTML = renderPlainText(payload.directorCommentText);
+                }
+
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            };
+
             document.addEventListener('click', (event) => {
                 const viewButton = event.target.closest('.js-open-order-view-modal');
                 if (viewButton) {
                     event.preventDefault();
-                    const modal = document.querySelector('.js-modal-overlay');
-                    if (modal) {
-                        modal.style.display = 'flex';
-                    }
+                    openAnnouncementModal(viewButton.getAttribute('data-announcement-id') || '');
                 }
 
                 const closeBtn = event.target.closest('.js-modal-close-btn');

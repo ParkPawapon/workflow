@@ -6922,26 +6922,33 @@ ob_start();
                     <div class="radio-group-urgent">
                         <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="normal" checked
                             id="modalOutgoingViewUrgentNormal"><label for="modalOutgoingViewUrgentNormal">ปกติ</label>
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="urgent" disabled
+                            id="modalOutgoingViewUrgentUrgent"><label for="modalOutgoingViewUrgentUrgent">ด่วน</label>
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="high" disabled
+                            id="modalOutgoingViewUrgentHigh"><label for="modalOutgoingViewUrgentHigh">ด่วนมาก</label>
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="highest" disabled
+                            id="modalOutgoingViewUrgentHighest"><label
+                            for="modalOutgoingViewUrgentHighest">ด่วนที่สุด</label>
                     </div>
                 </div>
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>เลขทะเบียน</strong></p>
-                        <p>ศธ 04320.05/001</p>
+                        <p id="modalOutgoingViewNo">-</p>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>เรื่อง</strong></p>
-                        <p>การแต่งตั้งรักษาการผู้อำนวยการ11/222่ี</p>
+                        <p id="modalOutgoingViewSubject">-</p>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>ลงวันที่</strong></p>
-                        <p>05/01/2026</p>
+                        <p id="modalOutgoingViewEffectiveDate">-</p>
                     </div>
 
                 </div>
@@ -6949,14 +6956,14 @@ ob_start();
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>ส่งถึง</strong></p>
-                        <p>posermpo'jsdhtbgr p;'OLJmhfOL>P:?dcftgb mk,cfv MKP:fvc >?df</p>
+                        <p id="modalOutgoingViewIssuer">-</p>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>ผู้ออกเลข</strong></p>
-                        <p>นางสาวทิพยรัตน์ บุญมณี</p>
+                        <p id="modalOutgoingViewIssuerName">-</p>
                     </div>
 
                 </div>
@@ -6964,7 +6971,7 @@ ob_start();
                 <div class="content-topic-sec">
                     <div class="more-details row-format" hidden style="display: none;" aria-hidden="true">
                         <p><strong>เจ้าของเรื่อง</strong></p>
-                        <p>นางสาวทิพยรัตน์ บุญมณี</p>
+                        <p id="modalOutgoingViewOwnerNames">-</p>
                     </div>
                 </div>
 
@@ -7083,6 +7090,61 @@ ob_start();
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+
+        const outgoingThaiMonths = [
+            '',
+            'มกราคม',
+            'กุมภาพันธ์',
+            'มีนาคม',
+            'เมษายน',
+            'พฤษภาคม',
+            'มิถุนายน',
+            'กรกฎาคม',
+            'สิงหาคม',
+            'กันยายน',
+            'ตุลาคม',
+            'พฤศจิกายน',
+            'ธันวาคม',
+        ];
+
+        const setOutgoingDisplayValue = (element, value) => {
+            if (!element) {
+                return;
+            }
+
+            const displayValue = String(value ?? '').trim() || '-';
+
+            if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+                element.value = displayValue === '-' ? '' : displayValue;
+                return;
+            }
+
+            element.textContent = displayValue;
+        };
+
+        const formatOutgoingThaiDate = (value) => {
+            const rawValue = String(value || '').trim();
+
+            if (rawValue === '') {
+                return '-';
+            }
+
+            const isoMatch = rawValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+            if (!isoMatch) {
+                return rawValue;
+            }
+
+            const year = Number(isoMatch[1]);
+            const month = Number(isoMatch[2]);
+            const day = Number(isoMatch[3]);
+
+            if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day) || month < 1 || month > 12) {
+                return rawValue;
+            }
+
+            return `${day} ${outgoingThaiMonths[month]} ${year + 543}`;
+        };
 
         const normalizeOutgoingPriorityKey = (value) => {
             const normalized = String(value || '').trim().toLowerCase();
@@ -7385,24 +7447,12 @@ ob_start();
             if (modalOutgoingViewTitle) {
                 modalOutgoingViewTitle.textContent = 'ดูรายละเอียดออกเลขทะเบียนส่ง';
             }
-            if (modalOutgoingViewNo) {
-                modalOutgoingViewNo.value = '-';
-            }
-            if (modalOutgoingViewSubject) {
-                modalOutgoingViewSubject.value = '-';
-            }
-            if (modalOutgoingViewEffectiveDate) {
-                modalOutgoingViewEffectiveDate.value = '';
-            }
-            if (modalOutgoingViewIssuer) {
-                modalOutgoingViewIssuer.value = '-';
-            }
-            if (modalOutgoingViewIssuerName) {
-                modalOutgoingViewIssuerName.value = '-';
-            }
-            if (modalOutgoingViewOwnerNames) {
-                modalOutgoingViewOwnerNames.value = '-';
-            }
+            setOutgoingDisplayValue(modalOutgoingViewNo, '-');
+            setOutgoingDisplayValue(modalOutgoingViewSubject, '-');
+            setOutgoingDisplayValue(modalOutgoingViewEffectiveDate, '-');
+            setOutgoingDisplayValue(modalOutgoingViewIssuer, '-');
+            setOutgoingDisplayValue(modalOutgoingViewIssuerName, '-');
+            setOutgoingDisplayValue(modalOutgoingViewOwnerNames, '-');
 
             setOutgoingPriorityRadio(modalOutgoingViewUrgentRadios, 'normal');
 
@@ -7423,26 +7473,17 @@ ob_start();
             resetOutgoingViewModal();
 
             if (payload && typeof payload === 'object') {
-                if (modalOutgoingViewNo) {
-                    modalOutgoingViewNo.value = String(payload.outgoingNo || '').trim() || '-';
-                }
-                if (modalOutgoingViewSubject) {
-                    modalOutgoingViewSubject.value = String(payload.subject || '').trim() || '-';
-                }
-                if (modalOutgoingViewEffectiveDate) {
-                    const effectiveDate = String(payload.effectiveDate || '').trim();
-                    modalOutgoingViewEffectiveDate.value = /^\d{4}-\d{2}-\d{2}$/.test(effectiveDate) ? effectiveDate : '';
-                }
-                if (modalOutgoingViewIssuer) {
-                    modalOutgoingViewIssuer.value = String(payload.destinationName || '').trim() || '-';
-                }
-                if (modalOutgoingViewIssuerName) {
-                    modalOutgoingViewIssuerName.value = String(payload.issuerName || '').trim() || '-';
-                }
-                if (modalOutgoingViewOwnerNames) {
-                    const ownerNames = Array.isArray(payload.ownerNames) ? payload.ownerNames : [];
-                    modalOutgoingViewOwnerNames.value = ownerNames.map((name) => String(name || '').trim()).filter(Boolean).join(', ') || '-';
-                }
+                setOutgoingDisplayValue(modalOutgoingViewNo, payload.outgoingNo);
+                setOutgoingDisplayValue(modalOutgoingViewSubject, payload.subject);
+                setOutgoingDisplayValue(modalOutgoingViewEffectiveDate, formatOutgoingThaiDate(payload.effectiveDate));
+                setOutgoingDisplayValue(modalOutgoingViewIssuer, payload.destinationName);
+                setOutgoingDisplayValue(modalOutgoingViewIssuerName, payload.issuerName);
+
+                const ownerNames = Array.isArray(payload.ownerNames) ? payload.ownerNames : [];
+                setOutgoingDisplayValue(
+                    modalOutgoingViewOwnerNames,
+                    ownerNames.map((name) => String(name || '').trim()).filter(Boolean).join(', ')
+                );
 
                 renderOutgoingViewFiles(outgoingId, payload.coverFiles, payload.attachmentFiles);
                 renderOutgoingViewOwners(payload.ownerNames, payload.statusLabel, payload.statusPill);

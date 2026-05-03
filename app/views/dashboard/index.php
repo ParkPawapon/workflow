@@ -97,6 +97,67 @@ if ($dashboard_calendar_events_json === false) {
     $dashboard_calendar_events_json = '{}';
 }
 
+$dashboard_plain_text = static function ($value): string {
+    $text = (string) ($value ?? '');
+
+    if ($text === '') {
+        return '';
+    }
+
+    $text = preg_replace('/<\s*br\s*\/?>/i', "\n", $text) ?? $text;
+    $text = preg_replace('/<\/\s*(p|div|li|tr|h[1-6])\s*>/i', "\n", $text) ?? $text;
+    $text = strip_tags($text);
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = str_replace("\xc2\xa0", ' ', $text);
+    $text = preg_replace("/[ \t]+/u", ' ', $text) ?? $text;
+    $text = preg_replace("/\n{3,}/u", "\n\n", $text) ?? $text;
+
+    return trim($text);
+};
+
+$dashboard_announcement_payloads = [];
+
+foreach ($dashboard_announcements as $announcement) {
+    $announcement_id = (int) ($announcement['announcementID'] ?? 0);
+    $circular_id = (int) ($announcement['circularID'] ?? 0);
+    $payload_key = $announcement_id > 0 ? (string) $announcement_id : 'circular-' . (string) $circular_id;
+    $files = [];
+
+    foreach ((array) ($announcement['files'] ?? []) as $file) {
+        $file_id = (int) ($file['fileID'] ?? 0);
+
+        if ($file_id <= 0 || $circular_id <= 0) {
+            continue;
+        }
+
+        $files[] = [
+            'fileID' => $file_id,
+            'fileName' => trim((string) ($file['fileName'] ?? '')),
+            'mimeType' => trim((string) ($file['mimeType'] ?? '')),
+            'fileNote' => trim((string) ($file['fileNote'] ?? $file['note'] ?? '')),
+            'url' => 'public/api/file-download.php?module=circulars&entity_id=' . rawurlencode((string) $circular_id) . '&file_id=' . rawurlencode((string) $file_id),
+        ];
+    }
+
+    $subject = trim((string) ($announcement['subject'] ?? ''));
+
+    $dashboard_announcement_payloads[$payload_key] = [
+        'announcementID' => $announcement_id,
+        'circularID' => $circular_id,
+        'subject' => $subject !== '' ? $subject : 'ข่าวประชาสัมพันธ์',
+        'detailText' => $dashboard_plain_text($announcement['detail'] ?? ''),
+        'linkURL' => trim((string) ($announcement['linkURL'] ?? '')),
+        'directorCommentText' => $dashboard_plain_text($announcement['directorComment'] ?? ''),
+        'files' => $files,
+    ];
+}
+
+$dashboard_announcement_payload_json = json_encode($dashboard_announcement_payloads, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+if ($dashboard_announcement_payload_json === false) {
+    $dashboard_announcement_payload_json = '{}';
+}
+
 $dashboard_vehicle_schedule = [];
 
 foreach ($dashboard_calendar_events as $event_date => $events) {
@@ -381,18 +442,21 @@ ob_start();
                         <ul>
                             <?php if ($dashboard_announcements === []) : ?>
                                 <li>
-                                    <p class="js-open-order-view-modal">ยังไม่มีข่าวประชาสัมพันธ์</p>
+                                    <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
                                 </li>
                             <?php else : ?>
                                 <?php foreach ($dashboard_announcements as $announcement) : ?>
                                     <?php
+                                    $announcement_id = (int) ($announcement['announcementID'] ?? 0);
+                                    $circular_id = (int) ($announcement['circularID'] ?? 0);
+                                    $payload_key = $announcement_id > 0 ? (string) $announcement_id : 'circular-' . (string) $circular_id;
                                     $announcement_title = trim((string) ($announcement['subject'] ?? ''));
                                     if ($announcement_title === '') {
                                         $announcement_title = 'ข่าวประชาสัมพันธ์';
                                     }
                                     ?>
                                     <li>
-                                        <p><?= h($announcement_title) ?></p>
+                                        <p class="js-open-order-view-modal" role="button" tabindex="0" data-announcement-id="<?= h($payload_key) ?>"><?= h($announcement_title) ?></p>
                                     </li>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -560,62 +624,36 @@ ob_start();
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>เรื่อง</strong></p>
-                        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Omnis pariatur quidem expedita autem, magnam numquam assumenda non a odit voluptate officia maxime maiores dolorum id ut sequi repellendus laboriosam distinctio amet tempora? Consequatur itaque, labore quasi ab dolores aliquam commodi odio quod nulla iste, laboriosam minus. Sint autem possimus ullam.</p>
+                        <p id="dashboardAnnouncementViewSubject">-</p>
                     </div>
                 </div>
 
                 <div class="file-section" id="sectionViewCover">
                     <p><strong>ไฟล์หนังสือนำ</strong></p>
-                    <div class="file-list" id="containerViewCover" aria-live="polite">
-                        <div class="file-banner">
-                            <div class="file-info">
-                                <div class="file-icon"><i class="fa-solid fa-file-image" aria-hidden="true"></i></div>
-                                <div class="file-text">
-                                    <span class="file-name">timeTable1-2.png</span>
-                                    <span class="file-type">image/png</span>
-                                </div>
-                            </div>
-                            <div class="file-actions">
-                                <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=181" target="_blank" rel="noopener">
-                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="file-list" id="dashboardAnnouncementViewCover" aria-live="polite">
+                        <p>-</p>
                     </div>
                 </div>
 
                 <div class="file-section" id="sectionViewAttachments">
                     <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
-                    <div class="file-list" id="containerViewAttachments" aria-live="polite">
-                        <div class="file-banner">
-                            <div class="file-info">
-                                <div class="file-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></div>
-                                <div class="file-text">
-                                    <span class="file-name">Getting started with OneDrive.pdf</span>
-                                    <span class="file-type">application/pdf</span>
-                                </div>
-                            </div>
-                            <div class="file-actions">
-                                <a href="public/api/file-download.php?module=outgoing&amp;entity_id=2&amp;file_id=182" target="_blank" rel="noopener">
-                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="file-list" id="dashboardAnnouncementViewAttachments" aria-live="polite">
+                        <p>-</p>
                     </div>
                 </div>
 
 
                 <div class="content-topic-sec">
-                    <div class="more-details column-format">
+                    <div class="more-details column-format" id="dashboardAnnouncementViewLink">
                         <p><strong>แนบลิ้งก์</strong></p>
-                        <a href="https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s" target="_blank">https://www.youtube.com/watch?v=D9xB_SNQSzA&t=3391s</a>
+                        <span>-</span>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
                     <div class="more-details column-format">
                         <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo architecto necessitatibus voluptate dignissimos atque perferendis aperiam voluptas placeat culpa et, corrupti optio deserunt consectetur iure numquam porro in dolores nostrum nobis quibusdam. Sint ipsum eum eos repudiandae dignissimos provident nostrum rem, sunt fuga eius vitae exercitationem culpa, ea totam autem.</p>
+                        <p id="dashboardAnnouncementDirectorComment">-</p>
                     </div>
                 </div>
 
@@ -667,16 +705,153 @@ ob_start();
     }
 </script>
 
+<script type="application/json" id="dashboardAnnouncementPayloads"><?= $dashboard_announcement_payload_json ?></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const payloadElement = document.getElementById('dashboardAnnouncementPayloads');
+        const announcementPayloads = (() => {
+            try {
+                return JSON.parse(payloadElement?.textContent || '{}') || {};
+            } catch (error) {
+                return {};
+            }
+        })();
+        const modal = document.querySelector('.js-modal-overlay');
+        const subjectElement = document.getElementById('dashboardAnnouncementViewSubject');
+        const coverList = document.getElementById('dashboardAnnouncementViewCover');
+        const attachmentList = document.getElementById('dashboardAnnouncementViewAttachments');
+        const linkContainer = document.getElementById('dashboardAnnouncementViewLink');
+        const directorCommentElement = document.getElementById('dashboardAnnouncementDirectorComment');
+
+        const escapeHtml = (value) => String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        const renderPlainText = (value) => {
+            const text = String(value || '').trim();
+            return text !== '' ? escapeHtml(text).replace(/\n/g, '<br>') : '-';
+        };
+
+        const isCoverFile = (file) => {
+            const note = String(file?.fileNote || file?.note || '').trim().toLowerCase();
+            return ['cover_file', 'cover_attachments', 'cover', 'lead_file', 'หนังสือนำ'].includes(note);
+        };
+
+        const splitFiles = (files) => {
+            const normalized = Array.isArray(files) ? files : [];
+            const coverFiles = normalized.filter((file) => isCoverFile(file));
+            const attachmentFiles = normalized.filter((file) => !isCoverFile(file));
+
+            if (coverFiles.length === 0 && normalized.length > 0) {
+                return {
+                    coverFiles: [normalized[0]],
+                    attachmentFiles: normalized.slice(1),
+                };
+            }
+
+            return {
+                coverFiles,
+                attachmentFiles,
+            };
+        };
+
+        const fileIconClass = (mimeType) => {
+            const mime = String(mimeType || '').toLowerCase();
+
+            if (mime.includes('pdf')) {
+                return 'fa-file-pdf';
+            }
+
+            if (mime.startsWith('image/')) {
+                return 'fa-file-image';
+            }
+
+            return 'fa-file-lines';
+        };
+
+        const renderFiles = (container, files) => {
+            if (!container) {
+                return;
+            }
+
+            const normalized = Array.isArray(files) ? files : [];
+
+            if (normalized.length === 0) {
+                container.innerHTML = '<p>-</p>';
+                return;
+            }
+
+            container.innerHTML = normalized.map((file) => {
+                const fileName = String(file?.fileName || '').trim() || 'ไฟล์แนบ';
+                const mimeType = String(file?.mimeType || '').trim() || '-';
+                const url = String(file?.url || '').trim();
+                const actionHtml = url !== ''
+                    ? `<div class="file-actions"><a href="${escapeHtml(url)}" target="_blank" rel="noopener"><i class="fa-solid fa-eye" aria-hidden="true"></i></a></div>`
+                    : '';
+
+                return `
+                    <div class="file-banner">
+                        <div class="file-info">
+                            <div class="file-icon"><i class="fa-solid ${fileIconClass(mimeType)}" aria-hidden="true"></i></div>
+                            <div class="file-text">
+                                <span class="file-name">${escapeHtml(fileName)}</span>
+                                <span class="file-type">${escapeHtml(mimeType)}</span>
+                            </div>
+                        </div>
+                        ${actionHtml}
+                    </div>
+                `;
+            }).join('');
+        };
+
+        const renderLink = (url) => {
+            if (!linkContainer) {
+                return;
+            }
+
+            const link = String(url || '').trim();
+            const label = link !== '' ? escapeHtml(link) : '-';
+            const linkMarkup = link !== ''
+                ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">${label}</a>`
+                : '<span>-</span>';
+
+            linkContainer.innerHTML = `<p><strong>แนบลิ้งก์</strong></p>${linkMarkup}`;
+        };
+
+        const openAnnouncementModal = (payloadKey) => {
+            const payload = announcementPayloads[payloadKey] || {};
+            const subject = String(payload.subject || '').trim() || 'ข่าวประชาสัมพันธ์';
+            const {
+                coverFiles,
+                attachmentFiles,
+            } = splitFiles(payload.files);
+
+            if (subjectElement) {
+                subjectElement.innerHTML = renderPlainText(subject);
+            }
+
+            renderFiles(coverList, coverFiles);
+            renderFiles(attachmentList, attachmentFiles);
+            renderLink(payload.linkURL);
+
+            if (directorCommentElement) {
+                directorCommentElement.innerHTML = renderPlainText(payload.directorCommentText);
+            }
+
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        };
+
         document.addEventListener('click', (event) => {
             const viewButton = event.target.closest('.js-open-order-view-modal');
             if (viewButton) {
                 event.preventDefault();
-                const modal = document.querySelector('.js-modal-overlay');
-                if (modal) {
-                    modal.style.display = 'flex';
-                }
+                openAnnouncementModal(viewButton.getAttribute('data-announcement-id') || '');
             }
 
             const closeBtn = event.target.closest('.js-modal-close-btn');
