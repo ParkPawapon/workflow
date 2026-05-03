@@ -10844,10 +10844,10 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-banner {
-  flex: 1;
+  /* flex: 1; */
   max-width: 420px;
   min-width: 420px;
-  height: 80px;
+  /* height: 80px;
   background-color: var(--color-danger);
   border-radius: 8px;
   padding: 8px;
@@ -10856,7 +10856,7 @@ label {
   justify-content: space-between;
   gap: 4px;
   color: var(--color-neutral-lightest);
-  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-info {
@@ -10868,7 +10868,7 @@ label {
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-icon {
   font-size: var(--font-size-h2);
-  color: var(--color-danger);
+  /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 60px;
   height: 60px;
@@ -10913,7 +10913,7 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-actions a {
-  color: var(--color-danger);
+  color: var(--color-secondary);
 }
 
 /* ----- END CIRCULAR-NOTICE-INBOX-B ----- */
@@ -16895,7 +16895,7 @@ label {
 
   .custom-table th,
   .custom-table td {
-    padding: 0px 5px;
+    padding: 0px 10px;
     text-align: left;
   }
 
@@ -20697,7 +20697,7 @@ label {
   .container-circular-notice-sending .form-group label {
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
-    margin: 0 0 6px;
+    margin: 0;
   }
 
   .container-circular-notice-sending .form-group label b {
@@ -20912,12 +20912,12 @@ label {
   .container-circular-notice-sending .form-group.receive .search-input-wrapper i {
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
-    transform: translateX(-40px);
+    transform: translateX(-10px);
     transition: 0.2s;
   }
 
   .container-circular-notice-sending .form-group.receive .search-input-wrapper.active i {
-    transform: translateX(-40px) rotate(180deg);
+    transform: translateX(-10px) rotate(180deg);
   }
 
   .container-circular-notice-sending .dropdown-content {
@@ -22284,7 +22284,7 @@ label {
   .content-circular-notice-index .circular-track-modal-host .modal-overlay-circular-notice-index.outside-person .content-read-sec td {
     text-align: left;
     vertical-align: middle;
-    font-size: var(--font-size-body-2)
+    font-size: var(--font-size-desc-1)
   }
 
   .content-circular-notice-index .circular-track-modal-host .modal-overlay-circular-notice-index.outside-person .content-read-sec td:nth-child(2),
@@ -22873,10 +22873,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
-    max-width: 200px;
-    min-width: 200px;
-    height: 40px;
+    /* flex: 1; */
+    max-width: 250px;
+    min-width: 250px;
+    /* height: 40px;
     background-color: var(--color-danger);
     border-radius: 3px;
     padding: 5px;
@@ -22885,7 +22885,7 @@ label {
     justify-content: space-between;
     gap: 4px;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-info {
@@ -22897,7 +22897,7 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 30px;
     height: 30px;
@@ -22943,7 +22943,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-INBOX-B ----- */
@@ -26508,7 +26508,7 @@ label {
   }
 
   .custom-table td {
-    padding: 5px 0;
+    padding: 0 5px;
   }
 
   .custom-table th {
@@ -31038,7 +31038,7 @@ label {
 
   .container-circular-notice-sending .form-group.receive .dropdown-container {
     position: relative;
-    width: 50%;
+    width: 60%;
     margin: 0;
   }
 
@@ -31060,7 +31060,7 @@ label {
     border-radius: 8px;
     background-color: var(--color-neutral-lightest);
     border: 0.5px solid var(--color-secondary);
-    padding: 0 30px 0 10px;
+    padding: 0 10px 0 10px;
     margin: 0;
     font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
@@ -31454,9 +31454,11 @@ label {
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    margin: 5px 0;
+    margin: 10px 0;
   }
-
+.upload-layout {
+  gap: 0px;
+}
   .file-item-wrapper {
     display: flex;
     align-items: center;
@@ -33097,10 +33099,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
-    max-width: 200px;
-    min-width: 200px;
-    height: 40px;
+    /* flex: 1; */
+    max-width: 220px;
+    min-width: 220px;
+    /* height: 40px;
     background-color: var(--color-danger);
     border-radius: 3px;
     padding: 5px;
@@ -33109,7 +33111,7 @@ label {
     justify-content: space-between;
     gap: 4px;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-info {
@@ -33121,7 +33123,7 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 30px;
     height: 30px;
@@ -33167,7 +33169,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-INBOX-B ----- */
