@@ -9034,6 +9034,11 @@ label {
   padding: 0 40px 0 0;
 }
 
+.row-format-inline {
+  display: flex;
+  flex-direction: row;
+}
+
 .column-format {
   display: flex;
   flex-direction: column;

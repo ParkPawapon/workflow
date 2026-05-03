@@ -712,6 +712,12 @@ ob_start();
                                 <span class="detail-subtext"><?= h($updated_time_line) ?></span>
                             </td>
                             <td>
+                                <button
+                                    type="button"
+                                    class="booking-action-btn secondary js-open-view-modal">
+                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                    <span class="tooltip">ดูรายละเอียด (2)</span>
+                                </button>
                                 <?php if ($can_edit_and_submit) : ?>
                                     <button
                                         type="button"
@@ -885,6 +891,135 @@ ob_start();
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="modal-overlay-memo details" id="modalViewOverlay" style="display: none;">
+    <div class="modal-content">
+        <div class="header-modal">
+            <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ 2</p>
+            <i class="fa-solid fa-xmark" id="closeModalView" aria-hidden="true"></i>
+        </div>
+        
+        <div class="content-modal">
+            <div class="content-memo">
+                <div class="memo-header">
+                    <img src="assets/img/garuda-logo.png" alt="">
+                    <p>บันทึกข้อความ</p>
+                    <div></div>
+                </div>
+
+                <form method="POST" id="memoViewForm">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="flow_mode" value="CHAIN">
+                    <input type="hidden" name="to_choice" value="DIRECTOR">
+
+                    <div class="memo-detail">
+                        <div class="form-group-row row-format-inline" style="display: flex !important;" id="memoViewSenderRow">
+                            <p><strong>ส่วนราชการ</strong></p>
+                            <p>Lorem ipsum dolor sit amet.</p>
+                            <p><strong>โรงเรียนดีบุกพังงาวิทยายน</strong></p>
+                        </div>
+
+                        <div class="form-group-row memo-subject-row row-format" id="memoViewSubjectRow">
+                            <p><strong>เรื่อง</strong></p>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, nisi!</p>
+                        </div>
+
+                        <div class="form-group-row memo-to-row row-format" id="memoViewToRow">
+                            <p><strong>เรียน</strong></p>
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nemo, dolor!</p>
+                        </div>
+
+                        <div class="content-editor column-format" id="memoViewDetailWrap">
+                            <p><strong>รายละเอียด:</strong></p>
+                            <br>
+                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Possimus provident sed impedit voluptate vitae eligendi ducimus earum vero in tempora facere, adipisci tenetur, deserunt vel eum alias consequatur voluptates expedita nulla enim! Consequuntur est cupiditate quos, doloribus, in modi amet sed debitis harum nesciunt ipsa soluta explicabo saepe voluptates ab.</p>
+                        </div>
+
+
+                        <div class="memo-file-row file-sec" id="memoViewFileRow">
+                            <div class="memo-input-content">
+                                <label>ไฟล์เอกสาร <strong>(เอกสารได้สูงสุด 5 ไฟล์)</strong></label>
+                                <!-- <div>
+                                    <button type="button" class="btn btn-upload-small" onclick="document.getElementById('attachment').click()">
+                                        <p>เพิ่มไฟล์</p>
+                                    </button>
+                                </div> -->
+                                <!-- <input type="file" id="attachment" name="attachments[]" class="file-input" multiple="" accept=".pdf,image/png,image/jpeg" hidden=""> -->
+                                <!-- <p class="form-error hidden" id="attachmentError">แนบได้สูงสุด 5 ไฟล์</p> -->
+                            </div>
+
+                            <div class="file-list" id="attachmentListView" aria-live="polite">
+                                <p class="attachment-empty">ยังไม่มีไฟล์แนบ</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group-row signature">
+                            <?php if ($signature_src !== '') : ?>
+                                <img src="<?= h($signature_src) ?>" alt="">
+                            <?php endif; ?>
+                            <p id="memoViewSignerName">(<?= h($current_name !== '' ? $current_name : '-') ?>)</p>
+                            <p id="memoViewSignerPosition"><?= h($current_position !== '' ? $current_position : '-') ?></p>
+                        </div>
+
+
+                        <div class="form-group-row secondary u-hidden" data-memo-optional="1" id="memoViewHeadNoteRow">
+                            <p><strong>ความคิดเห็นและข้อเสนอแนะของหัวหน้ากลุ่มสาระการเรียนรู้</strong></p>
+                            <div class="content-editor" style="width:100%">
+                                <textarea id="memoViewHeadNote" disabled rows="7"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group-row signature secondary u-hidden" data-memo-optional="1" id="memoViewHeadSignatureRow">
+                            <img id="memoViewHeadSignatureImage" src="" alt="" style="display:none;">
+                            <p id="memoViewHeadSignatureName">(-)</p>
+                            <p id="memoViewHeadSignaturePosition">-</p>
+                        </div>
+
+                        <div class="form-group-row comment u-hidden" data-memo-optional="1" id="memoViewDeputyActionRow">
+                            <p><strong>เสนอ :</strong></p>
+                            <input type="text" id="memoViewDeputyAction" disabled>
+                        </div>
+
+                        <div class="form-group-row primary u-hidden" data-memo-optional="1" id="memoViewDeputyNoteRow">
+                            <p><strong>ความคิดเห็นและข้อเสนอแนะของรองผู้อำนวยการ</strong></p>
+                            <div class="content-editor" style="width:100%">
+                                <textarea id="memoViewDeputyNote" disabled rows="7"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group-row signature primary u-hidden" data-memo-optional="1" id="memoViewDeputySignatureRow">
+                            <img id="memoViewDeputySignatureImage" src="" alt="" style="display:none;">
+                            <p id="memoViewDeputySignatureName">(-)</p>
+                            <p id="memoViewDeputySignaturePosition">-</p>
+                        </div>
+
+
+                        <div class="form-group-row comment secondary u-hidden" data-memo-optional="1" id="memoViewDirectorActionRow">
+                            <p><strong>ผู้บริหารดำเนินการต่อ</strong></p>
+                            <input type="text" id="memoViewDirectorAction" disabled>
+                        </div>
+
+                        <div class="form-group-row secondary u-hidden" data-memo-optional="1" id="memoViewDirectorNoteRow">
+                            <p><strong>ความคิดเห็นและข้อเสนอแนะของผู้อำนวยการโรงเรียน</strong></p>
+                            <div class="content-editor" style="width:100%">
+                                <textarea id="memoViewDirectorNote" disabled rows="7"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group-row signature secondary u-hidden" data-memo-optional="1" id="memoViewDirectorSignatureRow">
+                            <img id="memoViewDirectorSignatureImage" src="" alt="" style="display:none;">
+                            <p id="memoViewDirectorSignatureName">(-)</p>
+                            <p id="memoViewDirectorSignaturePosition">-</p>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
 </div>
 
 <div class="modal-overlay-memo details" id="modalViewOverlay" style="display: none;">
@@ -2588,9 +2723,9 @@ ob_start();
             return;
         }
 
-        const html = content !== '' && content !== '-'
-            ? content.replace(/\n/g, '<br>')
-            : content;
+        const html = content !== '' && content !== '-' ?
+            content.replace(/\n/g, '<br>') :
+            content;
         editor.setContent(html);
         editor.mode.set('readonly');
     };
@@ -2602,9 +2737,9 @@ ob_start();
 
     const formatMemoViewPosition = (value) => {
         const cleanValue = String(value || '').trim();
-        const normalizedValue = typeof cleanValue.normalize === 'function'
-            ? cleanValue.normalize('NFC')
-            : cleanValue.replace('อํานวย', 'อำนวย');
+        const normalizedValue = typeof cleanValue.normalize === 'function' ?
+            cleanValue.normalize('NFC') :
+            cleanValue.replace('อํานวย', 'อำนวย');
 
         if (normalizedValue === 'ผู้อำนวยการโรงเรียน') {
             return 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
@@ -2951,9 +3086,9 @@ ob_start();
                 suggestToChoiceInput.value = 'DIRECTOR';
             }
             if (suggestForm) {
-                const normalizedAttachmentCount = memoFiles.length > 0
-                    ? memoFiles.length
-                    : (Number.isFinite(memoAttachmentCount) && memoAttachmentCount > 0 ? memoAttachmentCount : 0);
+                const normalizedAttachmentCount = memoFiles.length > 0 ?
+                    memoFiles.length :
+                    (Number.isFinite(memoAttachmentCount) && memoAttachmentCount > 0 ? memoAttachmentCount : 0);
                 suggestForm.dataset.existingAttachmentCount = String(normalizedAttachmentCount);
                 suggestForm.dataset.ownerEditBeforeHeadForward = isOwnerEditBeforeHeadForward ? '1' : '0';
                 suggestForm.dataset.returnedResubmit = isReturnedResubmit ? '1' : '0';
@@ -2978,9 +3113,9 @@ ob_start();
             resetSuggestRecipientDropdownUi();
 
             const suggestSearchInput = suggModal ? suggModal.querySelector('#mainInput') : null;
-            const selectedReturnedName = returnedReviewerName !== ''
-                ? returnedReviewerName
-                : String(returnedReviewerRadio?.getAttribute('data-member-name') || '').trim();
+            const selectedReturnedName = returnedReviewerName !== '' ?
+                returnedReviewerName :
+                String(returnedReviewerRadio?.getAttribute('data-member-name') || '').trim();
 
             if (isReturnedResubmit && selectedReturnedName !== '' && suggestSearchInput) {
                 suggestSearchInput.value = selectedReturnedName;
