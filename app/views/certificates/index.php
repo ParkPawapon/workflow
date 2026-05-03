@@ -82,7 +82,7 @@ ob_start();
     }
 
     .file-banner {
-        max-width: 800px;
+        max-width: 600px;
     }
 
     .delete-btn {
@@ -104,6 +104,7 @@ ob_start();
 
     .upload-layout {
         flex-direction: column !important;
+        gap: 0px;
     }
 
     .certificate-empty-row {
@@ -125,6 +126,42 @@ ob_start();
 
     .certificate-hidden-inputs {
         display: none;
+    }
+
+    .circular-track-modal-host {
+        width: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    @media screen and (max-width: 1024px) {
+        .form-group.row {
+            margin: 0 0 20px;
+        }
+        .file-banner {
+            max-width: 400px;
+        }
+        .delete-btn {
+            font-size: var(--font-size-desc-1) !important;
+            width: 40px !important;
+        }
+    }
+    
+    @media screen and (max-width: 768px){
+        .form-group.row {
+            margin: 0 0 10px;
+        }
+        .file-banner {
+            max-width: 300px;
+        }
+        .delete-btn {
+            font-size: var(--font-size-desc-3) !important;
+            width: 20px !important;
+        }
+
     }
 </style>
 
@@ -913,9 +950,9 @@ ob_start();
                 editFileList.appendChild(wrapper);
             });
 
-            const selectedFile = editFileInput && editFileInput.files && editFileInput.files.length > 0
-                ? editFileInput.files[0]
-                : null;
+            const selectedFile = editFileInput && editFileInput.files && editFileInput.files.length > 0 ?
+                editFileInput.files[0] :
+                null;
 
             if (selectedFile && !editIsReadonly) {
                 const wrapper = document.createElement('div');
