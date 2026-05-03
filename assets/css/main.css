@@ -20570,8 +20570,9 @@ label {
   }
 
   .vehicle-row .btn.btn-upload-small {
-    width: 90px;
+    width: 100px;
     height: 30px;
+    padding: 0 10px;
     border-radius: 8px;
     border: none;
     background-color: var(--color-secondary);
@@ -30218,8 +30219,9 @@ label {
   }
 
   .vehicle-row .btn.btn-upload-small {
-    width: 70px;
+    width: 100px;
     height: 25px;
+    padding: 0 10px;
     border-radius: 8px;
     border: none;
     background-color: var(--color-secondary);
