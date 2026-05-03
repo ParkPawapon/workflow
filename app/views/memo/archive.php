@@ -21,7 +21,6 @@ $archived = (bool) ($archived ?? true);
 $memo_page_my = 'memo.php';
 $memo_page_inbox = 'memo-inbox.php';
 $memo_page_archive = 'memo-archive.php';
-$memo_page_view = 'memo-view.php';
 
 $status_options = [];
 
@@ -93,8 +92,7 @@ foreach ($items as $item) {
     $status_meta = memo_status_meta($status);
     $approver = trim((string) ($item['approverName'] ?? ''));
     $approver = $approver !== '' ? $approver : '-';
-    $view_href = $memo_page_view;
-    $view_href .= (strpos($view_href, '?') === false ? '?' : '&') . 'memo_id=' . $memo_id;
+    $view_href = '#';
 
     $rows[] = [
         $memo_no !== '' ? $memo_no : ('#' . $memo_id),
@@ -349,7 +347,26 @@ ob_start();
                                     $submitted_at = trim((string) ($item['submittedAt'] ?? ''));
                                     $created_at = trim((string) ($item['createdAt'] ?? ''));
                                     [$date_line, $time_line] = $format_thai_datetime($submitted_at !== '' ? $submitted_at : $created_at);
-                                    $view_href = $memo_page_view . '?memo_id=' . $memo_id;
+                                    $detail = trim((string) ($item['detail'] ?? ''));
+                                    $detail_for_attr = $detail !== '' ? $detail : '-';
+                                    $detail_b64 = base64_encode($detail_for_attr);
+                                    $memo_no = trim((string) ($item['memoNo'] ?? ''));
+                                    $book_no_display = $memo_no !== '' ? $memo_no : ('#' . $memo_id);
+                                    $creator_name = trim((string) ($item['creatorName'] ?? ''));
+                                    $creator_position = trim((string) ($item['creatorPositionName'] ?? ''));
+                                    $creator_signature = trim((string) ($item['creatorSignature'] ?? ''));
+                                    $creator_faction = trim((string) ($item['creatorFactionName'] ?? ''));
+                                    $creator_department = trim((string) ($item['creatorDepartmentName'] ?? ''));
+                                    $sender_label = $creator_faction !== '' ? $creator_faction : $creator_department;
+                                    $memo_files = $memo_id > 0 ? memo_get_attachments($memo_id) : [];
+                                    $memo_files_json = json_encode($memo_files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                    $head_note_b64 = base64_encode((string) ($item['headNote'] ?? ''));
+                                    $deputy_note_b64 = base64_encode((string) ($item['deputyNote'] ?? ''));
+                                    $director_note_b64 = base64_encode((string) ($item['directorNote'] ?? ''));
+
+                                    if ($memo_files_json === false) {
+                                        $memo_files_json = '[]';
+                                    }
                                     ?>
                                     <tr>
                                         <td><?= h($subject !== '' ? $subject : '-') ?></td>
@@ -364,10 +381,44 @@ ob_start();
                                         </td>
                                         <td><span class="status-pill <?= h($status_class) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span></td>
                                         <td>
-                                            <a class="booking-action-btn secondary" href="<?= h($view_href) ?>">
+                                            <button
+                                                type="button"
+                                                class="booking-action-btn secondary js-open-view-modal"
+                                                data-type="INTERNAL"
+                                                data-circular-id="<?= h((string) $memo_id) ?>"
+                                                data-detail="<?= h($detail_for_attr) ?>"
+                                                data-detail-b64="<?= h($detail_b64) ?>"
+                                                data-subject="<?= h($subject !== '' ? $subject : '-') ?>"
+                                                data-bookno="<?= h($book_no_display) ?>"
+                                                data-issued="<?= h((string) ($item['writeDate'] ?? '-')) ?>"
+                                                data-sender="<?= h($sender_label !== '' ? $sender_label : '-') ?>"
+                                                data-to="ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน"
+                                                data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
+                                                data-consider="considering"
+                                                data-received-time="<?= h(trim($date_line . ' ' . $time_line)) ?>"
+                                                data-read-stats="[]"
+                                                data-creator-name="<?= h($creator_name) ?>"
+                                                data-creator-position="<?= h($creator_position) ?>"
+                                                data-creator-signature="<?= h($creator_signature) ?>"
+                                                data-head-name="<?= h((string) ($item['headName'] ?? '')) ?>"
+                                                data-head-position="<?= h((string) ($item['headPositionName'] ?? '')) ?>"
+                                                data-head-signature="<?= h((string) ($item['headSignature'] ?? '')) ?>"
+                                                data-head-note-b64="<?= h($head_note_b64) ?>"
+                                                data-head-action="<?= h((string) ($item['headAction'] ?? '')) ?>"
+                                                data-deputy-name="<?= h((string) ($item['deputyName'] ?? '')) ?>"
+                                                data-deputy-position="<?= h((string) ($item['deputyPositionName'] ?? '')) ?>"
+                                                data-deputy-signature="<?= h((string) ($item['deputySignature'] ?? '')) ?>"
+                                                data-deputy-note-b64="<?= h($deputy_note_b64) ?>"
+                                                data-deputy-action="<?= h((string) ($item['deputyAction'] ?? '')) ?>"
+                                                data-director-name="<?= h((string) ($item['directorName'] ?? '')) ?>"
+                                                data-director-position="<?= h((string) ($item['directorPositionName'] ?? '')) ?>"
+                                                data-director-signature="<?= h((string) ($item['directorSignature'] ?? '')) ?>"
+                                                data-director-note-b64="<?= h($director_note_b64) ?>"
+                                                data-director-action="<?= h((string) ($item['directorAction'] ?? '')) ?>"
+                                                data-files="<?= h($memo_files_json) ?>">
                                                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -377,109 +428,115 @@ ob_start();
                 </div>
             </form>
 
-            <div class="modal-overlay-memo details" id="modalEditOverlay" style="display: none;">
+            <div class="modal-overlay-memo details" id="modalViewOverlay" style="display: none;">
                 <div class="modal-content">
                     <div class="header-modal">
-                        <p id="modalTypeLabel">รายละเอียด</p>
-                        <i class="fa-solid fa-xmark" id="closeModalEdit" aria-hidden="true"></i>
+                        <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ</p>
+                        <i class="fa-solid fa-xmark" id="closeModalView" aria-hidden="true"></i>
                     </div>
 
                     <div class="content-modal">
-
-                        <div class="content-memo" style="box-shadow: none;">
+                        <div class="content-memo">
                             <div class="memo-header">
                                 <img src="assets/img/garuda-logo.png" alt="">
                                 <p>บันทึกข้อความ</p>
                                 <div></div>
                             </div>
 
-                            <form method="POST" id="circularComposeForm">
+                            <form method="POST" id="memoViewForm">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="flow_mode" value="CHAIN">
                                 <input type="hidden" name="to_choice" value="DIRECTOR">
 
                                 <div class="memo-detail">
-                                    <div class="form-group-row">
+                                    <div class="form-group-row" id="memoViewSenderRow">
                                         <p><strong>ส่วนราชการ</strong></p>
-
-                                        <div class="custom-select-wrapper">
-                                            <div class="custom-select-trigger">
-                                                <p class="select-value">
-                                                    <?php
-                                                    $selected_faction_name = '';
-
-                                                    foreach ($factions as $faction) {
-                                                        if ((string) ($faction['fID'] ?? '') === $selected_sender_fid) {
-                                                            $selected_faction_name = (string) ($faction['fname'] ?? '');
-                                                            break;
-                                                        }
-                                                    }
-                                                    echo h($selected_faction_name !== '' ? $selected_faction_name : 'เลือกส่วนราชการ');
-                                                    ?>
-                                                </p>
-                                                <i class="fa-solid fa-chevron-down"></i>
-                                            </div>
-
-                                            <div class="custom-options">
-                                                <!-- <?php foreach ($factions as $faction) : ?>
-                                                <?php $fid = (string) ($faction['fID'] ?? ''); ?>
-                                                <div class="custom-option<?= $fid === $selected_sender_fid ? ' selected' : '' ?>" data-value="<?= h($fid) ?>">
-                                                    <?= h((string) ($faction['fname'] ?? '')) ?>
-                                                </div>
-                                            <?php endforeach; ?> -->
-                                                <div class="custom-option">กลุ่ม</div>
-                                            </div>
-
-                                            <input type="hidden" name="sender_fid" value="<?= h($selected_sender_fid) ?>">
-                                        </div>
-
+                                        <input type="text" id="memoViewSenderFaction" value="" disabled>
                                         <p><strong>โรงเรียนดีบุกพังงาวิทยายน</strong></p>
                                     </div>
 
-                                    <div class="form-group-row memo-subject-row">
+                                    <div class="form-group-row memo-subject-row" id="memoViewSubjectRow">
                                         <p><strong>เรื่อง</strong></p>
-                                        <input type="text" name="subject" value="<?= h((string) ($values['subject'] ?? '')) ?>" required>
+                                        <input type="text" id="memoViewSubject" value="" disabled style="width: 100%">
                                     </div>
 
-                                    <div class="form-group-row memo-to-row">
+                                    <div class="form-group-row memo-to-row" id="memoViewToRow">
                                         <p><strong>เรียน</strong></p>
-                                        <p>ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน</p>
+                                        <p id="memoViewToLabel">ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน</p>
                                     </div>
 
-                                    <div class="content-editor">
+                                    <div class="content-editor" id="memoViewDetailWrap">
                                         <p><strong>รายละเอียด:</strong></p>
-                                        <br>
-                                        <textarea name="detail" id="memo_editor"><?= h((string) ($values['detail'] ?? '')) ?></textarea>
+                                        <textarea id="memo_editor_view" disabled rows="7"></textarea>
+                                    </div>
+
+                                    <div class="memo-file-row file-sec" id="memoViewFileRow">
+                                        <div class="memo-input-content">
+                                            <label>ไฟล์เอกสาร <strong>(เอกสารได้สูงสุด 5 ไฟล์)</strong></label>
+                                        </div>
+                                        <div class="file-list" id="attachmentListView" aria-live="polite">
+                                            <p class="attachment-empty">ยังไม่มีไฟล์แนบ</p>
+                                        </div>
                                     </div>
 
                                     <div class="form-group-row signature">
-                                        <!-- <img src="<?= h($signature_src) ?>" alt="">
-                                    <p>(<?= h($current_name !== '' ? $current_name : '-') ?>)</p>
-                                    <p><?= h($current_position !== '' ? $current_position : '-') ?></p> -->
-                                        <img src="assets/img/signature/1829900159722/signature_20260211_170950_6f853801016c.png" alt="">
-                                        <p>(นางสาวกนกรัตน์ บุญถาวร)</p>
-                                        <p>เจ้าหน้าที่</p>
+                                        <img id="memoViewSignerImage" src="" alt="" style="display:none;">
+                                        <p id="memoViewSignerName">(-)</p>
+                                        <p id="memoViewSignerPosition">-</p>
                                     </div>
 
-                                    <!-- <div class="form-group-row submit">
-                            <button type="submit">บันทึกเอกสาร</button>
-                        </div> -->
+                                    <div class="form-group-row secondary u-hidden" data-memo-optional="1" id="memoViewHeadNoteRow">
+                                        <p><strong>ความคิดเห็นและข้อเสนอแนะของหัวหน้ากลุ่มสาระการเรียนรู้</strong></p>
+                                        <div class="content-editor" style="width:100%">
+                                            <textarea id="memoViewHeadNote" disabled rows="7"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group-row signature secondary u-hidden" data-memo-optional="1" id="memoViewHeadSignatureRow">
+                                        <img id="memoViewHeadSignatureImage" src="" alt="" style="display:none;">
+                                        <p id="memoViewHeadSignatureName">(-)</p>
+                                        <p id="memoViewHeadSignaturePosition">-</p>
+                                    </div>
+
+                                    <div class="form-group-row comment u-hidden" data-memo-optional="1" id="memoViewDeputyActionRow">
+                                        <p><strong>เสนอ :</strong></p>
+                                        <input type="text" id="memoViewDeputyAction" disabled>
+                                    </div>
+
+                                    <div class="form-group-row primary u-hidden" data-memo-optional="1" id="memoViewDeputyNoteRow">
+                                        <p><strong>ความคิดเห็นและข้อเสนอแนะของรองผู้อำนวยการ</strong></p>
+                                        <div class="content-editor" style="width:100%">
+                                            <textarea id="memoViewDeputyNote" disabled rows="7"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group-row signature primary u-hidden" data-memo-optional="1" id="memoViewDeputySignatureRow">
+                                        <img id="memoViewDeputySignatureImage" src="" alt="" style="display:none;">
+                                        <p id="memoViewDeputySignatureName">(-)</p>
+                                        <p id="memoViewDeputySignaturePosition">-</p>
+                                    </div>
+
+                                    <div class="form-group-row comment secondary u-hidden" data-memo-optional="1" id="memoViewDirectorActionRow">
+                                        <p><strong>ผู้บริหารดำเนินการต่อ</strong></p>
+                                        <input type="text" id="memoViewDirectorAction" disabled>
+                                    </div>
+
+                                    <div class="form-group-row secondary u-hidden" data-memo-optional="1" id="memoViewDirectorNoteRow">
+                                        <p><strong>ความคิดเห็นและข้อเสนอแนะของผู้อำนวยการโรงเรียน</strong></p>
+                                        <div class="content-editor" style="width:100%">
+                                            <textarea id="memoViewDirectorNote" disabled rows="7"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group-row signature secondary u-hidden" data-memo-optional="1" id="memoViewDirectorSignatureRow">
+                                        <img id="memoViewDirectorSignatureImage" src="" alt="" style="display:none;">
+                                        <p id="memoViewDirectorSignatureName">(-)</p>
+                                        <p id="memoViewDirectorSignaturePosition">-</p>
+                                    </div>
                                 </div>
                             </form>
                         </div>
-
                     </div>
-
-                    <div class="footer-modal">
-                        <form method="POST" id="modalArchiveForm">
-                            <input type="hidden" name="csrf_token" value="3ece51cef25df8dcbb025b7f59af78f9d7fa9c90963b44be41d39e6d5152a6ac"> <input type="hidden" name="inbox_id" id="modalInboxId" value="10">
-                            <input type="hidden" name="action" value="archive">
-                            <button type="submit">
-                                <p>เสนอแฟ้ม</p>
-                            </button>
-                        </form>
-                    </div>
-
                 </div>
             </div>
         <?php else : ?>
@@ -869,52 +926,305 @@ ob_start();
         });
     }
 
-    tinymce.init({
-        selector: '#memo_editor',
-        height: 500,
-        menubar: false,
-        language: 'th_TH',
-        plugins: 'searchreplace autolink directionality visualblocks visualchars image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap emoticons',
-        toolbar: 'undo redo | fontfamily | fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons',
-        font_family_formats: 'TH Sarabun New=Sarabun, sans-serif;',
-        font_size_formats: '8pt 9pt 10pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 36pt 48pt 72pt',
-        content_style: `
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
-        body {
-            font-family: 'Sarabun', sans-serif;
-            font-size: 16pt;
-            line-height: 1.5;
-            color: #000;
-            background-color: #fff;
-            padding: 0 20px;
-            margin: 0 auto;
-        }
-        p {
-            margin-bottom: 0px;
-        }
-    `,
-        nonbreaking_force_tab: true,
-        promotion: false,
-        branding: false
-    });
+    if (window.tinymce && typeof window.tinymce.init === 'function') {
+        tinymce.init({
+            selector: '#memo_editor_view, #memoViewHeadNote, #memoViewDeputyNote, #memoViewDirectorNote',
+            height: 500,
+            menubar: false,
+            language: 'th_TH',
+            plugins: 'searchreplace autolink directionality visualblocks visualchars image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap emoticons',
+            toolbar: 'undo redo | fontfamily | fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons',
+            font_family_formats: 'TH Sarabun New=Sarabun, sans-serif;',
+            font_size_formats: '8pt 9pt 10pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 36pt 48pt 72pt',
+            content_style: `
+                @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+                body {
+                    font-family: 'Sarabun', sans-serif;
+                    font-size: 16pt;
+                    line-height: 1.5;
+                    color: #000;
+                    background-color: #fff;
+                    padding: 0 20px;
+                    margin: 0 auto;
+                }
+                p {
+                    margin-bottom: 0px;
+                }
+            `,
+            nonbreaking_force_tab: true,
+            promotion: false,
+            branding: false,
+            readonly: true
+        });
+    }
 
-    const openEditBtns = document.querySelectorAll('.js-open-edit-modal');
-    const closeEditBtn = document.getElementById('closeModalEdit');
-    const editModal = document.getElementById('modalEditOverlay');
-    openEditBtns.forEach((btn) => {
+    const viewModal = document.getElementById('modalViewOverlay');
+    const closeViewBtn = document.getElementById('closeModalView');
+    const openViewBtns = document.querySelectorAll('.js-open-view-modal');
+    const memoViewSenderRow = viewModal?.querySelector('#memoViewSenderRow') || null;
+    const memoViewSenderInput = viewModal?.querySelector('#memoViewSenderFaction') || null;
+    const memoViewSubjectInput = viewModal?.querySelector('#memoViewSubject') || null;
+    const memoViewToLabel = viewModal?.querySelector('#memoViewToLabel') || null;
+    const memoViewDetailInput = viewModal?.querySelector('#memo_editor_view') || null;
+    const memoViewFileList = viewModal?.querySelector('#attachmentListView') || null;
+    const memoViewOptionalBlocks = viewModal ? Array.from(viewModal.querySelectorAll('[data-memo-optional="1"]')) : [];
+    const memoViewSignerImage = viewModal?.querySelector('#memoViewSignerImage') || null;
+    const memoViewSignerName = viewModal?.querySelector('#memoViewSignerName') || null;
+    const memoViewSignerPosition = viewModal?.querySelector('#memoViewSignerPosition') || null;
+    const memoViewHeadNoteRow = viewModal?.querySelector('#memoViewHeadNoteRow') || null;
+    const memoViewHeadNote = viewModal?.querySelector('#memoViewHeadNote') || null;
+    const memoViewHeadSignatureRow = viewModal?.querySelector('#memoViewHeadSignatureRow') || null;
+    const memoViewHeadSignatureImage = viewModal?.querySelector('#memoViewHeadSignatureImage') || null;
+    const memoViewHeadSignatureName = viewModal?.querySelector('#memoViewHeadSignatureName') || null;
+    const memoViewHeadSignaturePosition = viewModal?.querySelector('#memoViewHeadSignaturePosition') || null;
+    const memoViewDeputyActionRow = viewModal?.querySelector('#memoViewDeputyActionRow') || null;
+    const memoViewDeputyAction = viewModal?.querySelector('#memoViewDeputyAction') || null;
+    const memoViewDeputyNoteRow = viewModal?.querySelector('#memoViewDeputyNoteRow') || null;
+    const memoViewDeputyNote = viewModal?.querySelector('#memoViewDeputyNote') || null;
+    const memoViewDeputySignatureRow = viewModal?.querySelector('#memoViewDeputySignatureRow') || null;
+    const memoViewDeputySignatureImage = viewModal?.querySelector('#memoViewDeputySignatureImage') || null;
+    const memoViewDeputySignatureName = viewModal?.querySelector('#memoViewDeputySignatureName') || null;
+    const memoViewDeputySignaturePosition = viewModal?.querySelector('#memoViewDeputySignaturePosition') || null;
+    const memoViewDirectorActionRow = viewModal?.querySelector('#memoViewDirectorActionRow') || null;
+    const memoViewDirectorAction = viewModal?.querySelector('#memoViewDirectorAction') || null;
+    const memoViewDirectorNoteRow = viewModal?.querySelector('#memoViewDirectorNoteRow') || null;
+    const memoViewDirectorNote = viewModal?.querySelector('#memoViewDirectorNote') || null;
+    const memoViewDirectorSignatureRow = viewModal?.querySelector('#memoViewDirectorSignatureRow') || null;
+    const memoViewDirectorSignatureImage = viewModal?.querySelector('#memoViewDirectorSignatureImage') || null;
+    const memoViewDirectorSignatureName = viewModal?.querySelector('#memoViewDirectorSignatureName') || null;
+    const memoViewDirectorSignaturePosition = viewModal?.querySelector('#memoViewDirectorSignaturePosition') || null;
+    const memoDirectorLabel = 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน';
+    const memoViewActionLabelMap = {
+        FORWARD: 'เสนอผู้อำนวยการ',
+        APPROVE_UNSIGNED: 'ลงนามแล้ว',
+        RETURN: 'กลับไปแก้ไข',
+        REJECT: 'ไม่อนุมัติ',
+        SIGN: 'ลงนามแล้ว',
+        DIRECTOR_SIGNED: 'ลงนามแล้ว',
+        DIRECTOR_ACKNOWLEDGED: 'ทราบ',
+        DIRECTOR_AGREED: 'ชอบ',
+        DIRECTOR_NOTIFIED: 'แจ้ง',
+        DIRECTOR_ASSIGNED: 'มอบ',
+        DIRECTOR_SCHEDULED: 'ลงนัด',
+        DIRECTOR_PERMITTED: 'อนุญาต',
+        DIRECTOR_APPROVED: 'อนุมัติ',
+        DIRECTOR_REJECTED: 'ไม่อนุมัติ',
+        DIRECTOR_REQUEST_MEETING: 'ขอพบ',
+        DIRECTOR_APPROVE: 'อนุมัติ',
+        DIRECTOR_REJECT: 'ไม่อนุมัติ',
+    };
+
+    const decodeBase64Utf8 = (base64Value) => {
+        const payload = String(base64Value || '').trim();
+        if (payload === '') return '';
+        try {
+            const binary = window.atob(payload);
+            const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+            return new TextDecoder('utf-8').decode(bytes);
+        } catch (error) {
+            try {
+                return decodeURIComponent(escape(window.atob(payload)));
+            } catch (_fallbackError) {
+                return '';
+            }
+        }
+    };
+
+    const normalizeMemoDetailText = (value) => {
+        const raw = String(value || '').trim();
+        if (raw === '' || raw === '-') return '';
+        const parser = document.createElement('div');
+        parser.innerHTML = raw;
+        const text = String(parser.textContent || parser.innerText || raw)
+            .replace(/\u00A0/g, ' ')
+            .replace(/\r\n?/g, '\n')
+            .replace(/[ \t]+\n/g, '\n')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+        return text !== '' ? text : raw;
+    };
+
+    const setMemoViewVisible = (element, visible) => {
+        if (element) {
+            element.classList.toggle('u-hidden', !visible);
+        }
+    };
+
+    const setMemoReadonlyEditorContent = (textarea, value, asHtml = false) => {
+        if (!textarea) return;
+        const content = String(value || '').trim();
+        textarea.value = asHtml ? normalizeMemoDetailText(content) : content;
+        if (!window.tinymce || typeof window.tinymce.get !== 'function' || textarea.id === '') return;
+        const editor = tinymce.get(textarea.id);
+        if (!editor) return;
+        editor.setContent(asHtml ? content : content.replace(/\n/g, '<br>'));
+        editor.mode.set('readonly');
+    };
+
+    const formatMemoViewSignatureName = (value) => '(' + (String(value || '').replace(/^\(|\)$/g, '').trim() || '-') + ')';
+    const formatMemoViewPosition = (value) => {
+        const cleanValue = String(value || '').trim();
+        const normalizedValue = typeof cleanValue.normalize === 'function'
+            ? cleanValue.normalize('NFC')
+            : cleanValue.replace('อํานวย', 'อำนวย');
+        return normalizedValue === 'ผู้อำนวยการโรงเรียน'
+            ? 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน'
+            : (cleanValue || '-');
+    };
+
+    const readMemoViewStagePayload = (button, prefix) => {
+        const key = String(prefix || '').trim();
+        const noteFromBase64 = decodeBase64Utf8(button.getAttribute('data-' + key + '-note-b64'));
+        return {
+            name: String(button.getAttribute('data-' + key + '-name') || '').trim(),
+            position: String(button.getAttribute('data-' + key + '-position') || '').trim(),
+            signature: String(button.getAttribute('data-' + key + '-signature') || '').trim(),
+            note: noteFromBase64 !== '' ? noteFromBase64 : String(button.getAttribute('data-' + key + '-note') || ''),
+            action: String(button.getAttribute('data-' + key + '-action') || '').trim(),
+        };
+    };
+
+    const hasMemoViewStagePayload = (payload) => Boolean(
+        String(payload?.action || '').trim() ||
+        normalizeMemoDetailText(payload?.note || '')
+    );
+
+    const setMemoViewTextarea = (row, textarea, value, forceVisible = false) => {
+        const normalized = normalizeMemoDetailText(value);
+        const shouldShow = normalized !== '' || forceVisible;
+        setMemoReadonlyEditorContent(textarea, normalized !== '' ? normalized : '-', false);
+        setMemoViewVisible(row, shouldShow);
+    };
+
+    const setMemoViewActionField = (row, input, value) => {
+        const actionKey = String(value || '').trim().toUpperCase();
+        const label = memoViewActionLabelMap[actionKey] || '';
+        if (input) input.value = label;
+        setMemoViewVisible(row, label !== '');
+    };
+
+    const setMemoViewSignatureBlock = (row, image, nameEl, positionEl, payload) => {
+        const signature = String(payload?.signature || '').trim();
+        const hasReviewData = hasMemoViewStagePayload(payload);
+        if (image) {
+            if (hasReviewData && signature !== '') {
+                image.setAttribute('src', signature);
+                image.style.display = '';
+            } else {
+                image.removeAttribute('src');
+                image.style.display = 'none';
+            }
+        }
+        if (nameEl) nameEl.textContent = formatMemoViewSignatureName(payload?.name || '');
+        if (positionEl) positionEl.textContent = formatMemoViewPosition(payload?.position || '');
+        setMemoViewVisible(row, hasReviewData && signature !== '');
+    };
+
+    const renderMemoViewFiles = (files, memoId) => {
+        if (!memoViewFileList) return;
+        memoViewFileList.innerHTML = '';
+        const memoEntityId = String(memoId || '').trim();
+        const normalizedFiles = Array.isArray(files) ? files : [];
+
+        if (memoEntityId === '' || normalizedFiles.length === 0) {
+            memoViewFileList.innerHTML = '<p class="attachment-empty">ยังไม่มีไฟล์แนบ</p>';
+            return;
+        }
+
+        normalizedFiles.forEach((file) => {
+            const fileId = String(file?.fileID || '').trim();
+            const fileName = String(file?.fileName || '').trim();
+            const mimeType = String(file?.mimeType || '').trim();
+            if (fileId === '' || fileName === '') return;
+
+            const fileBanner = document.createElement('div');
+            fileBanner.className = 'file-banner';
+            fileBanner.innerHTML =
+                '<div class="file-info">' +
+                    '<div class="file-icon"><i class="fa-solid ' + (mimeType.toLowerCase().includes('pdf') ? 'fa-file-pdf' : (mimeType.toLowerCase().includes('image') ? 'fa-file-image' : 'fa-file')) + '"></i></div>' +
+                    '<div class="file-text"><span class="file-name"></span><span class="file-type"></span></div>' +
+                '</div>' +
+                '<div class="file-actions"><a target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i></a></div>' +
+                '<div class="file-actions"><a><i class="fa-solid fa-download"></i></a></div>';
+            fileBanner.querySelector('.file-name').textContent = fileName;
+            fileBanner.querySelector('.file-type').textContent = mimeType !== '' ? mimeType : '-';
+            const viewLink = fileBanner.querySelector('.file-actions:nth-of-type(2) a');
+            const downloadLink = fileBanner.querySelector('.file-actions:nth-of-type(3) a');
+            const fileUrl = 'public/api/file-download.php?module=memos&entity_id=' + encodeURIComponent(memoEntityId) + '&file_id=' + encodeURIComponent(fileId);
+            viewLink.href = fileUrl;
+            downloadLink.href = fileUrl + '&download=1';
+            memoViewFileList.appendChild(fileBanner);
+        });
+
+        if (!memoViewFileList.children.length) {
+            memoViewFileList.innerHTML = '<p class="attachment-empty">ยังไม่มีไฟล์แนบ</p>';
+        }
+    };
+
+    openViewBtns.forEach((btn) => {
         btn.addEventListener('click', (event) => {
             event.preventDefault();
+            const memoId = String(btn.getAttribute('data-circular-id') || '').trim();
+            const detailRawFromBase64 = decodeBase64Utf8(btn.getAttribute('data-detail-b64'));
+            const detailRaw = detailRawFromBase64 !== '' ? detailRawFromBase64 : String(btn.getAttribute('data-detail') || '');
+            let files = [];
 
-            if (editModal) editModal.style.display = 'flex';
+            try {
+                files = JSON.parse(String(btn.getAttribute('data-files') || '[]'));
+            } catch (error) {
+                files = [];
+            }
+
+            if (memoViewSenderInput) memoViewSenderInput.value = String(btn.getAttribute('data-sender') || '').trim() || '-';
+            if (memoViewSubjectInput) memoViewSubjectInput.value = String(btn.getAttribute('data-subject') || '').trim() || '-';
+            if (memoViewToLabel) memoViewToLabel.textContent = String(btn.getAttribute('data-to') || '').trim() || memoDirectorLabel;
+
+            setMemoReadonlyEditorContent(memoViewDetailInput, detailRaw !== '' && detailRaw !== '-' ? detailRaw : '-', true);
+            setMemoViewVisible(memoViewSenderRow, true);
+
+            if (memoViewSignerImage) {
+                const creatorSignature = String(btn.getAttribute('data-creator-signature') || '').trim();
+                if (creatorSignature !== '') {
+                    memoViewSignerImage.src = creatorSignature;
+                    memoViewSignerImage.style.display = '';
+                } else {
+                    memoViewSignerImage.removeAttribute('src');
+                    memoViewSignerImage.style.display = 'none';
+                }
+            }
+            if (memoViewSignerName) memoViewSignerName.textContent = formatMemoViewSignatureName(btn.getAttribute('data-creator-name'));
+            if (memoViewSignerPosition) memoViewSignerPosition.textContent = formatMemoViewPosition(btn.getAttribute('data-creator-position'));
+
+            memoViewOptionalBlocks.forEach((block) => block.classList.add('u-hidden'));
+
+            const headPayload = readMemoViewStagePayload(btn, 'head');
+            const deputyPayload = readMemoViewStagePayload(btn, 'deputy');
+            const directorPayload = readMemoViewStagePayload(btn, 'director');
+            const hasHeadStage = hasMemoViewStagePayload(headPayload);
+            const hasDeputyStage = hasMemoViewStagePayload(deputyPayload);
+            const hasDirectorStage = hasMemoViewStagePayload(directorPayload);
+
+            setMemoViewTextarea(memoViewHeadNoteRow, memoViewHeadNote, headPayload.note, hasHeadStage);
+            setMemoViewSignatureBlock(memoViewHeadSignatureRow, memoViewHeadSignatureImage, memoViewHeadSignatureName, memoViewHeadSignaturePosition, headPayload);
+            setMemoViewActionField(memoViewDeputyActionRow, memoViewDeputyAction, deputyPayload.action);
+            setMemoViewTextarea(memoViewDeputyNoteRow, memoViewDeputyNote, deputyPayload.note, hasDeputyStage);
+            setMemoViewSignatureBlock(memoViewDeputySignatureRow, memoViewDeputySignatureImage, memoViewDeputySignatureName, memoViewDeputySignaturePosition, deputyPayload);
+            setMemoViewActionField(memoViewDirectorActionRow, memoViewDirectorAction, directorPayload.action);
+            setMemoViewTextarea(memoViewDirectorNoteRow, memoViewDirectorNote, directorPayload.note, hasDirectorStage);
+            setMemoViewSignatureBlock(memoViewDirectorSignatureRow, memoViewDirectorSignatureImage, memoViewDirectorSignatureName, memoViewDirectorSignaturePosition, directorPayload);
+            renderMemoViewFiles(files, memoId);
+
+            if (viewModal) viewModal.style.display = 'flex';
         });
     });
-    closeEditBtn?.addEventListener('click', () => {
-        if (editModal) editModal.style.display = 'none';
+
+    closeViewBtn?.addEventListener('click', () => {
+        if (viewModal) viewModal.style.display = 'none';
     });
 
     window.addEventListener('click', (event) => {
-        if (event.target === editModal) {
-            editModal.style.display = 'none';
+        if (event.target === viewModal) {
+            viewModal.style.display = 'none';
         }
     });
 </script>

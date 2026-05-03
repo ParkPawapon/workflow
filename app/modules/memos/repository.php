@@ -464,6 +464,7 @@ if (!function_exists('memo_list_archived_for_user_page')) {
         $sort = strtolower(trim((string) $sort));
         $timeline_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
         $memo_id_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
+        $creator_position = system_position_join(db_connection(), 'c', 'cp');
 
         $ownerTypes = 's';
         $ownerParams = [$pID];
@@ -480,12 +481,22 @@ if (!function_exists('memo_list_archived_for_user_page')) {
         $selectColumnsOwner = 'm.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt,
                 m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt, m.createdByPID, m.flowMode, m.flowStage,
                 m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
+                c.fName AS creatorName,
+                COALESCE(c.signature, "") AS creatorSignature,
+                COALESCE(cf.fName, "") AS creatorFactionName,
+                COALESCE(cd.dName, "") AS creatorDepartmentName,
+                COALESCE(' . $creator_position['name'] . ', "") AS creatorPositionName,
                 t.fName AS approverName,
                 m.archivedAt AS archiveTimelineAt,
                 "OWNER" AS archiveSource';
         $selectColumnsReviewer = 'm.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt,
                 m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt, m.createdByPID, m.flowMode, m.flowStage,
                 m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
+                c.fName AS creatorName,
+                COALESCE(c.signature, "") AS creatorSignature,
+                COALESCE(cf.fName, "") AS creatorFactionName,
+                COALESCE(cd.dName, "") AS creatorDepartmentName,
+                COALESCE(' . $creator_position['name'] . ', "") AS creatorPositionName,
                 c.fName AS approverName,
                 mia.archivedAt AS archiveTimelineAt,
                 "INBOX" AS archiveSource';
@@ -495,6 +506,10 @@ if (!function_exists('memo_list_archived_for_user_page')) {
                 SELECT ' . $selectColumnsOwner . '
                 FROM dh_memos AS m
                 LEFT JOIN teacher AS t ON m.toPID = t.pID
+                LEFT JOIN teacher AS c ON m.createdByPID = c.pID
+                LEFT JOIN faction AS cf ON c.fID = cf.fID
+                LEFT JOIN department AS cd ON c.dID = cd.dID
+                ' . $creator_position['join'] . '
                 WHERE ' . $ownerWhere . '
 
                 UNION ALL
@@ -504,6 +519,9 @@ if (!function_exists('memo_list_archived_for_user_page')) {
                 INNER JOIN dh_memo_inbox_archives AS mia
                     ON mia.memoID = m.memoID AND mia.pID = ? AND mia.isArchived = 1
                 LEFT JOIN teacher AS c ON m.createdByPID = c.pID
+                LEFT JOIN faction AS cf ON c.fID = cf.fID
+                LEFT JOIN department AS cd ON c.dID = cd.dID
+                ' . $creator_position['join'] . '
                 WHERE ' . $reviewerWhere . '
             ) AS archived_memos
             ORDER BY COALESCE(archiveTimelineAt, submittedAt, reviewedAt, createdAt) ' . $timeline_direction . ', memoID ' . $memo_id_direction . '

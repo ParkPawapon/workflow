@@ -8,6 +8,7 @@ require_once __DIR__ . '/../auth/csrf.php';
 require_once __DIR__ . '/../rbac/current_user.php';
 require_once __DIR__ . '/../modules/memos/service.php';
 require_once __DIR__ . '/../modules/memos/repository.php';
+require_once __DIR__ . '/memo-controller.php';
 require_once __DIR__ . '/../db/db.php';
 
 if (!function_exists('memo_archive_index')) {
@@ -140,6 +141,10 @@ if (!function_exists('memo_archive_index')) {
             }
             $offset = ($page - 1) * $per_page;
             $items = memo_list_archived_for_user_page($current_pid, $status_filter, $search, $per_page, $offset, $filter_sort, $selected_dh_year);
+
+            if (function_exists('memo_owner_enrich_creator_memos')) {
+                $items = memo_owner_enrich_creator_memos($connection, $items);
+            }
         }
 
         $base_params = [];
@@ -178,6 +183,7 @@ if (!function_exists('memo_archive_index')) {
             'selected_dh_year' => $selected_dh_year,
             'filtered_total' => $filtered_total,
             'pagination_base_url' => $pagination_base_url,
+            'current_user' => $current_user,
         ]);
     }
 }
