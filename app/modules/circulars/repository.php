@@ -398,15 +398,44 @@ if (!function_exists('circular_get_announcements')) {
             return [];
         }
 
-        $sql = 'SELECT MAX(a.announcementID) AS announcementID, MAX(a.selectedAt) AS selectedAt, c.circularID, c.subject
-            FROM dh_circular_announcements AS a
+        $limit = max(1, $limit);
+        $sql = 'SELECT a.announcementID, a.selectedAt, c.circularID, c.circularType, c.subject,
+                c.detail, c.linkURL, c.extPriority, c.extBookNo, c.extIssuedDate, c.extFromText, c.extGroupFID,
+                COALESCE(f.fName, "") AS extGroupName,
+                COALESCE(review.note, "") AS directorComment,
+                COALESCE(review.reviewerName, "") AS directorReviewerName
+            FROM (
+                SELECT circularID, MAX(announcementID) AS announcementID
+                FROM dh_circular_announcements
+                WHERE isActive = 1
+                GROUP BY circularID
+            ) AS latest
+            INNER JOIN dh_circular_announcements AS a ON a.announcementID = latest.announcementID
             INNER JOIN dh_circulars AS c ON a.circularID = c.circularID
+            LEFT JOIN faction AS f ON c.extGroupFID = f.fID
+            LEFT JOIN (
+                SELECT r.circularID, r.note, r.fromPID, COALESCE(t.fName, "") AS reviewerName
+                FROM dh_circular_routes AS r
+                INNER JOIN (
+                    SELECT circularID, MAX(routeID) AS routeID
+                    FROM dh_circular_routes
+                    WHERE action = \'RETURN\'
+                    GROUP BY circularID
+                ) AS latest_review ON latest_review.routeID = r.routeID
+                LEFT JOIN teacher AS t ON t.pID = r.fromPID
+            ) AS review ON review.circularID = c.circularID
             WHERE a.isActive = 1 AND c.deletedAt IS NULL
-            GROUP BY c.circularID, c.subject
-            ORDER BY selectedAt DESC
-            LIMIT ' . (int) $limit;
+            ORDER BY a.selectedAt DESC, a.announcementID DESC
+            LIMIT ' . $limit;
 
-        return db_fetch_all($sql);
+        $announcements = db_fetch_all($sql);
+
+        foreach ($announcements as &$announcement) {
+            $announcement['files'] = circular_get_attachments((int) ($announcement['circularID'] ?? 0));
+        }
+        unset($announcement);
+
+        return $announcements;
     }
 }
 

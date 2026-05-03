@@ -412,6 +412,27 @@
   var noticeViewDirectorComment = document.getElementById(
     "noticeOutgoingDirectorComment",
   );
+  var noticeViewDirectorCommentSection = document.getElementById(
+    "noticeOutgoingDirectorCommentSection",
+  );
+  var noticeViewLatestCommentLabel = document.getElementById(
+    "noticeOutgoingLatestCommentLabel",
+  );
+  var noticeViewRegistryComment = document.getElementById(
+    "noticeOutgoingRegistryComment",
+  );
+  var noticeViewRegistryCommentSection = document.getElementById(
+    "noticeOutgoingRegistryCommentSection",
+  );
+  var noticeViewReviewComment = document.getElementById(
+    "noticeOutgoingReviewComment",
+  );
+  var noticeViewReviewCommentSection = document.getElementById(
+    "noticeOutgoingReviewCommentSection",
+  );
+  var noticeViewReviewCommentLabel = document.getElementById(
+    "noticeOutgoingReviewCommentLabel",
+  );
   var noticeViewCoverSection = document.getElementById("noticeOutgoingViewCoverSection");
   var noticeViewCoverList = document.getElementById("noticeOutgoingViewCoverList");
   var noticeViewAttachmentSection = document.getElementById("noticeOutgoingViewAttachmentSection");
@@ -609,11 +630,11 @@
     }, 50);
   }
 
-  function setNoticeViewDirectorCommentContent(value) {
+  function setNoticeViewReadonlyEditorContent(editorId, textarea, value) {
     var normalizedValue = String(value || "").trim() || "<p>-</p>";
     var editor =
       window.tinymce && typeof window.tinymce.get === "function"
-        ? window.tinymce.get("noticeOutgoingDirectorComment")
+        ? window.tinymce.get(editorId)
         : null;
 
     if (editor) {
@@ -621,19 +642,43 @@
       return;
     }
 
-    if (noticeViewDirectorComment) {
-      noticeViewDirectorComment.value = normalizedValue;
+    if (textarea) {
+      textarea.value = normalizedValue;
     }
 
     window.setTimeout(function () {
       var delayedEditor =
         window.tinymce && typeof window.tinymce.get === "function"
-          ? window.tinymce.get("noticeOutgoingDirectorComment")
+          ? window.tinymce.get(editorId)
           : null;
       if (delayedEditor) {
         delayedEditor.setContent(normalizedValue);
       }
     }, 50);
+  }
+
+  function setNoticeViewDirectorCommentContent(value) {
+    setNoticeViewReadonlyEditorContent(
+      "noticeOutgoingDirectorComment",
+      noticeViewDirectorComment,
+      value,
+    );
+  }
+
+  function setNoticeViewRegistryCommentContent(value) {
+    setNoticeViewReadonlyEditorContent(
+      "noticeOutgoingRegistryComment",
+      noticeViewRegistryComment,
+      value,
+    );
+  }
+
+  function setNoticeViewReviewCommentContent(value) {
+    setNoticeViewReadonlyEditorContent(
+      "noticeOutgoingReviewComment",
+      noticeViewReviewComment,
+      value,
+    );
   }
 
   function formatFileSize(bytes) {
@@ -807,9 +852,51 @@
         "-",
     );
     setNoticeViewEditorContent(button.getAttribute("data-detail"));
+    var latestComment = button.hasAttribute("data-latest-comment")
+      ? String(button.getAttribute("data-latest-comment") || "").trim()
+      : "";
+    var latestCommentLabel =
+      String(
+        button.getAttribute("data-latest-comment-label") ||
+          "ความคิดเห็นของผู้ส่งล่าสุด",
+      ).trim() || "ความคิดเห็นของผู้ส่งล่าสุด";
+    var registryComment = String(
+      button.getAttribute("data-review-chain-registry-comment") || "",
+    ).trim();
+    var reviewComment = String(
+      button.getAttribute("data-review-chain-director-comment") || "",
+    ).trim();
+    var shouldSplitReviewComments = registryComment !== "" || reviewComment !== "";
+
+    if (noticeViewLatestCommentLabel) {
+      noticeViewLatestCommentLabel.textContent = latestCommentLabel;
+    }
+
+    if (noticeViewDirectorCommentSection) {
+      noticeViewDirectorCommentSection.style.display =
+        !shouldSplitReviewComments && latestComment !== "" ? "" : "none";
+    }
+
+    if (noticeViewRegistryCommentSection) {
+      noticeViewRegistryCommentSection.style.display =
+        shouldSplitReviewComments && registryComment !== "" ? "" : "none";
+    }
+
+    if (noticeViewReviewCommentSection) {
+      noticeViewReviewCommentSection.style.display =
+        shouldSplitReviewComments && reviewComment !== "" ? "" : "none";
+    }
+
+    if (noticeViewReviewCommentLabel) {
+      noticeViewReviewCommentLabel.textContent =
+        "ความคิดเห็นของผู้อำนวยการโรงเรียน";
+    }
+
     setNoticeViewDirectorCommentContent(
-      button.getAttribute("data-director-comment"),
+      shouldSplitReviewComments ? "" : latestComment,
     );
+    setNoticeViewRegistryCommentContent(registryComment);
+    setNoticeViewReviewCommentContent(reviewComment);
     renderNoticeViewFiles(files, entityId);
   }
 
