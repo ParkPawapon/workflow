@@ -9175,10 +9175,10 @@ label {
 }
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
-  flex: 1;
+  /* flex: 1; */
   max-width: 420px;
   min-width: 420px;
-  height: 70px;
+  /* height: 70px;
   background-color: var(--color-danger);
   border-radius: 8px;
   padding: 10px;
@@ -9186,7 +9186,7 @@ label {
   align-items: center;
   justify-content: space-between;
   color: var(--color-neutral-lightest);
-  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
 }
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-info {
@@ -9198,7 +9198,7 @@ label {
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-icon {
   font-size: var(--font-size-h3);
-  color: var(--color-danger);
+  /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 50px;
   height: 50px;
@@ -9243,7 +9243,7 @@ label {
 }
 
 .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-actions a {
-  color: var(--color-danger);
+  color: var(--color-secondary);
 }
 
 /* ----- END CIRCULAR-NOTICE-ARCHIVE-A ----- */
@@ -21731,18 +21731,29 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal {
     width: 100%;
-    min-height: 70px;
+    min-height: 60px;
     background-color: var(--color-secondary);
-    font-size: var(--font-size-body-2);
+    font-size: var(--font-size-desc-1);
     color: var(--color-neutral-lightest);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 20px;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal i {
     cursor: pointer;
+  }
+
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal {
+    padding: 0 20px;
+    height: 60px;
+  }
+  
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal button {
+    font-size: var(--font-size-desc-1);
+    height: 30px;
+    width: 100px;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal {
@@ -21751,7 +21762,7 @@ label {
     overflow-y: scroll;
     scrollbar-width: none;
     -ms-scrollbar-style: none;
-    padding: 20px 40px;
+    padding: 10px 20px;
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
   }
@@ -21800,10 +21811,10 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 350px;
     min-width: 350px;
-    height: 60px;
+    /* height: 60px;
     background-color: var(--color-danger);
     border-radius: 8px;
     padding: 8px;
@@ -21812,7 +21823,7 @@ label {
     justify-content: space-between;
     color: var(--color-neutral-lightest);
     box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
-    gap: 0;
+    gap: 0; */
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-info {
@@ -21824,7 +21835,7 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 40px;
     height: 40px;
@@ -21847,7 +21858,7 @@ label {
     text-overflow: ellipsis;
     min-width: 220px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-type {
@@ -21868,7 +21879,7 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-ARCHIVE-A ----- */
@@ -22419,7 +22430,7 @@ label {
     min-width: 0;
     max-width: 250px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-type {
@@ -31961,14 +31972,27 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal {
     width: 100%;
-    height: 60px;
+    height: 40px;
+    max-height: 40px;
+    min-height: 40px;
     background-color: var(--color-secondary);
-    font-size: var(--font-size-desc-1);
+    font-size: var(--font-size-desc-3);
     color: var(--color-neutral-lightest);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+  }
+
+   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal {
+    padding: 0 10px;
+    height: 40px;
+  }
+  
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal button {
+    font-size: var(--font-size-desc-3);
+    height: 25px;
+    width: 80px;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .header-modal i {
@@ -32024,17 +32048,17 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin: 20px 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px 0 0;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 250px;
     min-width: 250px;
-    height: 50px;
+    /* height: 50px;
     background-color: var(--color-danger);
     border-radius: 4px;
     padding: 6px;
@@ -32042,7 +32066,7 @@ label {
     align-items: center;
     justify-content: space-between;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-info {
@@ -32054,7 +32078,7 @@ label {
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 35px;
     height: 35px;
@@ -32077,7 +32101,7 @@ label {
     text-overflow: ellipsis;
     min-width: 120px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-type {
@@ -32098,7 +32122,7 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   /* ----- END CIRCULAR-NOTICE-ARCHIVE-A ----- */
@@ -32628,7 +32652,7 @@ label {
     text-overflow: ellipsis;
     max-width: 250px;
     width: 100%;
-    border-bottom: 3px solid var(--color-neutral-lightest);
+    border-bottom: 1px solid var(--color-neutral-lightest);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-type {
