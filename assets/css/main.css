@@ -9727,18 +9727,18 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-banner {
-  flex: 1;
+  /* flex: 1; */
   max-width: 420px;
   min-width: 420px;
-  height: 80px;
-  background-color: var(--color-danger);
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--color-neutral-lightest);
-  box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+  /* height: 80px; */
+  /* background-color: var(--color-danger); */
+  /* border-radius: 8px; */
+  /* padding: 10px; */
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: space-between; */
+  /* color: var(--color-neutral-lightest); */
+  /* box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-info {
@@ -9750,7 +9750,7 @@ label {
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
   font-size: var(--font-size-h3);
-  color: var(--color-danger);
+  /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 60px;
   height: 60px;
@@ -9795,7 +9795,7 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-actions a {
-  color: var(--color-danger);
+  color: var(--color-secondary);
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .footer-modal {
@@ -20570,7 +20570,7 @@ label {
   }
 
   .vehicle-row .btn.btn-upload-small {
-    width: 100px;
+    width: 10 0px;
     height: 30px;
     padding: 0 10px;
     border-radius: 8px;
@@ -20712,7 +20712,7 @@ label {
     border: 1px solid var(--color-primary-dark);
     border-radius: 4px;
     outline: none;
-    padding: 0 10px;
+    padding: 10px;
     margin: 0 0 10px;
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
@@ -22303,14 +22303,14 @@ label {
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .header-modal {
     width: 100%;
-    min-height: 70px;
+    min-height: 60px;
     background-color: var(--color-secondary);
     font-size: var(--font-size-body-2);
     color: var(--color-neutral-lightest);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 20px;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .header-modal i {
@@ -22323,7 +22323,7 @@ label {
     overflow-y: scroll;
     scrollbar-width: none;
     -ms-scrollbar-style: none;
-    padding: 20px 40px;
+    padding: 10px 20px;
     font-size: var(--font-size-desc-1);
     color: var(--color-secondary);
   }
@@ -22372,10 +22372,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 300px;
     min-width: 300px;
-    height: 60px;
+    /* height: 60px;
     background-color: var(--color-danger);
     border-radius: 8px;
     padding: 8px;
@@ -22383,19 +22383,19 @@ label {
     align-items: center;
     justify-content: space-between;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 80%;
+    width: 75%;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 40px;
     height: 40px;
@@ -22416,6 +22416,7 @@ label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
     max-width: 250px;
     width: 100%;
     border-bottom: 3px solid var(--color-neutral-lightest);
@@ -22439,7 +22440,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .footer-modal {
@@ -22466,6 +22467,10 @@ label {
     font-size: var(--font-size-desc-1);
     font-family: "THSarabunNew";
     color: var(--color-neutral-lightest);
+  }
+
+  .content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .content-modal p {
+    font-size: var(--font-size-desc-1);
   }
 
   /* ----- END CIRCULAR-NOTICE-INDEX-A ----- */
@@ -30876,7 +30881,7 @@ label {
     border: 1px solid var(--color-primary-dark);
     border-radius: 4px;
     outline: none;
-    padding: 0 10px;
+    padding: 10px;
     margin: 0;
     font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
@@ -32496,7 +32501,7 @@ label {
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .header-modal {
     width: 100%;
     height: 30px;
-    min-height: 30px;
+    min-height: 40px;
     background-color: var(--color-secondary);
     font-size: var(--font-size-desc-3);
     color: var(--color-neutral-lightest);
@@ -32526,7 +32531,7 @@ label {
     overflow-y: scroll;
     scrollbar-width: none;
     -ms-scrollbar-style: none;
-    padding: 10px 20px;
+    padding: 10px;
     font-size: var(--font-size-desc-3);
     color: var(--color-secondary);
     flex-grow: 1;
@@ -32577,10 +32582,10 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-banner {
-    flex: 1;
+    /* flex: 1; */
     max-width: 250px;
     min-width: 250px;
-    height: 50px;
+    /* height: 50px;
     background-color: var(--color-danger);
     border-radius: 4px;
     padding: 4px;
@@ -32588,19 +32593,19 @@ label {
     align-items: center;
     justify-content: space-between;
     color: var(--color-neutral-lightest);
-    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05);
+    box-shadow: 0 2px 6px rgba(var(--rgb-neutral-dark), 0.05); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 80%;
+    width: 75%;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
     font-size: var(--font-size-body-1);
-    color: var(--color-danger);
+    /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 35px;
     height: 35px;
@@ -32616,7 +32621,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-name {
-    font-size: var(--font-size-desc-2);
+    font-size: var(--font-size-desc-3);
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
@@ -32644,7 +32649,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-actions a {
-    color: var(--color-danger);
+    color: var(--color-secondary);
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .footer-modal {
@@ -32671,6 +32676,10 @@ label {
     font-size: var(--font-size-desc-3);
     font-family: "THSarabunNew";
     color: var(--color-neutral-lightest);
+  }
+
+  .content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .content-modal p {
+    font-size: var(--font-size-desc-3);
   }
 
   /* ----- END CIRCULAR-NOTICE-INDEX-A ----- */
