@@ -95,8 +95,39 @@ ob_start();
 ?>
 
 <style>
+    .table-circular-notice-index table thead th:nth-child(1) {
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+    }
+
     .table-circular-notice-index table thead th:nth-child(2) {
-        min-width: 140px;
+        min-width: 500px !important;
+        max-width: 500px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-height: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(6) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
     }
 
     .circular-track-modal-host {
@@ -109,18 +140,101 @@ ob_start();
     }
 
     @media screen and (min-width: 769px) and (max-width: 1023px) {
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec:nth-child(2),
+        .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
+            border-bottom: none;
+        }
+
         .table-circular-notice-index table {
             border: 0;
         }
+
         .button-circular-notice-index {
             min-height: 40px;
             max-height: 40px;
         }
+
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 45px !important;
+            min-width: 45px !important;
+            max-width: 45px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
     }
 
     @media screen and (max-width: 768px) {
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec:nth-child(2),
+        .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
+            border-bottom: none;
+        }
+
         .table-circular-notice-index table {
             border: 0;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 45px !important;
+            min-width: 45px !important;
+            max-width: 45px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 200px !important;
+            min-width: 200px !important;
+            max-width: 200px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
         }
     }
 </style>
@@ -317,33 +431,43 @@ ob_start();
             </div>
             <div class="content-modal">
                 <div class="content-topic-sec">
-                    <div class="more-details">
+                    <div class="more-details row-format">
                         <p><strong>คำสั่งที่</strong></p>
                         <input type="text" id="modalOrderSendNo" class="order-no-display" value="-" disabled>
                     </div>
-                    <div class="more-details">
+
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
                         <p><strong>เรื่อง</strong></p>
                         <input type="text" id="modalOrderSendSubject" class="order-no-display" value="-" disabled>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
-                    <div class="more-details">
+                    <div class="more-details row-format">
                         <p><strong>ทั้งนี้ตั้งแต่วันที่</strong></p>
                         <input type="date" id="modalOrderSendEffectiveDate" class="order-no-display" value="" disabled>
                     </div>
-                    <div class="more-details">
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
                         <p><strong>สั่ง ณ วันที่</strong></p>
                         <input type="date" id="modalOrderSendDate" class="order-no-display" value="" disabled>
                     </div>
                 </div>
 
                 <div class="content-topic-sec">
-                    <div class="more-details">
+                    <div class="more-details row-format">
                         <p><strong>ผู้สร้างเลขคำสั่ง</strong></p>
                         <input type="text" id="modalOrderSendIssuer" class="order-no-display" value="-" disabled>
                     </div>
-                    <div class="more-details">
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details row-format">
                         <p><strong>กลุ่ม</strong></p>
                         <input type="text" id="modalOrderSendGroup" class="order-no-display" value="-" disabled>
                     </div>
@@ -936,6 +1060,44 @@ ob_start();
             renderOrderFiles(orderId, attachments);
             viewModal.style.display = 'flex';
         };
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 
