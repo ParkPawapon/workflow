@@ -124,7 +124,23 @@ if (!function_exists('circular_archive_index')) {
             }
         }
 
-        $circular_inbox = circular_get_inbox($current_pid, $inbox_type, true);
+        $circular_inbox = $box_key === 'director'
+            ? circular_get_inbox_by_types($current_pid, [INBOX_TYPE_SPECIAL_PRINCIPAL, INBOX_TYPE_ACTING_PRINCIPAL], true)
+            : circular_get_inbox($current_pid, $inbox_type, true);
+
+        if ($box_key === 'director') {
+            $seen_director_circular_ids = [];
+            $circular_inbox = array_values(array_filter($circular_inbox, static function (array $item) use (&$seen_director_circular_ids): bool {
+                $circular_id = (int) ($item['circularID'] ?? 0);
+
+                if ($circular_id <= 0 || isset($seen_director_circular_ids[$circular_id])) {
+                    return false;
+                }
+
+                $seen_director_circular_ids[$circular_id] = true;
+                return true;
+            }));
+        }
         $circular_ids = array_values(array_unique(array_map(static function (array $item): int {
             return (int) ($item['circularID'] ?? 0);
         }, $circular_inbox)));
