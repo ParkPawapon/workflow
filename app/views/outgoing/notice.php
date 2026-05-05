@@ -535,9 +535,9 @@ ob_start();
     }
 
     .table-circular-notice-index.outside-person table thead th:nth-child(5) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
     }
 
     @media screen and (max-width: 1024px) {
@@ -602,9 +602,9 @@ ob_start();
         }
 
         .table-circular-notice-index.outside-person table thead th:nth-child(5) {
-            width: 130px !important;
-            min-width: 130px !important;
-            max-width: 130px !important;
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
         }
     }
 
@@ -670,9 +670,9 @@ ob_start();
         }
 
         .table-circular-notice-index.outside-person table thead th:nth-child(5) {
-            width: 90px !important;
-            min-width: 90px !important;
-            max-width: 90px !important;
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
         }
 
         .table-circular-notice-index.first-table table tbody td {

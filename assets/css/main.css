@@ -10714,7 +10714,8 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.success {
-  width: 140px;
+  width: 100%;
+  padding: 0 10px;
   height: 30px;
   border-radius: 16px;
   background-color: var(--color-success);
@@ -22758,7 +22759,8 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.success {
-    width: 120px;
+    width: 100%;
+    padding: 0 5px;
     height: 25px;
     border-radius: 16px;
     background-color: var(--color-success);
@@ -32985,7 +32987,8 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.success {
-    width: 120px;
+    width: 100%;
+    padding: 0 5px;
     height: 25px;
     border-radius: 16px;
     background-color: var(--color-success);
