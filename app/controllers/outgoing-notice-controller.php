@@ -500,7 +500,7 @@ if (!function_exists('outgoing_notice_index')) {
                                     circular_deputy_distribute($circular_id, $current_pid, $recipient_payload, $comment !== '' ? $comment : null);
 
                                     if ($publish_announcement) {
-                                        circular_set_announcement($circular_id, $current_pid);
+                                        circular_set_announcement($circular_id, $current_pid, $comment !== '' ? $comment : null);
                                     }
                                 } else {
                                     circular_forward($circular_id, $current_pid, [
@@ -534,7 +534,23 @@ if (!function_exists('outgoing_notice_index')) {
             }
         }
 
-        $circular_inbox = circular_get_inbox($current_pid, $inbox_type, $archived);
+        $circular_inbox = $box_key === 'director'
+            ? circular_get_inbox_by_types($current_pid, [INBOX_TYPE_SPECIAL_PRINCIPAL, INBOX_TYPE_ACTING_PRINCIPAL], $archived)
+            : circular_get_inbox($current_pid, $inbox_type, $archived);
+
+        if ($box_key === 'director') {
+            $seen_director_circular_ids = [];
+            $circular_inbox = array_values(array_filter($circular_inbox, static function (array $item) use (&$seen_director_circular_ids): bool {
+                $circular_id = (int) ($item['circularID'] ?? 0);
+
+                if ($circular_id <= 0 || isset($seen_director_circular_ids[$circular_id])) {
+                    return false;
+                }
+
+                $seen_director_circular_ids[$circular_id] = true;
+                return true;
+            }));
+        }
         $circular_ids = array_values(array_unique(array_map(static function (array $item): int {
             return (int) ($item['circularID'] ?? 0);
         }, $circular_inbox)));
@@ -672,6 +688,7 @@ if (!function_exists('outgoing_notice_index')) {
         $forwarded_recipients_map = [];
         $director_review_map = [];
         $latest_sender_comment_map = [];
+        $announcement_map = [];
         $system_route_notes = [
             'CLERK_FORWARD_TO_DEPUTY',
             'REVIEWER_FORWARD_TO_DEPUTY',
@@ -741,7 +758,9 @@ if (!function_exists('outgoing_notice_index')) {
                 $placeholders = implode(', ', array_fill(0, count($entity_ids), '?'));
                 $types = str_repeat('i', count($entity_ids));
                 $rows = db_fetch_all(
-                    'SELECT r.circularID, r.note, r.fromPID, COALESCE(t.fName, "") AS reviewerName
+                    'SELECT r.circularID, r.note, r.fromPID,
+                            COALESCE(t.fName, "") AS reviewerName,
+                            COALESCE(p.positionName, "") AS reviewerPositionName
                      FROM dh_circular_routes AS r
                      INNER JOIN (
                          SELECT circularID, MAX(routeID) AS routeID
@@ -750,7 +769,8 @@ if (!function_exists('outgoing_notice_index')) {
                            AND circularID IN (' . $placeholders . ')
                          GROUP BY circularID
                      ) AS latest ON latest.routeID = r.routeID
-                     LEFT JOIN teacher AS t ON t.pID = r.fromPID',
+                     LEFT JOIN teacher AS t ON t.pID = r.fromPID
+                     LEFT JOIN dh_positions AS p ON p.positionID = t.positionID',
                     $types,
                     ...$entity_ids
                 );
@@ -766,6 +786,7 @@ if (!function_exists('outgoing_notice_index')) {
                         'comment' => trim((string) ($row['note'] ?? '')),
                         'reviewer_pid' => trim((string) ($row['fromPID'] ?? '')),
                         'reviewer_name' => trim((string) ($row['reviewerName'] ?? '')),
+                        'reviewer_position_name' => trim((string) ($row['reviewerPositionName'] ?? '')),
                     ];
                 }
             }
@@ -812,6 +833,53 @@ if (!function_exists('outgoing_notice_index')) {
                         'sender_pid' => $from_pid,
                         'sender_name' => trim((string) ($row['senderName'] ?? '')),
                         'sender_position_name' => trim((string) ($row['senderPositionName'] ?? '')),
+                    ];
+                }
+            }
+        }
+
+        if (!empty($items) && db_table_exists($connection, 'dh_circular_announcements')) {
+            $entity_ids = array_values(array_unique(array_filter(array_map(static function (array $item): int {
+                return (int) ($item['circularID'] ?? 0);
+            }, $items), static function (int $id): bool {
+                return $id > 0;
+            })));
+
+            if (!empty($entity_ids)) {
+                $placeholders = implode(', ', array_fill(0, count($entity_ids), '?'));
+                $types = str_repeat('i', count($entity_ids));
+                $rows = db_fetch_all(
+                    'SELECT a.circularID, a.note, a.selectedByPID, a.selectedAt,
+                            COALESCE(t.fName, "") AS selectedByName,
+                            COALESCE(p.positionName, "") AS selectedByPositionName
+                     FROM dh_circular_announcements AS a
+                     INNER JOIN (
+                         SELECT circularID, MAX(announcementID) AS announcementID
+                         FROM dh_circular_announcements
+                         WHERE isActive = 1
+                           AND circularID IN (' . $placeholders . ')
+                         GROUP BY circularID
+                     ) AS latest ON latest.announcementID = a.announcementID
+                     LEFT JOIN teacher AS t ON t.pID = a.selectedByPID
+                     LEFT JOIN dh_positions AS p ON p.positionID = t.positionID
+                     WHERE a.isActive = 1',
+                    $types,
+                    ...$entity_ids
+                );
+
+                foreach ($rows as $row) {
+                    $circular_id_key = (string) ((int) ($row['circularID'] ?? 0));
+
+                    if ($circular_id_key === '0') {
+                        continue;
+                    }
+
+                    $announcement_map[$circular_id_key] = [
+                        'note' => trim((string) ($row['note'] ?? '')),
+                        'selected_by_pid' => trim((string) ($row['selectedByPID'] ?? '')),
+                        'selected_by_name' => trim((string) ($row['selectedByName'] ?? '')),
+                        'selected_by_position_name' => trim((string) ($row['selectedByPositionName'] ?? '')),
+                        'selected_at' => trim((string) ($row['selectedAt'] ?? '')),
                     ];
                 }
             }
@@ -1011,8 +1079,12 @@ if (!function_exists('outgoing_notice_index')) {
                 return 'ความคิดเห็นของผู้พิจารณา';
             }
 
-            if (in_array($action, ['CREATE', 'SEND'], true)) {
+            if ($action === 'CREATE') {
                 return 'ความคิดเห็นของเจ้าหน้าที่สารบรรณ';
+            }
+
+            if (str_contains($position_name, 'หัวหน้ากลุ่มสาระ')) {
+                return 'ความคิดเห็นของหัวหน้ากลุ่มสาระการเรียนรู้';
             }
 
             return 'ความคิดเห็นของผู้ส่งล่าสุด';
@@ -1030,20 +1102,89 @@ if (!function_exists('outgoing_notice_index')) {
                 && $is_deputy_reviewer
                 && strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL
                 && $status_key === EXTERNAL_STATUS_FORWARDED;
+            $forwarded_recipient_pids = array_keys($forwarded_recipients_map[(string) $circular_id] ?? []);
+            $has_deputy_distributed = $can_deputy_distribute_item && !empty($forwarded_recipient_pids);
+            $announcement = $announcement_map[(string) $circular_id] ?? [];
+            $is_announced = !empty($announcement);
             $status_label = $resolve_status_label($status_key, $box_key);
             $consider_class = $consider_class_map[$status_key] ?? 'considering';
             $files = $attachments_map[(string) $circular_id] ?? [];
             $director_review = $director_review_map[(string) $circular_id] ?? [];
             $delivered_by_pid = trim((string) ($item['deliveredByPID'] ?? ''));
+            $delivered_by_name = trim((string) ($item['deliveredByName'] ?? ''));
+            $delivered_by_position_name = trim((string) ($item['deliveredByPositionName'] ?? ''));
             $latest_sender_comment = $latest_sender_comment_map[(string) $circular_id][$delivered_by_pid] ?? [];
             $latest_sender_comment_text = trim((string) ($latest_sender_comment['comment'] ?? ''));
             $registry_route = $latest_sender_comment_map[(string) $circular_id][trim((string) ($item['createdByPID'] ?? ''))] ?? [];
             $registry_comment_text = trim((string) ($registry_route['comment'] ?? ''));
             $director_comment_text = trim((string) ($director_review['comment'] ?? ''));
+            $deputy_distribution_route = $latest_sender_comment_map[(string) $circular_id][$current_pid] ?? [];
+            $deputy_distribution_comment_text = '';
+            $deputy_distribution_comment_label = 'ความคิดเห็นของรองผู้อำนวยการ';
+            $announcement_comment_text = trim((string) ($announcement['note'] ?? ''));
+            $announcement_comment_label = '';
+
+            if (
+                $can_deputy_distribute_item
+                && strtoupper((string) ($deputy_distribution_route['action'] ?? '')) === 'APPROVE'
+                && trim((string) ($deputy_distribution_route['comment'] ?? '')) !== ''
+            ) {
+                $deputy_distribution_comment_text = trim((string) ($deputy_distribution_route['comment'] ?? ''));
+                $deputy_distribution_comment_label = $latest_comment_label($deputy_distribution_route);
+            }
+
+            if ($announcement_comment_text !== '') {
+                $announcement_comment_label = $latest_comment_label([
+                    'action' => 'APPROVE',
+                    'sender_pid' => (string) ($announcement['selected_by_pid'] ?? ''),
+                    'sender_position_name' => (string) ($announcement['selected_by_position_name'] ?? ''),
+                ]);
+            }
+            $director_reviewer_pid = trim((string) ($director_review['reviewer_pid'] ?? ''));
+            $director_reviewer_position_name = trim((string) ($director_review['reviewer_position_name'] ?? ''));
+            $director_comment_label = 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+
+            if (
+                $director_reviewer_pid !== ''
+                && !in_array($director_reviewer_pid, $director_pids_for_label, true)
+                && str_contains($director_reviewer_position_name, 'รองผู้อำนวยการ')
+            ) {
+                $director_comment_label = 'ความคิดเห็นของรองผู้อำนวยการ';
+            }
+
+            if (
+                $box_key === 'director'
+                && $status_key === EXTERNAL_STATUS_PENDING_REVIEW
+                && $is_deputy_reviewer
+                && !$is_director_box
+                && !$is_acting_director
+            ) {
+                $director_comment_label = 'ความคิดเห็นของรองผู้อำนวยการ';
+            }
+
             $detail_display_text = (string) ($item['detail'] ?? '');
             $comment_display_text = $latest_sender_comment_text;
             $comment_display_label = $latest_sender_comment_text !== '' ? $latest_comment_label($latest_sender_comment) : '';
             $is_external_item = strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL;
+
+            if ($is_announced && $status_key === EXTERNAL_STATUS_FORWARDED) {
+                $status_label = '(ขึ้นข่าวประชาสัมพันธ์แล้ว)';
+                $consider_class = 'success';
+            }
+
+            if ($is_announced && $announcement_comment_text !== '') {
+                $comment_display_text = $announcement_comment_text;
+                $comment_display_label = $announcement_comment_label !== '' ? $announcement_comment_label : 'ความคิดเห็นของรองผู้อำนวยการ';
+            } elseif ($comment_display_text === '' && $announcement_comment_text !== '') {
+                $comment_display_text = $announcement_comment_text;
+                $comment_display_label = $announcement_comment_label !== '' ? $announcement_comment_label : 'ความคิดเห็นของรองผู้อำนวยการ';
+            }
+
+            $deputy_comment_text = $announcement_comment_text !== '' ? $announcement_comment_text : $deputy_distribution_comment_text;
+            $deputy_comment_label = $announcement_comment_text !== ''
+                ? ($announcement_comment_label !== '' ? $announcement_comment_label : 'ความคิดเห็นของรองผู้อำนวยการ')
+                : ($deputy_distribution_comment_label !== '' ? $deputy_distribution_comment_label : 'ความคิดเห็นของรองผู้อำนวยการ');
+
             $show_review_chain_comments = strtoupper((string) ($item['circularType'] ?? '')) === CIRCULAR_TYPE_EXTERNAL
                 && (
                     (
@@ -1051,15 +1192,16 @@ if (!function_exists('outgoing_notice_index')) {
                         && in_array($status_key, [EXTERNAL_STATUS_REVIEWED, EXTERNAL_STATUS_FORWARDED], true)
                     )
                     || $can_deputy_distribute_item
+                    || ($is_announced && $status_key === EXTERNAL_STATUS_FORWARDED)
                 );
 
-            if ($show_review_chain_comments) {
+            if (!$is_announced && $show_review_chain_comments) {
                 $detail_display_text = '';
                 $comment_display_text = '';
                 $comment_display_label = '';
             } elseif ($box_key === 'director' && $status_key === EXTERNAL_STATUS_REVIEWED && $director_comment_text !== '') {
                 $comment_display_text = $director_comment_text;
-                $comment_display_label = 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+                $comment_display_label = $director_comment_label;
             } elseif (
                 $is_external_item
                 && $box_key === 'normal'
@@ -1070,7 +1212,6 @@ if (!function_exists('outgoing_notice_index')) {
                 $detail_display_text = '';
             }
             $files_json = json_encode($files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            $forwarded_recipient_pids = array_keys($forwarded_recipients_map[(string) $circular_id] ?? []);
             $forwarded_recipient_pids_json = json_encode($forwarded_recipient_pids, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             if ($files_json === false) {
@@ -1134,10 +1275,21 @@ if (!function_exists('outgoing_notice_index')) {
                 $sender_display = $sender_faction_name;
             }
             $latest_sender_name = trim((string) ($latest_sender_comment['sender_name'] ?? ''));
+            $latest_sender_position_name = trim((string) ($latest_sender_comment['sender_position_name'] ?? ''));
             $modal_sender_name = $sender_name !== '' ? $sender_name : '-';
 
-            if ($is_external_item && $latest_sender_name !== '') {
+            if ($is_external_item && $delivered_by_name !== '') {
+                $modal_sender_name = $delivered_by_name;
+            } elseif ($is_external_item && $latest_sender_name !== '') {
                 $modal_sender_name = $latest_sender_name;
+            }
+
+            $list_sender_name = $sender_name !== '' ? $sender_name : '-';
+            $list_sender_faction_name = $sender_faction_name;
+
+            if ($box_key === 'normal' && $is_external_item && $delivered_by_name !== '') {
+                $list_sender_name = $delivered_by_name;
+                $list_sender_faction_name = $delivered_by_position_name;
             }
 
             $display_items[] = [
@@ -1150,10 +1302,14 @@ if (!function_exists('outgoing_notice_index')) {
                 'dh_year' => (int) ($item['dh_year'] ?? 0),
                 'sender_name' => $sender_name !== '' ? $sender_name : '-',
                 'modal_sender_name' => $modal_sender_name,
+                'list_sender_name' => $list_sender_name,
+                'list_sender_faction_name' => $list_sender_faction_name,
                 'sender_faction_name' => $sender_faction_name,
                 'sender_display' => $sender_display,
                 'owner_pid' => (string) ($item['createdByPID'] ?? ''),
                 'delivered_by_pid' => $delivered_by_pid,
+                'delivered_by_name' => $delivered_by_name,
+                'delivered_by_position_name' => $delivered_by_position_name,
                 'detail' => (string) ($item['detail'] ?? ''),
                 'detail_display' => $detail_display_text,
                 'link_url' => (string) ($item['linkURL'] ?? ''),
@@ -1178,13 +1334,21 @@ if (!function_exists('outgoing_notice_index')) {
                 'registry_comment' => $registry_comment_text,
                 'director_comment' => $director_comment_text,
                 'director_reviewer_name' => (string) ($director_review['reviewer_name'] ?? ''),
+                'director_comment_label' => $director_comment_label,
                 'show_review_chain_comments' => $show_review_chain_comments,
                 'latest_sender_comment' => $comment_display_text,
                 'latest_sender_comment_label' => $comment_display_label,
+                'announcement_comment' => $announcement_comment_text,
+                'announcement_comment_label' => $announcement_comment_label,
+                'deputy_comment' => $deputy_comment_text,
+                'deputy_comment_label' => $deputy_comment_label,
+                'has_deputy_distributed' => $has_deputy_distributed,
                 'latest_sender_name' => $latest_sender_name,
-                'latest_sender_position_name' => (string) ($latest_sender_comment['sender_position_name'] ?? ''),
+                'latest_sender_position_name' => $latest_sender_position_name,
+                'is_announced' => $is_announced,
                 'status_key' => $status_key,
                 'status_label' => $status_label,
+                'status_pill_class' => $is_announced ? 'approved' : 'pending',
                 'consider_class' => $consider_class,
             ];
         }

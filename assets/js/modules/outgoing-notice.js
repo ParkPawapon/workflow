@@ -409,6 +409,9 @@
   var noticeViewGroup = document.getElementById("noticeOutgoingViewGroup");
   var noticeViewLink = document.getElementById("noticeOutgoingViewLink");
   var noticeViewProposer = document.getElementById("noticeOutgoingViewProposer");
+  var noticeViewMemoSection = document.getElementById(
+    "noticeOutgoingViewDetailSection",
+  );
   var noticeViewDirectorComment = document.getElementById(
     "noticeOutgoingDirectorComment",
   );
@@ -866,7 +869,20 @@
     var reviewComment = String(
       button.getAttribute("data-review-chain-director-comment") || "",
     ).trim();
+    var reviewCommentLabel =
+      String(
+        button.getAttribute("data-review-chain-director-label") ||
+          button.getAttribute("data-director-comment-label") ||
+          "ความคิดเห็นของผู้อำนวยการโรงเรียน",
+      ).trim() || "ความคิดเห็นของผู้อำนวยการโรงเรียน";
     var shouldSplitReviewComments = registryComment !== "" || reviewComment !== "";
+    var shouldHideMemoDetail =
+      shouldSplitReviewComments ||
+      String(button.getAttribute("data-hide-memo-detail") || "").trim() === "1";
+
+    if (noticeViewMemoSection) {
+      noticeViewMemoSection.style.display = shouldHideMemoDetail ? "none" : "";
+    }
 
     if (noticeViewLatestCommentLabel) {
       noticeViewLatestCommentLabel.textContent = latestCommentLabel;
@@ -888,8 +904,7 @@
     }
 
     if (noticeViewReviewCommentLabel) {
-      noticeViewReviewCommentLabel.textContent =
-        "ความคิดเห็นของผู้อำนวยการโรงเรียน";
+      noticeViewReviewCommentLabel.textContent = reviewCommentLabel;
     }
 
     setNoticeViewDirectorCommentContent(

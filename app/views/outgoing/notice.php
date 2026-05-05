@@ -616,9 +616,9 @@ ob_start();
                                     </td>
                                     <td>
                                         <div class="circular-sender-stack">
-                                            <span class="circular-sender-name"><?= h((string) ($item['sender_name'] ?? '-')) ?></span>
-                                            <?php if (!empty($item['sender_faction_name'])) : ?>
-                                                <span class="circular-sender-faction"><?= h((string) $item['sender_faction_name']) ?></span>
+                                            <span class="circular-sender-name"><?= h((string) ($item['list_sender_name'] ?? $item['sender_name'] ?? '-')) ?></span>
+                                            <?php if (!empty($item['list_sender_faction_name'] ?? $item['sender_faction_name'] ?? '')) : ?>
+                                                <span class="circular-sender-faction"><?= h((string) ($item['list_sender_faction_name'] ?? $item['sender_faction_name'])) ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -655,18 +655,28 @@ ob_start();
                                                 data-show-read-stats="<?= h($can_deputy_distribute_item ? '1' : '0') ?>"
                                                 data-review-chain-registry-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['registry_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['director_comment'] ?? '') : '') ?>"
+                                                data-review-chain-director-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-director-comment-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-latest-comment="<?= h((string) ($item['latest_sender_comment'] ?? '')) ?>"
-                                                data-latest-comment-label="<?= h((string) ($item['latest_sender_comment_label'] ?? '')) ?>">
+                                                data-latest-comment-label="<?= h((string) ($item['latest_sender_comment_label'] ?? '')) ?>"
+                                                data-announcement-comment="<?= h((string) ($item['announcement_comment'] ?? '')) ?>"
+                                                data-announcement-comment-label="<?= h((string) ($item['announcement_comment_label'] ?? '')) ?>"
+                                                data-deputy-comment="<?= h((string) ($item['deputy_comment'] ?? '')) ?>"
+                                                data-deputy-comment-label="<?= h((string) ($item['deputy_comment_label'] ?? 'ความคิดเห็นของรองผู้อำนวยการ')) ?>"
+                                                data-deputy-forwarded="<?= h(!empty($item['has_deputy_distributed']) ? '1' : '0') ?>"
+                                                data-announced="<?= h(!empty($item['is_announced']) ? '1' : '0') ?>"
+                                                data-hide-memo-detail="<?= h($box_key === 'normal' && strtoupper((string) ($item['type'] ?? '')) === CIRCULAR_TYPE_EXTERNAL ? '1' : '0') ?>">
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
                                             </button>
+                                            <?php if (empty($item['is_announced'])) : ?>
                                             <button
                                                 class="booking-action-btn secondary js-open-circular-send-modal"
                                                 type="button"
                                                 data-circular-id="<?= h((string) (int) ($item['circular_id'] ?? 0)) ?>"
                                                 data-inbox-id="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>"
-                                                data-urgency="<?= h($priority_label) ?>"
+                                                data-urgency="<?= h((string) ($item['ext_priority_label'] ?? 'ปกติ')) ?>"
                                                 data-urgency-class="<?= h((string) ($item['urgency_class'] ?? 'normal')) ?>"
                                                 data-bookno="<?= h((string) ($item['ext_book_no'] ?? '')) ?>"
                                                 data-issued="<?= h((string) ($item['ext_issued_date'] ?? '-')) ?>"
@@ -687,14 +697,24 @@ ob_start();
                                                 data-read-stats="<?= h($read_stats_json) ?>"
                                                 data-review-chain-registry-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['registry_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['director_comment'] ?? '') : '') ?>"
+                                                data-review-chain-director-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-director-comment-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-latest-comment="<?= h((string) ($item['latest_sender_comment'] ?? '')) ?>"
                                                 data-latest-comment-label="<?= h((string) ($item['latest_sender_comment_label'] ?? '')) ?>"
+                                                data-announcement-comment="<?= h((string) ($item['announcement_comment'] ?? '')) ?>"
+                                                data-announcement-comment-label="<?= h((string) ($item['announcement_comment_label'] ?? '')) ?>"
+                                                data-deputy-comment="<?= h((string) ($item['deputy_comment'] ?? '')) ?>"
+                                                data-deputy-comment-label="<?= h((string) ($item['deputy_comment_label'] ?? 'ความคิดเห็นของรองผู้อำนวยการ')) ?>"
+                                                data-deputy-forwarded="<?= h(!empty($item['has_deputy_distributed']) ? '1' : '0') ?>"
+                                                data-announced="<?= h(!empty($item['is_announced']) ? '1' : '0') ?>"
                                                 data-deputy-distribute="<?= h($can_deputy_distribute_item ? '1' : '0') ?>"
-                                                data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>">
+                                                data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>"
+                                                data-hide-memo-detail="<?= h($box_key === 'normal' && strtoupper((string) ($item['type'] ?? '')) === CIRCULAR_TYPE_EXTERNAL ? '1' : '0') ?>">
                                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                                 <span class="tooltip">ส่งหนังสือต่อ</span>
                                             </button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -746,6 +766,10 @@ ob_start();
                                 $show_workflow_action = false;
                             }
 
+                            if (!empty($item['is_announced'])) {
+                                $show_workflow_action = false;
+                            }
+
                             $show_detail_action = !($box_key === 'director' && $filter_view === 'table1' && $show_workflow_action);
                             ?>
                             <tr>
@@ -760,7 +784,7 @@ ob_start();
                                 <td><button class="urgency-status <?= h((string) ($item['urgency_class'] ?? 'normal')) ?>">
                                         <p><?= h($priority_label) ?></p>
                                     </button></td>
-                                <td><span class="status-pill pending"><?= h((string) ($item['status_label'] ?? '-')) ?></span></td>
+                                <td><span class="status-pill <?= h((string) ($item['status_pill_class'] ?? 'pending')) ?>"><?= h((string) ($item['status_label'] ?? '-')) ?></span></td>
                                 <td>
                                     <div class="circular-action-stack">
                                         <?php if ($show_detail_action) : ?>
@@ -788,9 +812,18 @@ ob_start();
                                                 data-files="<?= h($file_json) ?>"
                                                 data-review-chain-registry-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['registry_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['director_comment'] ?? '') : '') ?>"
+                                                data-review-chain-director-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-director-comment-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-latest-comment="<?= h((string) ($item['latest_sender_comment'] ?? '')) ?>"
                                                 data-latest-comment-label="<?= h((string) ($item['latest_sender_comment_label'] ?? '')) ?>"
+                                                data-announcement-comment="<?= h((string) ($item['announcement_comment'] ?? '')) ?>"
+                                                data-announcement-comment-label="<?= h((string) ($item['announcement_comment_label'] ?? '')) ?>"
+                                                data-deputy-comment="<?= h((string) ($item['deputy_comment'] ?? '')) ?>"
+                                                data-deputy-comment-label="<?= h((string) ($item['deputy_comment_label'] ?? 'ความคิดเห็นของรองผู้อำนวยการ')) ?>"
+                                                data-deputy-forwarded="<?= h(!empty($item['has_deputy_distributed']) ? '1' : '0') ?>"
+                                                data-announced="<?= h(!empty($item['is_announced']) ? '1' : '0') ?>"
+                                                data-hide-memo-detail="<?= h($box_key === 'normal' && strtoupper((string) ($item['type'] ?? '')) === CIRCULAR_TYPE_EXTERNAL ? '1' : '0') ?>"
                                                 data-received-time="<?= h((string) ($item['delivered_time'] ?? '-')) ?>">
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
@@ -821,10 +854,20 @@ ob_start();
                                                 data-read-stats="<?= h($read_stats_json) ?>"
                                                 data-review-chain-registry-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['registry_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['director_comment'] ?? '') : '') ?>"
+                                                data-review-chain-director-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-director-comment="<?= h((string) ($item['director_comment'] ?? '')) ?>"
+                                                data-director-comment-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
                                                 data-latest-comment="<?= h((string) ($item['latest_sender_comment'] ?? '')) ?>"
                                                 data-latest-comment-label="<?= h((string) ($item['latest_sender_comment_label'] ?? '')) ?>"
-                                                data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>">
+                                                data-announcement-comment="<?= h((string) ($item['announcement_comment'] ?? '')) ?>"
+                                                data-announcement-comment-label="<?= h((string) ($item['announcement_comment_label'] ?? '')) ?>"
+                                                data-deputy-comment="<?= h((string) ($item['deputy_comment'] ?? '')) ?>"
+                                                data-deputy-comment-label="<?= h((string) ($item['deputy_comment_label'] ?? 'ความคิดเห็นของรองผู้อำนวยการ')) ?>"
+                                                data-deputy-forwarded="<?= h(!empty($item['has_deputy_distributed']) ? '1' : '0') ?>"
+                                                data-announced="<?= h(!empty($item['is_announced']) ? '1' : '0') ?>"
+                                                data-deputy-distribute="<?= h($can_deputy_distribute_item ? '1' : '0') ?>"
+                                                data-registry-handoff="<?= h($forward_is_registry_handoff ? '1' : '0') ?>"
+                                                data-hide-memo-detail="<?= h($box_key === 'normal' && strtoupper((string) ($item['type'] ?? '')) === CIRCULAR_TYPE_EXTERNAL ? '1' : '0') ?>">
                                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                                 <span class="tooltip">อ่าน/ดำเนินการ</span>
                                             </button>
@@ -897,7 +940,7 @@ ob_start();
                             <input type="text" id="noticeOutgoingViewGroup" value="-" disabled>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="noticeOutgoingViewDetailSection">
                             <label><b>เกษียณหนังสือ</b></label>
                             <textarea id="notice_memo_editor_view" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
                         </div>
@@ -935,6 +978,11 @@ ob_start();
                         <div class="form-group" id="noticeOutgoingReviewCommentSection" style="display: none;">
                             <label><b id="noticeOutgoingReviewCommentLabel">ความคิดเห็นของผู้อำนวยการโรงเรียน</b></label>
                             <textarea id="noticeOutgoingReviewComment" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
+                        </div>
+
+                        <div class="form-group" id="noticeOutgoingDeputyCommentSection" style="display: none;">
+                            <label><b id="noticeOutgoingDeputyCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</b></label>
+                            <textarea id="noticeOutgoingDeputyComment" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
                         </div>
 
                         <div class="content-read-sec" id="noticeDetailReceiptStatusSection" style="display: none;">
@@ -1022,7 +1070,7 @@ ob_start();
                             <input type="text" id="noticeOutgoingViewGroup" value="-" disabled>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="noticeOutgoingViewDetailSection">
                             <label><b>เกษียณหนังสือ</b></label>
                             <textarea id="notice_memo_editor_view" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
                         </div>
@@ -1060,6 +1108,11 @@ ob_start();
                         <div class="form-group" id="noticeOutgoingReviewCommentSection" style="display: none;">
                             <label><b id="noticeOutgoingReviewCommentLabel">ความคิดเห็นของผู้อำนวยการโรงเรียน</b></label>
                             <textarea id="noticeOutgoingReviewComment" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
+                        </div>
+
+                        <div class="form-group" id="noticeOutgoingDeputyCommentSection" style="display: none;">
+                            <label><b id="noticeOutgoingDeputyCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</b></label>
+                            <textarea id="noticeOutgoingDeputyComment" class="js-memo-editor" rows="5" data-editor-readonly disabled>-</textarea>
                         </div>
 
                     </form>
@@ -1288,7 +1341,7 @@ ob_start();
                         <?php endif; ?>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="forwardViewDetailSection">
                         <label><b>เกษียณหนังสือ</b></label>
                         <textarea rows="5" id="forwardViewDetail" class="js-memo-editor" data-editor-readonly disabled>-</textarea>
                     </div>
@@ -2541,6 +2594,7 @@ ob_start();
         const noticeDetailGroup = document.getElementById('noticeOutgoingViewGroup');
         const noticeDetailLink = document.getElementById('noticeOutgoingViewLink');
         const noticeDetailProposer = document.getElementById('noticeOutgoingViewProposer');
+        const noticeDetailMemoSection = document.getElementById('noticeOutgoingViewDetailSection');
         const noticeDetailCoverSection = document.getElementById('noticeOutgoingViewCoverSection');
         const noticeDetailCoverList = document.getElementById('noticeOutgoingViewCoverList');
         const noticeDetailAttachmentSection = document.getElementById('noticeOutgoingViewAttachmentSection');
@@ -2553,6 +2607,9 @@ ob_start();
         const noticeDetailReviewComment = document.getElementById('noticeOutgoingReviewComment');
         const noticeDetailReviewCommentSection = document.getElementById('noticeOutgoingReviewCommentSection');
         const noticeDetailReviewCommentLabel = document.getElementById('noticeOutgoingReviewCommentLabel');
+        const noticeDetailDeputyComment = document.getElementById('noticeOutgoingDeputyComment');
+        const noticeDetailDeputyCommentSection = document.getElementById('noticeOutgoingDeputyCommentSection');
+        const noticeDetailDeputyCommentLabel = document.getElementById('noticeOutgoingDeputyCommentLabel');
         const noticeDetailReceiptStatusSection = document.getElementById('noticeDetailReceiptStatusSection');
         const noticeDetailReceiptStatusTableBody = document.getElementById('noticeDetailReceiptStatusTableBody');
         const noticeDetailUrgentRadios = detailModalKeep ? Array.from(detailModalKeep.querySelectorAll('[data-notice-view-urgent]')) : [];
@@ -2698,6 +2755,10 @@ ob_start();
 
         const setNoticeReviewCommentContent = (html) => {
             setNoticeReadonlyEditorContent('noticeOutgoingReviewComment', noticeDetailReviewComment, html);
+        };
+
+        const setNoticeDeputyCommentContent = (html) => {
+            setNoticeReadonlyEditorContent('noticeOutgoingDeputyComment', noticeDetailDeputyComment, html);
         };
 
         const setForwardViewEditorContent = (html) => {
@@ -3000,16 +3061,35 @@ ob_start();
                 ? String(button.getAttribute('data-latest-comment') || '').trim()
                 : '';
             const latestCommentLabel = String(button.getAttribute('data-latest-comment-label') || 'ความคิดเห็นของผู้ส่งล่าสุด').trim() || 'ความคิดเห็นของผู้ส่งล่าสุด';
+            const announcementComment = String(button.getAttribute('data-announcement-comment') || '').trim();
+            const announcementCommentLabel = String(button.getAttribute('data-announcement-comment-label') || 'ความคิดเห็นของรองผู้อำนวยการ').trim() || 'ความคิดเห็นของรองผู้อำนวยการ';
+            const deputyComment = String(button.getAttribute('data-deputy-comment') || announcementComment).trim();
+            const deputyCommentLabel = String(button.getAttribute('data-deputy-comment-label') || announcementCommentLabel || 'ความคิดเห็นของรองผู้อำนวยการ').trim() || 'ความคิดเห็นของรองผู้อำนวยการ';
             const registryComment = String(button.getAttribute('data-review-chain-registry-comment') || '').trim();
             const reviewComment = String(button.getAttribute('data-review-chain-director-comment') || '').trim();
+            const reviewCommentLabel = String(button.getAttribute('data-review-chain-director-label') || button.getAttribute('data-director-comment-label') || 'ความคิดเห็นของผู้อำนวยการโรงเรียน').trim() || 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+            const isAnnounced = String(button.getAttribute('data-announced') || '').trim() === '1';
+            const isDeputyForwarded = String(button.getAttribute('data-deputy-forwarded') || '').trim() === '1';
+            const displayLatestComment = isAnnounced && announcementComment !== '' ? announcementComment : latestComment;
+            const displayLatestCommentLabel = isAnnounced && announcementComment !== '' ? announcementCommentLabel : latestCommentLabel;
             const shouldSplitReviewComments = registryComment !== '' || reviewComment !== '';
+            const shouldShowDeputyComment = (isAnnounced || isDeputyForwarded) && deputyComment !== '';
+            const shouldShowLatestComment = !shouldShowDeputyComment
+                && displayLatestComment !== ''
+                && !shouldSplitReviewComments;
+            const shouldHideMemoDetail = shouldSplitReviewComments
+                || String(button.getAttribute('data-hide-memo-detail') || '').trim() === '1';
+
+            if (noticeDetailMemoSection) {
+                noticeDetailMemoSection.style.display = shouldHideMemoDetail ? 'none' : '';
+            }
 
             if (noticeDetailLatestCommentLabel) {
-                noticeDetailLatestCommentLabel.textContent = latestCommentLabel;
+                noticeDetailLatestCommentLabel.textContent = displayLatestCommentLabel;
             }
 
             if (noticeDetailLatestCommentSection) {
-                noticeDetailLatestCommentSection.style.display = !shouldSplitReviewComments && latestComment !== '' ? '' : 'none';
+                noticeDetailLatestCommentSection.style.display = shouldShowLatestComment ? '' : 'none';
             }
 
             if (noticeDetailRegistryCommentSection) {
@@ -3021,12 +3101,21 @@ ob_start();
             }
 
             if (noticeDetailReviewCommentLabel) {
-                noticeDetailReviewCommentLabel.textContent = 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+                noticeDetailReviewCommentLabel.textContent = reviewCommentLabel;
             }
 
-            setNoticeDirectorCommentContent(shouldSplitReviewComments ? '' : latestComment);
+            if (noticeDetailDeputyCommentSection) {
+                noticeDetailDeputyCommentSection.style.display = shouldShowDeputyComment ? '' : 'none';
+            }
+
+            if (noticeDetailDeputyCommentLabel) {
+                noticeDetailDeputyCommentLabel.textContent = deputyCommentLabel;
+            }
+
+            setNoticeDirectorCommentContent(shouldShowLatestComment ? displayLatestComment : '');
             setNoticeRegistryCommentContent(registryComment);
             setNoticeReviewCommentContent(reviewComment);
+            setNoticeDeputyCommentContent(shouldShowDeputyComment ? deputyComment : '');
             renderNoticeDetailFiles(circularId, button.getAttribute('data-files'));
             renderNoticeDetailReadStats(button.getAttribute('data-read-stats'), button.getAttribute('data-show-read-stats'));
         };
@@ -3072,6 +3161,7 @@ ob_start();
         const forwardViewGroupSelectWrapper = document.getElementById('forwardViewGroupSelectWrapper');
         const forwardViewGroupFid = document.getElementById('forwardViewGroupFid');
         const forwardViewGroupSelectLabel = document.getElementById('forwardViewGroupSelectLabel');
+        const forwardViewDetailSection = document.getElementById('forwardViewDetailSection');
         const forwardViewDetail = document.getElementById('forwardViewDetail');
         const forwardDirectorComment = document.getElementById('forwardDirectorComment');
         const forwardDirectorCommentSection = document.getElementById('forwardDirectorCommentSection');
@@ -3106,12 +3196,17 @@ ob_start();
         const updateForwardActionButtonState = () => {
             if (!forwardSendButton) return;
 
+            const isAnnouncementLocked = String(sendForm?.dataset.announcementLocked || '').trim() === '1';
             const isDeputyDistributeAction = String(sendForm?.dataset.deputyDistributeAction || '').trim() === '1';
-            const shouldPublishAnnouncement = isDeputyDistributeAction && Boolean(forwardPublishAnnouncement?.checked);
+            const isDeputyForwarded = String(sendForm?.dataset.deputyForwarded || '').trim() === '1';
+            const canPublishAnnouncement = isDeputyDistributeAction && !isAnnouncementLocked && !isDeputyForwarded;
+            const shouldPublishAnnouncement = canPublishAnnouncement && Boolean(forwardPublishAnnouncement?.checked);
             const label = shouldPublishAnnouncement ? forwardAnnouncementButtonLabel : forwardDefaultButtonLabel;
             const confirmTitle = shouldPublishAnnouncement ? forwardAnnouncementConfirmTitle : forwardDefaultConfirmTitle;
             const recipientSection = sendForm?.querySelector('[data-recipients-section]');
             const receiptStatusSection = sendForm?.querySelector('#forwardReceiptStatusSection');
+
+            forwardSendButton.style.display = isAnnouncementLocked ? 'none' : '';
 
             if (forwardSendButtonText) {
                 forwardSendButtonText.textContent = label;
@@ -3119,9 +3214,18 @@ ob_start();
             forwardSendButton.setAttribute('data-confirm-title', confirmTitle);
 
             if (recipientSection) {
-                recipientSection.style.display = shouldPublishAnnouncement ? 'none' : '';
+                recipientSection.style.display = (isAnnouncementLocked || shouldPublishAnnouncement) ? 'none' : '';
             }
-            if (receiptStatusSection && shouldPublishAnnouncement) {
+            if (forwardAnnouncementSection) {
+                forwardAnnouncementSection.style.display = canPublishAnnouncement ? '' : 'none';
+            }
+            if (forwardPublishAnnouncement) {
+                forwardPublishAnnouncement.disabled = !canPublishAnnouncement;
+                if (!canPublishAnnouncement) {
+                    forwardPublishAnnouncement.checked = false;
+                }
+            }
+            if (receiptStatusSection && (isAnnouncementLocked || shouldPublishAnnouncement)) {
                 receiptStatusSection.style.display = 'none';
             } else if (sendForm && typeof sendForm.setReadStats === 'function') {
                 sendForm.setReadStats(sendForm.dataset.readStats || '[]');
@@ -3174,19 +3278,34 @@ ob_start();
             const rawReadStats = button.getAttribute('data-read-stats') || '[]';
             const rawForwardedPids = button.getAttribute('data-forwarded-pids') || '[]';
             const directorComment = String(button.getAttribute('data-director-comment') || '').trim();
+            const directorCommentLabel = String(button.getAttribute('data-director-comment-label') || 'ความคิดเห็นของผู้อำนวยการโรงเรียน').trim() || 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
             const latestComment = button.hasAttribute('data-latest-comment')
                 ? String(button.getAttribute('data-latest-comment') || '').trim()
                 : '';
             const latestCommentLabel = String(button.getAttribute('data-latest-comment-label') || 'ความคิดเห็นของผู้ส่งล่าสุด').trim() || 'ความคิดเห็นของผู้ส่งล่าสุด';
+            const announcementComment = String(button.getAttribute('data-announcement-comment') || '').trim();
+            const announcementCommentLabel = String(button.getAttribute('data-announcement-comment-label') || 'ความคิดเห็นของรองผู้อำนวยการ').trim() || 'ความคิดเห็นของรองผู้อำนวยการ';
+            const deputyComment = String(button.getAttribute('data-deputy-comment') || announcementComment).trim();
             const isRegistryHandoffAction = String(button.getAttribute('data-registry-handoff') || '').trim() === '1';
             const isDeputyDistributeAction = String(button.getAttribute('data-deputy-distribute') || '').trim() === '1';
+            const isAnnounced = String(button.getAttribute('data-announced') || '').trim() === '1';
+            const isDeputyForwarded = String(button.getAttribute('data-deputy-forwarded') || '').trim() === '1';
+            const displayLatestComment = isAnnounced && announcementComment !== '' ? announcementComment : latestComment;
+            const displayLatestCommentLabel = isAnnounced && announcementComment !== '' ? announcementCommentLabel : latestCommentLabel;
             const registryComment = String(button.getAttribute('data-review-chain-registry-comment') || '').trim();
             const reviewComment = String(button.getAttribute('data-review-chain-director-comment') || '').trim();
+            const reviewCommentLabel = String(button.getAttribute('data-review-chain-director-label') || directorCommentLabel).trim() || directorCommentLabel;
             const shouldSplitReviewComments = !forwardIsReviewerReturnPage
                 && (isRegistryHandoffAction || isDeputyDistributeAction)
                 && (registryComment !== '' || reviewComment !== '');
+            const shouldHideMemoDetail = shouldSplitReviewComments
+                || String(button.getAttribute('data-hide-memo-detail') || '').trim() === '1';
             const groupFid = String(button.getAttribute('data-group-fid') || '').trim();
             const groupLabel = String(button.getAttribute('data-group') || '').trim();
+
+            if (forwardViewDetailSection) {
+                forwardViewDetailSection.style.display = shouldHideMemoDetail ? 'none' : '';
+            }
 
             const targetInput = sendModal.querySelector('#forwardTargetCircularId');
             const inboxInput = sendModal.querySelector('[data-send-inbox-id]');
@@ -3198,6 +3317,8 @@ ob_start();
             if (sendForm) {
                 sendForm.dataset.registryHandoff = isRegistryHandoffAction ? '1' : '0';
                 sendForm.dataset.deputyDistributeAction = isDeputyDistributeAction ? '1' : '0';
+                sendForm.dataset.deputyForwarded = isDeputyForwarded ? '1' : '0';
+                sendForm.dataset.announcementLocked = (isDeputyDistributeAction && isAnnounced) ? '1' : '0';
             }
 
             if (targetInput) targetInput.value = circularId;
@@ -3216,9 +3337,9 @@ ob_start();
             scheduleForwardGroupSelection(groupFid, groupLabel);
             setForwardViewEditorContent(detail);
             const shouldShowLatestComment = !forwardIsReviewerReturnPage
-                && !shouldSplitReviewComments
+                && (!shouldSplitReviewComments || isAnnounced)
                 && (isRegistryHandoffAction || isDeputyDistributeAction)
-                && latestComment !== '';
+                && displayLatestComment !== '';
             const shouldShowDirectorComment = forwardIsReviewerReturnPage || shouldShowLatestComment;
             [forwardDirectorCommentDivider, forwardDirectorCommentSection].forEach((element) => {
                 if (element) {
@@ -3226,9 +3347,9 @@ ob_start();
                 }
             });
             if (forwardLatestCommentLabel) {
-                forwardLatestCommentLabel.textContent = forwardIsReviewerReturnPage ? 'ความคิดเห็นของผู้อำนวยการโรงเรียน' : latestCommentLabel;
+                forwardLatestCommentLabel.textContent = forwardIsReviewerReturnPage ? directorCommentLabel : displayLatestCommentLabel;
             }
-            setForwardDirectorCommentContent(forwardIsReviewerReturnPage ? directorComment : (shouldSplitReviewComments ? '' : latestComment), '');
+            setForwardDirectorCommentContent(forwardIsReviewerReturnPage ? directorComment : (shouldShowLatestComment ? displayLatestComment : ''), '');
             [forwardRegistryCommentDivider, forwardRegistryCommentSection].forEach((element) => {
                 if (element) {
                     element.style.display = shouldSplitReviewComments && registryComment !== '' ? '' : 'none';
@@ -3240,19 +3361,22 @@ ob_start();
                 }
             });
             if (forwardReviewCommentLabel) {
-                forwardReviewCommentLabel.textContent = 'ความคิดเห็นของผู้อำนวยการโรงเรียน';
+                forwardReviewCommentLabel.textContent = reviewCommentLabel;
             }
             setForwardRegistryCommentContent(shouldSplitReviewComments ? registryComment : '');
             setForwardReviewCommentContent(shouldSplitReviewComments ? reviewComment : '');
-            [forwardDeputyCommentDivider, forwardDeputyCommentSection, forwardAnnouncementSection].forEach((element) => {
+            [forwardDeputyCommentDivider, forwardDeputyCommentSection].forEach((element) => {
                 if (element) {
                     element.style.display = isDeputyDistributeAction ? '' : 'none';
                 }
             });
-            setForwardDeputyCommentContent('');
+            if (forwardAnnouncementSection) {
+                forwardAnnouncementSection.style.display = isDeputyDistributeAction && !isAnnounced && !isDeputyForwarded ? '' : 'none';
+            }
+            setForwardDeputyCommentContent(deputyComment);
             if (forwardPublishAnnouncement) {
                 forwardPublishAnnouncement.checked = false;
-                forwardPublishAnnouncement.disabled = !isDeputyDistributeAction;
+                forwardPublishAnnouncement.disabled = !isDeputyDistributeAction || isAnnounced || isDeputyForwarded;
             }
             updateForwardActionButtonState();
             setNoticeInput(forwardViewLink, linkUrl);

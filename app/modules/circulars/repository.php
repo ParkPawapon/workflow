@@ -166,39 +166,67 @@ if (!function_exists('circular_add_inboxes')) {
     }
 }
 
-if (!function_exists('circular_get_inbox')) {
-    function circular_get_inbox(string $pID, string $inboxType = 'NORMAL', bool $archived = false): array
+if (!function_exists('circular_get_inbox_by_types')) {
+    function circular_get_inbox_by_types(string $pID, array $inboxTypes, bool $archived = false): array
     {
+        $inboxTypes = array_values(array_unique(array_filter(array_map(static function ($value): string {
+            return trim((string) $value);
+        }, $inboxTypes), static function (string $value): bool {
+            return $value !== '';
+        })));
+
+        if ($inboxTypes === []) {
+            return [];
+        }
+
         $archivedFlag = $archived ? 1 : 0;
+        $placeholders = implode(', ', array_fill(0, count($inboxTypes), '?'));
+        $types = 's' . str_repeat('s', count($inboxTypes)) . 'i';
+        $params = array_merge([$pID], $inboxTypes, [$archivedFlag]);
         $sql = 'SELECT i.inboxID, i.isRead, i.readAt, i.isArchived, i.deliveredAt, i.deliveredByPID,
                 c.circularID, c.circularType, c.subject, c.detail, c.linkURL, c.status, c.createdAt,
                 t.fName AS senderName,
-                COALESCE(sf.fName, tf.fName, "") AS senderFactionName
+                COALESCE(sf.fName, tf.fName, "") AS senderFactionName,
+                COALESCE(dt.fName, "") AS deliveredByName,
+                COALESCE(dp.positionName, "") AS deliveredByPositionName
             FROM dh_circular_inboxes AS i
             INNER JOIN dh_circulars AS c ON i.circularID = c.circularID
             LEFT JOIN teacher AS t ON c.createdByPID = t.pID
             LEFT JOIN faction AS sf ON c.fromFID = sf.fID
             LEFT JOIN faction AS tf ON t.fID = tf.fID
-            WHERE i.pID = ? AND i.inboxType = ? AND i.isArchived = ?
+            LEFT JOIN teacher AS dt ON i.deliveredByPID = dt.pID
+            LEFT JOIN dh_positions AS dp ON dt.positionID = dp.positionID
+            WHERE i.pID = ? AND i.inboxType IN (' . $placeholders . ') AND i.isArchived = ?
             ORDER BY i.deliveredAt DESC, i.inboxID DESC';
 
-        return db_fetch_all($sql, 'ssi', $pID, $inboxType, $archivedFlag);
+        return db_fetch_all($sql, $types, ...$params);
+    }
+}
+
+if (!function_exists('circular_get_inbox')) {
+    function circular_get_inbox(string $pID, string $inboxType = 'NORMAL', bool $archived = false): array
+    {
+        return circular_get_inbox_by_types($pID, [$inboxType], $archived);
     }
 }
 
 if (!function_exists('circular_get_inbox_item')) {
     function circular_get_inbox_item(int $inboxID, string $pID): ?array
     {
-        $sql = 'SELECT i.inboxID, i.circularID, i.isRead, i.readAt, i.inboxType,
+        $sql = 'SELECT i.inboxID, i.circularID, i.isRead, i.readAt, i.inboxType, i.deliveredByPID,
                 c.circularType, c.subject, c.detail, c.linkURL, c.fromFID, c.extPriority, c.extBookNo, c.extIssuedDate,
                 c.extFromText, c.extGroupFID, c.status, c.createdByPID, c.createdAt,
                 t.fName AS senderName,
-                COALESCE(sf.fName, tf.fName, "") AS senderFactionName
+                COALESCE(sf.fName, tf.fName, "") AS senderFactionName,
+                COALESCE(dt.fName, "") AS deliveredByName,
+                COALESCE(dp.positionName, "") AS deliveredByPositionName
             FROM dh_circular_inboxes AS i
             INNER JOIN dh_circulars AS c ON i.circularID = c.circularID
             LEFT JOIN teacher AS t ON c.createdByPID = t.pID
             LEFT JOIN faction AS sf ON c.fromFID = sf.fID
             LEFT JOIN faction AS tf ON t.fID = tf.fID
+            LEFT JOIN teacher AS dt ON i.deliveredByPID = dt.pID
+            LEFT JOIN dh_positions AS dp ON dt.positionID = dp.positionID
             WHERE i.inboxID = ? AND i.pID = ?
             LIMIT 1';
 
@@ -402,6 +430,9 @@ if (!function_exists('circular_get_announcements')) {
         $sql = 'SELECT a.announcementID, a.selectedAt, c.circularID, c.circularType, c.subject,
                 c.detail, c.linkURL, c.extPriority, c.extBookNo, c.extIssuedDate, c.extFromText, c.extGroupFID,
                 COALESCE(f.fName, "") AS extGroupName,
+                COALESCE(announce_route.note, a.note, "") AS announcementComment,
+                COALESCE(selected_by.fName, "") AS announcementByName,
+                COALESCE(selected_pos.positionName, "") AS announcementByPositionName,
                 COALESCE(review.note, "") AS directorComment,
                 COALESCE(review.reviewerName, "") AS directorReviewerName
             FROM (
@@ -413,6 +444,18 @@ if (!function_exists('circular_get_announcements')) {
             INNER JOIN dh_circular_announcements AS a ON a.announcementID = latest.announcementID
             INNER JOIN dh_circulars AS c ON a.circularID = c.circularID
             LEFT JOIN faction AS f ON c.extGroupFID = f.fID
+            LEFT JOIN teacher AS selected_by ON selected_by.pID = a.selectedByPID
+            LEFT JOIN dh_positions AS selected_pos ON selected_pos.positionID = selected_by.positionID
+            LEFT JOIN (
+                SELECT r.circularID, r.fromPID, r.note
+                FROM dh_circular_routes AS r
+                INNER JOIN (
+                    SELECT circularID, fromPID, MAX(routeID) AS routeID
+                    FROM dh_circular_routes
+                    WHERE action = \'APPROVE\'
+                    GROUP BY circularID, fromPID
+                ) AS latest_announce ON latest_announce.routeID = r.routeID
+            ) AS announce_route ON announce_route.circularID = c.circularID AND announce_route.fromPID = a.selectedByPID
             LEFT JOIN (
                 SELECT r.circularID, r.note, r.fromPID, COALESCE(t.fName, "") AS reviewerName
                 FROM dh_circular_routes AS r
@@ -440,17 +483,18 @@ if (!function_exists('circular_get_announcements')) {
 }
 
 if (!function_exists('circular_set_announcement')) {
-    function circular_set_announcement(int $circularID, string $selectedByPID): void
+    function circular_set_announcement(int $circularID, string $selectedByPID, ?string $note = null): void
     {
         if (!db_table_exists(db_connection(), 'dh_circular_announcements')) {
             return;
         }
 
         $stmt = db_query(
-            'INSERT INTO dh_circular_announcements (circularID, selectedByPID, isActive) VALUES (?, ?, 1)',
-            'is',
+            'INSERT INTO dh_circular_announcements (circularID, selectedByPID, note, isActive) VALUES (?, ?, ?, 1)',
+            'iss',
             $circularID,
-            $selectedByPID
+            $selectedByPID,
+            $note
         );
         mysqli_stmt_close($stmt);
 
