@@ -9027,7 +9027,20 @@ label {
 
 .row-format {
   display: grid !important;
-  grid-template-columns: 10% 90% !important;
+  grid-template-columns: 15% 85% !important;
+}
+
+.row-format p {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.row-format input {
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--color-secondary) !important;
+  padding: 0 !important;
 }
 
 .row-format p:last-child {
@@ -9444,12 +9457,21 @@ label {
 
 .table-circular-notice-index {
   width: 100%;
-  overflow-x: scroll;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-x: auto;
+  cursor: grab;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-secondary-light) transparent;
   border-radius: 12px;
   border: 0.5px solid var(--color-neutral-dark);
+}
 
+.table-circular-notice-index.is-dragging {
+  cursor: grabbing;
+}
+
+.table-circular-notice-index.is-dragging table {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .table-circular-notice-index table {
@@ -21749,7 +21771,7 @@ label {
     padding: 0 20px;
     height: 60px;
   }
-  
+
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal button {
     font-size: var(--font-size-desc-1);
     height: 30px;
@@ -22077,9 +22099,12 @@ label {
 
   .table-circular-notice-index {
     width: 100%;
-    overflow-x: scroll;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    overflow-x: auto;
+    cursor: grab;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-secondary-light) transparent;
+    border-radius: 12px;
+    border: 0.5px solid var(--color-neutral-dark);
   }
 
   .table-circular-notice-index table {
@@ -31456,9 +31481,11 @@ label {
     width: 100%;
     margin: 10px 0;
   }
-.upload-layout {
-  gap: 0px;
-}
+
+  .upload-layout {
+    gap: 0px;
+  }
+
   .file-item-wrapper {
     display: flex;
     align-items: center;
@@ -31986,11 +32013,11 @@ label {
     padding: 0 20px;
   }
 
-   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal {
+  .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal {
     padding: 0 10px;
     height: 40px;
   }
-  
+
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .footer-modal button {
     font-size: var(--font-size-desc-3);
     height: 25px;
@@ -32050,10 +32077,10 @@ label {
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-section {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin: 10px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0 0;
   }
 
   .content-circular-notice-keep .modal-overlay-circular-notice-keep .modal-content .content-modal .content-file-sec .file-banner {
@@ -32327,9 +32354,12 @@ label {
 
   .table-circular-notice-index {
     width: 100%;
-    overflow-x: scroll;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    overflow-x: auto;
+    cursor: grab;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-secondary-light) transparent;
+    border-radius: 12px;
+    border: 0.5px solid var(--color-neutral-dark);
   }
 
   .table-circular-notice-index table {
