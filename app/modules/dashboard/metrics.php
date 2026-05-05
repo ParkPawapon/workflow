@@ -112,7 +112,7 @@ if (!function_exists('dashboard_count_unread_circulars_by_type')) {
         }
 
         $row = db_fetch_one(
-            'SELECT COUNT(*) AS total
+            'SELECT COUNT(DISTINCT c.circularID) AS total
             FROM dh_circular_inboxes AS i
             INNER JOIN dh_circulars AS c ON c.circularID = i.circularID
             WHERE i.pID = ?
@@ -222,7 +222,7 @@ if (!function_exists('dashboard_count_external_circular_notifications')) {
                 $review_inbox_types[] = INBOX_TYPE_SPECIAL_PRINCIPAL;
             }
 
-            if (!empty($access['is_director_or_acting']) && !in_array(INBOX_TYPE_ACTING_PRINCIPAL, $review_inbox_types, true)) {
+            if (!in_array(INBOX_TYPE_ACTING_PRINCIPAL, $review_inbox_types, true)) {
                 $review_inbox_types[] = INBOX_TYPE_ACTING_PRINCIPAL;
             }
 

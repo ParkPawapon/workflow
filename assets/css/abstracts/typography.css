@@ -1,24 +1,24 @@
 /* =========================================
    TYPOGRAPHY SYSTEM
-   Based on Design System 16px Base
+   Based on Design System 1rem Base
    ========================================= */
 
 :root {
 
-  --font-size-h1:     3.000rem; /* 48px */
-  --font-size-h2:     2.500rem; /* 40px */
-  --font-size-h3:     2.062rem; /* 33px */
-  --font-size-h4:     1.750rem; /* 28px */
+  --font-size-h1:     2.875rem; /* 46px */
+  --font-size-h2:     2.375rem; /* 38px */
+  --font-size-h3:     1.9375rem; /* 31px */
+  --font-size-h4:     1.625rem; /* 26px */
   
-  --font-size-title:  1.500rem; /* 24px */
+  --font-size-title:  1.375rem; /* 22px */
   
-  --font-size-body-1: 1.250rem; /* 20px */
-  --font-size-body-2: 1.000rem; /* 16px (Base) */
+  --font-size-body-1: 1.125rem; /* 18px */
+  --font-size-body-2: .875rem; /* 14px (Base) */
   
-  --font-size-desc-1: 0.875rem; /* 14px */
-  --font-size-desc-2: 0.750rem; /* 12px */
-  --font-size-desc-3: 0.625rem; /* 10px */
-  --font-size-desc-4: 0.500rem; /*  8px */
+  --font-size-desc-1: .75rem; /* 12px */
+  --font-size-desc-2: .625rem; /* 10px */
+  --font-size-desc-3: .5rem; /* 8px */
+  --font-size-desc-4: .375rem; /* 6px */
 
   /* Line Height (ระยะห่างบรรทัดมาตรฐาน) */
   --line-height-heading: 1.2;
