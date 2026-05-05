@@ -460,6 +460,15 @@ ob_start();
         transform-origin: center;
     }
 
+    .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+        text-align: center;
+    }
+
+    .table-circular-notice-index.outside-person table thead th:nth-child(3),
+    .table-circular-notice-index.outside-person table tbody td:nth-child(3) {
+        text-align: start;
+    }
+
 
     .table-circular-notice-index.first-table table thead th:nth-child(1) {
         width: 45px !important;
@@ -497,6 +506,36 @@ ob_start();
         max-width: 140px !important;
     }
 
+    .table-circular-notice-index.outside-person table thead th:nth-child(1) {
+        width: 180px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+    }
+
+    .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index.outside-person table thead th:nth-child(3) {
+        width: 780px !important;
+        min-width: 780px !important;
+        max-width: 780px !important;
+    }
+
+    .table-circular-notice-index.outside-person table thead th:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index.outside-person table thead th:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
     @media screen and (max-width: 1024px) {
         .table-circular-notice-index.first-table table thead th:nth-child(1) {
             width: 45px !important;
@@ -532,6 +571,36 @@ ob_start();
             width: 120px !important;
             min-width: 120px !important;
             max-width: 120px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(1) {
+            width: 150px !important;
+            min-width: 150px !important;
+            max-width: 150px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-width: 100px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(3) {
+            width: 500px !important;
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(4) {
+            width: 130px !important;
+            min-width: 130px !important;
+            max-width: 130px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(5) {
+            width: 130px !important;
+            min-width: 130px !important;
+            max-width: 130px !important;
         }
     }
 
@@ -571,9 +640,41 @@ ob_start();
             min-width: 100px !important;
             max-width: 100px !important;
         }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(1) {
+            width: 110px !important;
+            min-width: 110px !important;
+            max-width: 110px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(3) {
+            width: 400px !important;
+            min-width: 400px !important;
+            max-width: 400px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(4) {
+            width: 90px !important;
+            min-width: 90px !important;
+            max-width: 90px !important;
+        }
+
+        .table-circular-notice-index.outside-person table thead th:nth-child(5) {
+            width: 90px !important;
+            min-width: 90px !important;
+            max-width: 90px !important;
+        }
+
         .table-circular-notice-index.first-table table tbody td {
             line-height: 2;
         }
+
         .circular-sender-faction {
             font-size: 8px;
         }
@@ -3559,7 +3660,7 @@ ob_start();
 
     });
 
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const slider = document.querySelector('.table-circular-notice-index');
 
         if (!slider) return;
@@ -3596,7 +3697,6 @@ ob_start();
             slider.scrollLeft = scrollLeft - walk;
         });
     });
-
 </script>
 
 <?php
