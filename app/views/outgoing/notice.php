@@ -460,8 +460,12 @@ ob_start();
         transform-origin: center;
     }
 
-    .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+    .table-circular-notice-index.outside-person table thead th:nth-child(1) {
         text-align: center;
+    }
+
+    .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+        text-align: start;
     }
 
     .table-circular-notice-index.outside-person table thead th:nth-child(3),
@@ -506,13 +510,13 @@ ob_start();
         max-width: 140px !important;
     }
 
-    .table-circular-notice-index.outside-person table thead th:nth-child(1) {
+    .table-circular-notice-index.outside-person table thead th:nth-child(2) {
         width: 180px !important;
         min-width: 180px !important;
         max-width: 180px !important;
     }
 
-    .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+    .table-circular-notice-index.outside-person table thead th:nth-child(1) {
         width: 140px !important;
         min-width: 140px !important;
         max-width: 140px !important;
@@ -605,13 +609,13 @@ ob_start();
     }
 
     @media screen and (max-width: 768px) {
-        .table-circular-notice-index.first-table table thead th:nth-child(1) {
+        .table-circular-notice-index.first-table table thead th:nth-child(2) {
             width: 45px !important;
             min-width: 45px !important;
             max-width: 45px !important;
         }
 
-        .table-circular-notice-index.first-table table thead th:nth-child(2) {
+        .table-circular-notice-index.first-table table thead th:nth-child(1) {
             width: 80px !important;
             min-width: 80px !important;
             max-width: 80px !important;
@@ -641,13 +645,13 @@ ob_start();
             max-width: 100px !important;
         }
 
-        .table-circular-notice-index.outside-person table thead th:nth-child(1) {
+        .table-circular-notice-index.outside-person table thead th:nth-child(2) {
             width: 110px !important;
             min-width: 110px !important;
             max-width: 110px !important;
         }
 
-        .table-circular-notice-index.outside-person table thead th:nth-child(2) {
+        .table-circular-notice-index.outside-person table thead th:nth-child(1) {
             width: 80px !important;
             min-width: 80px !important;
             max-width: 80px !important;
@@ -950,8 +954,8 @@ ob_start();
             <table>
                 <thead>
                     <tr>
-                        <th>วันที่รับ</th>
                         <th>จัดการ</th>
+                        <th>วันที่รับ</th>
                         <th>เลขที่ / เรื่อง</th>
                         <th>ความเร่งด่วน</th>
                         <th>สถานะปัจุบัน</th>
@@ -994,10 +998,6 @@ ob_start();
                             $show_detail_action = !($box_key === 'director' && $filter_view === 'table1' && $show_workflow_action);
                             ?>
                             <tr>
-                                <td>
-                                    <p><?= h((string) ($item['delivered_date_plain'] ?? $item['delivered_date_long'] ?? $item['delivered_date'] ?? '-')) ?></p>
-                                    <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
-                                </td>
                                 <td>
                                     <div class="circular-action-stack">
                                         <?php if ($show_detail_action) : ?>
@@ -1086,6 +1086,10 @@ ob_start();
                                             </button>
                                         <?php endif; ?>
                                     </div>
+                                </td>
+                                <td>
+                                    <p><?= h((string) ($item['delivered_date_plain'] ?? $item['delivered_date_long'] ?? $item['delivered_date'] ?? '-')) ?></p>
+                                    <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
                                 </td>
                                 <td>
                                     <p><?= h($external_doc_heading !== '' ? $external_doc_heading : '-') ?></p>
