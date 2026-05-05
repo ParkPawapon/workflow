@@ -20,6 +20,7 @@ if (($exec_duty_current_status ?? 0) === 2 && !empty($exec_duty_current_pid)) {
 
 $sidebar_connection = db_connection();
 $strict_role_ids = $actor_pid !== '' ? rbac_get_user_role_ids($sidebar_connection, $actor_pid) : $role_ids;
+$actor_position_ids = $actor_pid !== '' ? rbac_get_user_position_ids($sidebar_connection, $actor_pid) : [$position_id];
 $is_admin_user = in_array(1, $strict_role_ids, true);
 $is_registry_user = in_array(2, $strict_role_ids, true);
 $is_vehicle_user = in_array(3, $strict_role_ids, true);
@@ -34,10 +35,10 @@ if ($actor_pid !== '') {
     $is_repair_staff_user = (!$is_admin_user && rbac_user_has_role($sidebar_connection, $actor_pid, ROLE_REPAIR)) || $is_repair_staff_user;
 }
 
-$is_director_or_acting = $position_id === 1 || ($acting_pid !== '' && $acting_pid === $actor_pid);
+$is_director_or_acting = in_array(1, $actor_position_ids, true) || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_manage_external_circular = $is_admin_user || $is_registry_user;
-$is_deputy_user = in_array($position_id, system_position_deputy_ids($sidebar_connection), true);
-$is_budget_deputy_user = in_array($position_id, system_position_budget_deputy_ids($sidebar_connection), true);
+$is_deputy_user = !empty(array_intersect($actor_position_ids, system_position_deputy_ids($sidebar_connection)));
+$is_budget_deputy_user = !empty(array_intersect($actor_position_ids, system_position_budget_deputy_ids($sidebar_connection)));
 $is_vehicle_final_approver = $is_budget_deputy_user || ($acting_pid !== '' && $acting_pid === $actor_pid);
 $can_review_external_circular = $is_director_or_acting || $is_deputy_user;
 $can_access_external_circular_menu = $actor_pid !== '';

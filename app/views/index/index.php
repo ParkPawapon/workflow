@@ -58,6 +58,10 @@ foreach ($announcement_items as $announcement) {
     }
 
     $subject = trim((string) ($announcement['subject'] ?? ''));
+    $announcement_position = trim((string) ($announcement['announcementByPositionName'] ?? ''));
+    $announcement_comment_label = str_contains($announcement_position, 'รองผู้อำนวยการ')
+        ? 'ความคิดเห็นของรองผู้อำนวยการ'
+        : 'ความคิดเห็นของผู้ส่งขึ้นข่าวประชาสัมพันธ์';
 
     $index_announcement_payloads[$payload_key] = [
         'announcementID' => $announcement_id,
@@ -65,7 +69,9 @@ foreach ($announcement_items as $announcement) {
         'subject' => $subject !== '' ? $subject : 'ข่าวประชาสัมพันธ์',
         'detailText' => $index_plain_text($announcement['detail'] ?? ''),
         'linkURL' => trim((string) ($announcement['linkURL'] ?? '')),
-        'directorCommentText' => $index_plain_text($announcement['directorComment'] ?? ''),
+        'announcementCommentText' => $index_plain_text($announcement['announcementComment'] ?? ''),
+        'announcementCommentLabel' => $announcement_comment_label,
+        'directorCommentText' => $index_plain_text($announcement['announcementComment'] ?? ''),
         'files' => $files,
     ];
 }
@@ -356,7 +362,7 @@ if ($index_announcement_payload_json === false) {
 
                     <div class="content-topic-sec">
                         <div class="more-details column-format">
-                            <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
+                            <p><strong id="indexAnnouncementCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</strong></p>
                             <p id="indexAnnouncementDirectorComment">-</p>
                         </div>
                     </div>
@@ -426,6 +432,7 @@ if ($index_announcement_payload_json === false) {
             const attachmentList = document.getElementById('indexAnnouncementViewAttachments');
             const linkContainer = document.getElementById('indexAnnouncementViewLink');
             const directorCommentElement = document.getElementById('indexAnnouncementDirectorComment');
+            const announcementCommentLabelElement = document.getElementById('indexAnnouncementCommentLabel');
 
             const escapeHtml = (value) => String(value || '')
                 .replace(/&/g, '&amp;')
@@ -541,8 +548,12 @@ if ($index_announcement_payload_json === false) {
                 renderFiles(attachmentList, attachmentFiles);
                 renderLink(payload.linkURL);
 
+                if (announcementCommentLabelElement) {
+                    announcementCommentLabelElement.textContent = String(payload.announcementCommentLabel || '').trim() || 'ความคิดเห็นของรองผู้อำนวยการ';
+                }
+
                 if (directorCommentElement) {
-                    directorCommentElement.innerHTML = renderPlainText(payload.directorCommentText);
+                    directorCommentElement.innerHTML = renderPlainText(payload.announcementCommentText || payload.directorCommentText);
                 }
 
                 if (modal) {

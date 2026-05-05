@@ -140,6 +140,10 @@ foreach ($dashboard_announcements as $announcement) {
     }
 
     $subject = trim((string) ($announcement['subject'] ?? ''));
+    $announcement_position = trim((string) ($announcement['announcementByPositionName'] ?? ''));
+    $announcement_comment_label = str_contains($announcement_position, 'รองผู้อำนวยการ')
+        ? 'ความคิดเห็นของรองผู้อำนวยการ'
+        : 'ความคิดเห็นของผู้ส่งขึ้นข่าวประชาสัมพันธ์';
 
     $dashboard_announcement_payloads[$payload_key] = [
         'announcementID' => $announcement_id,
@@ -147,7 +151,9 @@ foreach ($dashboard_announcements as $announcement) {
         'subject' => $subject !== '' ? $subject : 'ข่าวประชาสัมพันธ์',
         'detailText' => $dashboard_plain_text($announcement['detail'] ?? ''),
         'linkURL' => trim((string) ($announcement['linkURL'] ?? '')),
-        'directorCommentText' => $dashboard_plain_text($announcement['directorComment'] ?? ''),
+        'announcementCommentText' => $dashboard_plain_text($announcement['announcementComment'] ?? ''),
+        'announcementCommentLabel' => $announcement_comment_label,
+        'directorCommentText' => $dashboard_plain_text($announcement['announcementComment'] ?? ''),
         'files' => $files,
     ];
 }
@@ -652,7 +658,7 @@ ob_start();
 
                 <div class="content-topic-sec">
                     <div class="more-details column-format">
-                        <p><strong>ความคิดเห็นของผู้อำนวยการ</strong></p>
+                        <p><strong id="dashboardAnnouncementCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</strong></p>
                         <p id="dashboardAnnouncementDirectorComment">-</p>
                     </div>
                 </div>
@@ -723,6 +729,7 @@ ob_start();
         const attachmentList = document.getElementById('dashboardAnnouncementViewAttachments');
         const linkContainer = document.getElementById('dashboardAnnouncementViewLink');
         const directorCommentElement = document.getElementById('dashboardAnnouncementDirectorComment');
+        const announcementCommentLabelElement = document.getElementById('dashboardAnnouncementCommentLabel');
 
         const escapeHtml = (value) => String(value || '')
             .replace(/&/g, '&amp;')
@@ -838,8 +845,12 @@ ob_start();
             renderFiles(attachmentList, attachmentFiles);
             renderLink(payload.linkURL);
 
+            if (announcementCommentLabelElement) {
+                announcementCommentLabelElement.textContent = String(payload.announcementCommentLabel || '').trim() || 'ความคิดเห็นของรองผู้อำนวยการ';
+            }
+
             if (directorCommentElement) {
-                directorCommentElement.innerHTML = renderPlainText(payload.directorCommentText);
+                directorCommentElement.innerHTML = renderPlainText(payload.announcementCommentText || payload.directorCommentText);
             }
 
             if (modal) {
