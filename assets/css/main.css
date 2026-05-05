@@ -9474,12 +9474,31 @@ label {
   user-select: none;
 }
 
+.table-responsive {
+  width: 100% !important;
+  overflow-x: auto !important;
+  cursor: grab !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--color-secondary-light) transparent !important;
+  border-radius: 12px !important;
+  border: 0.5px solid var(--color-neutral-dark) !important;
+}
+
+.table-responsive.is-dragging {
+  cursor: grabbing !important;
+}
+
+.table-responsive.is-dragging table {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
 .table-circular-notice-index table {
   width: 100%;
   border-radius: 8px;
   font-size: var(--font-size-body-2);
   color: var(--color-secondary);
-  border-collapse: collapse;
+  border-collapse: none;
 }
 
 .table-circular-notice-index table thead {
@@ -16288,6 +16307,85 @@ label {
 
 /* ----- END PERSONNEL-MANAGEMENT ----- */
 
+.formal-form {
+  width: 100%;
+  height: auto;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-scrollbar-style: none;
+  padding: 20px 40px;
+  font-size: var(--font-size-body-1);
+  color: var(--color-secondary);
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.formal-form hr {
+  margin: 0;
+  outline: none;
+  border: none;
+  border-top: 1px solid var(--color-secondary);
+}
+
+.formal-form .header {
+  font-size: var(--font-size-title);
+  font-weight: bold;
+  color: var(--color-secondary);
+}
+
+.formal-form .header p {
+  margin: 0;
+}
+
+.formal-form .formal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  color: var(--color-secondary);
+}
+
+.formal-form .formal-row .group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: var(--font-size-body-1);
+}
+
+.formal-form .formal-row .group label {
+  color: var(--color-neutral-dark);
+}
+
+.formal-form .formal-row .group.row {
+  grid-column: span 2;
+}
+
+.formal-form .formal-row .group p {
+  margin: 0;
+}
+
+.formal-form .formal-row .group a {
+  cursor: pointer;
+}
+
+.formal-form .formal-row .group a:hover {
+  text-decoration: underline;
+  color: var(--color-primary-dark);
+}
+
+.formal-form .sharing-table .header {
+  margin: 0 0 20px;
+}
+
+.formal-form .sharing-table tr th:last-child {
+  width: 180px !important;
+  min-width: 180px !important;
+  max-width: 180px !important;
+}
+
+.formal-form .sharing-table tr td:last-child {
+  text-align: center !important;
+}
 
 /* =========================================
    RESPONSIVE: TABLET (768px - 1023px)
@@ -16896,6 +16994,25 @@ label {
     -ms-overflow-style: none;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .table-responsive {
+    width: 100% !important;
+    overflow-x: auto !important;
+    cursor: grab !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--color-secondary-light) transparent !important;
+    border-radius: 12px !important;
+    border: 0.5px solid var(--color-neutral-dark) !important;
+  }
+
+  .table-responsive.is-dragging {
+    cursor: grabbing !important;
+  }
+
+  .table-responsive.is-dragging table {
+    -webkit-user-select: none !important;
+    user-select: none !important;
   }
 
   .table-responsive th {
@@ -25627,6 +25744,35 @@ label {
     border-radius: 4px;
   }
 
+  .formal-form {
+    padding: 10px 20px;
+    font-size: var(--font-size-desc-1);
+    gap: 20px;
+  }
+
+  .formal-form .header {
+    font-size: var(--font-size-body-2);
+  }
+
+  .formal-form .formal-row .group {
+    gap: 10px;
+    font-size: var(--font-size-desc-1);
+  }
+
+  .formal-form .formal-row .group.row {
+    grid-column: span 2;
+  }
+
+  .formal-form .sharing-table .header {
+    margin: 0 0 10px;
+  }
+
+  .formal-form .sharing-table tr th:last-child {
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+  }
+
 }
 
 /* =========================================
@@ -26507,6 +26653,25 @@ label {
     -ms-overflow-style: none;
     border-radius: 6px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .table-responsive {
+    width: 100% !important;
+    overflow-x: auto !important;
+    cursor: grab !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--color-secondary-light) transparent !important;
+    border-radius: 12px !important;
+    border: 0.5px solid var(--color-neutral-dark) !important;
+  }
+
+  .table-responsive.is-dragging {
+    cursor: grabbing !important;
+  }
+
+  .table-responsive.is-dragging table {
+    -webkit-user-select: none !important;
+    user-select: none !important;
   }
 
   .table-responsive th {
@@ -35807,6 +35972,35 @@ label {
     width: 10px;
     height: 10px;
     border-radius: 2px;
+  }
+
+  .formal-form {
+    padding: 10px;
+    font-size: var(--font-size-desc-3);
+    gap: 10px;
+  }
+
+  .formal-form .header {
+    font-size: var(--font-size-desc-2);
+  }
+
+  .formal-form .formal-row .group {
+    gap: 0;
+    font-size: var(--font-size-desc-3);
+  }
+
+  .formal-form .formal-row .group.row {
+    grid-column: span 2;
+  }
+
+  .formal-form .sharing-table .header {
+    margin: 0 0 10px;
+  }
+
+  .formal-form .sharing-table tr th:last-child {
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
   }
 
 }
