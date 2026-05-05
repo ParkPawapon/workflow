@@ -10549,10 +10549,10 @@ label {
 }
 
 .table-circular-notice-index.outside-person {
-  width: 100%;
+  /* width: 100%;
   overflow-x: scroll;
   scrollbar-width: none;
-  -ms-overflow-style: none;
+  -ms-overflow-style: none; */
 }
 
 .table-circular-notice-index.outside-person table thead th {
@@ -22579,10 +22579,10 @@ label {
   }
 
   .table-circular-notice-index.outside-person {
-    width: 100%;
+    /* width: 100%;
     overflow-x: scroll;
     scrollbar-width: none;
-    -ms-overflow-style: none;
+    -ms-overflow-style: none; */
   }
 
   .table-circular-notice-index.outside-person table thead th {
@@ -32810,10 +32810,10 @@ label {
   }
 
   .table-circular-notice-index.outside-person {
-    width: 100%;
+    /* width: 100%;
     overflow-x: scroll;
     scrollbar-width: none;
-    -ms-overflow-style: none;
+    -ms-overflow-style: none; */
   }
 
   .table-circular-notice-index.outside-person table thead th {
