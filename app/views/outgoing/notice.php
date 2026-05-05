@@ -461,74 +461,74 @@ ob_start();
     }
 
 
-    .table-circular-notice-index table thead th:nth-child(1) {
+    .table-circular-notice-index.first-table table thead th:nth-child(1) {
         width: 45px !important;
         min-width: 45px !important;
         max-width: 45px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(2) {
+    .table-circular-notice-index.first-table table thead th:nth-child(2) {
         width: 140px !important;
         min-width: 140px !important;
         max-width: 140px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(3) {
+    .table-circular-notice-index.first-table table thead th:nth-child(3) {
         width: 720px !important;
         min-width: 720px !important;
         max-width: 720px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(4) {
+    .table-circular-notice-index.first-table table thead th:nth-child(4) {
         width: 210px !important;
         min-width: 210px !important;
         max-width: 210px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(5) {
+    .table-circular-notice-index.first-table table thead th:nth-child(5) {
         width: 160px !important;
         min-width: 160px !important;
         max-width: 160px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(6) {
+    .table-circular-notice-index.first-table table thead th:nth-child(6) {
         width: 140px !important;
         min-width: 140px !important;
         max-width: 140px !important;
     }
 
     @media screen and (max-width: 1024px) {
-        .table-circular-notice-index table thead th:nth-child(1) {
+        .table-circular-notice-index.first-table table thead th:nth-child(1) {
             width: 45px !important;
             min-width: 45px !important;
             max-width: 45px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(2) {
+        .table-circular-notice-index.first-table table thead th:nth-child(2) {
             width: 100px !important;
             min-width: 100px !important;
             max-width: 100px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(3) {
+        .table-circular-notice-index.first-table table thead th:nth-child(3) {
             width: 500px !important;
             min-width: 500px !important;
             max-width: 500px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(4) {
+        .table-circular-notice-index.first-table table thead th:nth-child(4) {
             width: 190px !important;
             min-width: 190px !important;
             max-width: 190px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(5) {
+        .table-circular-notice-index.first-table table thead th:nth-child(5) {
             width: 120px !important;
             min-width: 120px !important;
             max-width: 120px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(6) {
+        .table-circular-notice-index.first-table table thead th:nth-child(6) {
             width: 120px !important;
             min-width: 120px !important;
             max-width: 120px !important;
@@ -536,42 +536,42 @@ ob_start();
     }
 
     @media screen and (max-width: 768px) {
-        .table-circular-notice-index table thead th:nth-child(1) {
+        .table-circular-notice-index.first-table table thead th:nth-child(1) {
             width: 45px !important;
             min-width: 45px !important;
             max-width: 45px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(2) {
+        .table-circular-notice-index.first-table table thead th:nth-child(2) {
             width: 80px !important;
             min-width: 80px !important;
             max-width: 80px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(3) {
+        .table-circular-notice-index.first-table table thead th:nth-child(3) {
             width: 350px !important;
             min-width: 350px !important;
             max-width: 350px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(4) {
+        .table-circular-notice-index.first-table table thead th:nth-child(4) {
             width: 140px !important;
             min-width: 140px !important;
             max-width: 140px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(5) {
+        .table-circular-notice-index.first-table table thead th:nth-child(5) {
             width: 80px !important;
             min-width: 80px !important;
             max-width: 80px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(6) {
+        .table-circular-notice-index.first-table table thead th:nth-child(6) {
             width: 100px !important;
             min-width: 100px !important;
             max-width: 100px !important;
         }
-        .table-circular-notice-index table tbody td {
+        .table-circular-notice-index.first-table table tbody td {
             line-height: 2;
         }
         .circular-sender-faction {
@@ -676,7 +676,7 @@ ob_start();
             method="POST">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="<?= h($archived ? 'unarchive_selected' : 'archive_selected') ?>">
-            <div class="table-circular-notice-index">
+            <div class="table-circular-notice-index first-table">
                 <table>
                     <thead>
                         <tr>
