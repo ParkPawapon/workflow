@@ -104,28 +104,6 @@
         );
         ?>
         <tr class="approval-row <?= htmlspecialchars($status_class, ENT_QUOTES, 'UTF-8') ?>">
-            <td>
-                <?= htmlspecialchars($date_range, ENT_QUOTES, 'UTF-8') ?><br>
-                <span class="detail-subtext"><?= htmlspecialchars($time_range, ENT_QUOTES, 'UTF-8') ?></span>
-            </td>
-            <td>
-                <?= htmlspecialchars($requester_name !== '' ? $requester_name : '-', ENT_QUOTES, 'UTF-8') ?>
-            </td>
-            <td>
-                <?= htmlspecialchars($vehicle_label, ENT_QUOTES, 'UTF-8') ?>
-                <div class="detail-subtext"><?= htmlspecialchars($vehicle_detail, ENT_QUOTES, 'UTF-8') ?></div>
-            </td>
-            <td>
-                <?= htmlspecialchars($purpose_display, ENT_QUOTES, 'UTF-8') ?>
-            </td>
-            <td>
-                <?= htmlspecialchars($location_text, ENT_QUOTES, 'UTF-8') ?>
-            </td>
-            <td>
-                <span class="status-pill <?= htmlspecialchars($status_class, ENT_QUOTES, 'UTF-8') ?>">
-                    <?= htmlspecialchars($status_label, ENT_QUOTES, 'UTF-8') ?>
-                </span>
-            </td>
             <td class="booking-action-cell">
                 <div class="booking-action-group">
                     <button type="button" class="booking-action-btn secondary" data-vehicle-approval-action="detail"
@@ -161,6 +139,28 @@
                         <span class="tooltip">ดูรายละเอียด</span>
                     </button>
                 </div>
+            </td>
+            <td>
+                <?= htmlspecialchars($date_range, ENT_QUOTES, 'UTF-8') ?><br>
+                <span class="detail-subtext"><?= htmlspecialchars($time_range, ENT_QUOTES, 'UTF-8') ?></span>
+            </td>
+            <td>
+                <?= htmlspecialchars($requester_name !== '' ? $requester_name : '-', ENT_QUOTES, 'UTF-8') ?>
+            </td>
+            <td>
+                <?= htmlspecialchars($vehicle_label, ENT_QUOTES, 'UTF-8') ?>
+                <div class="detail-subtext"><?= htmlspecialchars($vehicle_detail, ENT_QUOTES, 'UTF-8') ?></div>
+            </td>
+            <td>
+                <?= htmlspecialchars($purpose_display, ENT_QUOTES, 'UTF-8') ?>
+            </td>
+            <td>
+                <?= htmlspecialchars($location_text, ENT_QUOTES, 'UTF-8') ?>
+            </td>
+            <td>
+                <span class="status-pill <?= htmlspecialchars($status_class, ENT_QUOTES, 'UTF-8') ?>">
+                    <?= htmlspecialchars($status_label, ENT_QUOTES, 'UTF-8') ?>
+                </span>
             </td>
         </tr>
     <?php endforeach; ?>
