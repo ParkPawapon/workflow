@@ -171,6 +171,99 @@ $unread_checked = $filter_read === 'unread' || $filter_read === 'all';
 ob_start();
 ?>
 
+<style>
+    .table-circular-notice-index table thead th:nth-child(1) {
+        width: 80px !important;
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2) {
+        min-width: 500px !important;
+        max-width: 500px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        width: 240px !important;
+        min-width: 240px !important;
+        max-width: 240px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-height: 140px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 240px !important;
+            min-width: 240px !important;
+            max-width: 240px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 220px !important;
+            min-width: 220px !important;
+            max-width: 220px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-height: 80px !important;
+        }
+    }
+</style>
+
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
     <p>บันทึกข้อความ / บันทึกข้อความที่จัดเก็บ</p>
@@ -264,11 +357,11 @@ ob_start();
                     <table>
                         <thead>
                             <tr>
+                                <th>จัดการ</th>
                                 <th>เรื่อง</th>
                                 <th>ผู้เสนอแฟ้ม</th>
                                 <th>วันที่เสนอแฟ้ม</th>
                                 <th>สถานะ</th>
-                                <th>จัดการ</th>
                             </tr>
                         </thead>
                         <!-- <tbody> -->
@@ -369,17 +462,6 @@ ob_start();
                                     }
                                     ?>
                                     <tr>
-                                        <td><?= h($subject !== '' ? $subject : '-') ?></td>
-                                        <td>
-                                            <div class="circular-sender-stack">
-                                                <span class="circular-sender-name"><?= h($approver_name !== '' ? $approver_name : '-') ?></span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <p><?= h($date_line) ?></p>
-                                            <p class="detail-subtext"><?= h($time_line) ?></p>
-                                        </td>
-                                        <td><span class="status-pill <?= h($status_class) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span></td>
                                         <td>
                                             <button
                                                 type="button"
@@ -420,6 +502,17 @@ ob_start();
                                                 <span class="tooltip">ดูรายละเอียด</span>
                                             </button>
                                         </td>
+                                        <td><?= h($subject !== '' ? $subject : '-') ?></td>
+                                        <td>
+                                            <div class="circular-sender-stack">
+                                                <span class="circular-sender-name"><?= h($approver_name !== '' ? $approver_name : '-') ?></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p><?= h($date_line) ?></p>
+                                            <p class="detail-subtext"><?= h($time_line) ?></p>
+                                        </td>
+                                        <td><span class="status-pill <?= h($status_class) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -1064,12 +1157,12 @@ ob_start();
     const formatMemoViewSignatureName = (value) => '(' + (String(value || '').replace(/^\(|\)$/g, '').trim() || '-') + ')';
     const formatMemoViewPosition = (value) => {
         const cleanValue = String(value || '').trim();
-        const normalizedValue = typeof cleanValue.normalize === 'function'
-            ? cleanValue.normalize('NFC')
-            : cleanValue.replace('อํานวย', 'อำนวย');
-        return normalizedValue === 'ผู้อำนวยการโรงเรียน'
-            ? 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน'
-            : (cleanValue || '-');
+        const normalizedValue = typeof cleanValue.normalize === 'function' ?
+            cleanValue.normalize('NFC') :
+            cleanValue.replace('อํานวย', 'อำนวย');
+        return normalizedValue === 'ผู้อำนวยการโรงเรียน' ?
+            'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน' :
+            (cleanValue || '-');
     };
 
     const readMemoViewStagePayload = (button, prefix) => {
@@ -1141,8 +1234,8 @@ ob_start();
             fileBanner.className = 'file-banner';
             fileBanner.innerHTML =
                 '<div class="file-info">' +
-                    '<div class="file-icon"><i class="fa-solid ' + (mimeType.toLowerCase().includes('pdf') ? 'fa-file-pdf' : (mimeType.toLowerCase().includes('image') ? 'fa-file-image' : 'fa-file')) + '"></i></div>' +
-                    '<div class="file-text"><span class="file-name"></span><span class="file-type"></span></div>' +
+                '<div class="file-icon"><i class="fa-solid ' + (mimeType.toLowerCase().includes('pdf') ? 'fa-file-pdf' : (mimeType.toLowerCase().includes('image') ? 'fa-file-image' : 'fa-file')) + '"></i></div>' +
+                '<div class="file-text"><span class="file-name"></span><span class="file-type"></span></div>' +
                 '</div>' +
                 '<div class="file-actions"><a target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i></a></div>' +
                 '<div class="file-actions"><a><i class="fa-solid fa-download"></i></a></div>';
@@ -1226,6 +1319,44 @@ ob_start();
         if (event.target === viewModal) {
             viewModal.style.display = 'none';
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 

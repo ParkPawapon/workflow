@@ -164,12 +164,14 @@ ob_start();
         z-index: 35;
     }
 
-    .table-circular-notice-index table thead th:nth-child(3) {
-        min-width: 230px;
+    .table-circular-notice-index table thead th:nth-child(2) ,
+    .table-circular-notice-index table td:nth-child(2) {
+        text-align: center !important;
     }
-
-    .table-circular-notice-index table thead th:nth-child(4) {
-        min-width: 150px;
+    
+    .table-circular-notice-index table thead th:nth-child(5) ,
+    .table-circular-notice-index table td:nth-child(5) {
+        text-align: start !important;
     }
 
     .table-circular-notice-index table thead th:nth-child(1) {
@@ -179,33 +181,34 @@ ob_start();
     }
 
     .table-circular-notice-index table thead th:nth-child(2) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
         min-width: 500px !important;
         max-width: 500px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(3) {
+    .table-circular-notice-index table thead th:nth-child(4) {
         width: 280px !important;
         min-width: 280px !important;
         max-width: 280px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(4) {
+    .table-circular-notice-index table thead th:nth-child(5) {
         width: 160px !important;
         min-width: 160px !important;
         max-width: 160px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(5) {
+    .table-circular-notice-index table thead th:nth-child(6) {
         width: 140px !important;
         min-width: 140px !important;
         max-height: 140px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(6) {
-        width: 140px !important;
-        min-width: 140px !important;
-        max-width: 140px !important;
-    }
 
     @media screen and (max-width: 1024px) {
         .table-circular-notice-index table thead th:nth-child(1) {
@@ -215,33 +218,34 @@ ob_start();
         }
 
         .table-circular-notice-index table thead th:nth-child(2) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
             min-width: 500px !important;
             max-width: 500px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(3) {
+        .table-circular-notice-index table thead th:nth-child(4) {
             width: 280px !important;
             min-width: 280px !important;
             max-width: 280px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(4) {
+        .table-circular-notice-index table thead th:nth-child(5) {
             width: 160px !important;
             min-width: 160px !important;
             max-width: 160px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(5) {
+        .table-circular-notice-index table thead th:nth-child(6) {
             width: 100px !important;
             min-width: 100px !important;
             max-height: 100px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(6) {
-            width: 80px !important;
-            min-width: 80px !important;
-            max-width: 80px !important;
-        }
     }
 
     @media screen and (max-width: 768px) {
@@ -252,33 +256,33 @@ ob_start();
         }
 
         .table-circular-notice-index table thead th:nth-child(2) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+        .table-circular-notice-index table thead th:nth-child(3) {
             min-width: 500px !important;
             max-width: 500px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(3) {
+        .table-circular-notice-index table thead th:nth-child(4) {
             width: 200px !important;
             min-width: 200px !important;
             max-width: 200px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(4) {
+        .table-circular-notice-index table thead th:nth-child(5) {
             width: 140px !important;
             min-width: 140px !important;
             max-width: 140px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(5) {
+        .table-circular-notice-index table thead th:nth-child(6) {
             width: 100px !important;
             min-width: 100px !important;
             max-height: 100px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(6) {
-            width: 80px !important;
-            min-width: 80px !important;
-            max-width: 80px !important;
-        }
     }
 </style>
 
@@ -378,11 +382,11 @@ ob_start();
                         <th>
                             <input type="checkbox" class="check-table checkall" id="checkAllCircular">
                         </th>
+                        <th>จัดการ</th>
                         <th>เรื่อง</th>
                         <th>ผู้เสนอแฟ้ม</th>
                         <th>วันที่เสนอแฟ้ม</th>
                         <th>สถานะ</th>
-                        <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -421,17 +425,6 @@ ob_start();
                                 <td>
                                     <input type="checkbox" class="check-table" name="selected_ids[]" value="<?= h((string) $memo_id) ?>">
                                 </td>
-                                <td><?= h($subject !== '' ? $subject : '-') ?></td>
-                                <td>
-                                    <div class="circular-sender-stack">
-                                        <span class="circular-sender-name"><?= h($creator_name !== '' ? $creator_name : '-') ?></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p><?= h($date_line) ?></p>
-                                    <p class="detail-subtext"><?= h($time_line) ?></p>
-                                </td>
-                                <td><span class="status-pill <?= h($status_class) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span></td>
                                 <td>
                                     <button
                                         class="booking-action-btn secondary js-open-edit-modal"
@@ -470,6 +463,17 @@ ob_start();
                                         <span class="tooltip">ดูรายละเอียด</span>
                                     </button>
                                 </td>
+                                <td><?= h($subject !== '' ? $subject : '-') ?></td>
+                                <td>
+                                    <div class="circular-sender-stack">
+                                        <span class="circular-sender-name"><?= h($creator_name !== '' ? $creator_name : '-') ?></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p><?= h($date_line) ?></p>
+                                    <p class="detail-subtext"><?= h($time_line) ?></p>
+                                </td>
+                                <td><span class="status-pill <?= h($status_class) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
