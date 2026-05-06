@@ -322,7 +322,7 @@ ob_start();
                     <div class="personnel-form-grid">
                         <div class="form-group">
                             <label class="form-label" for="">เลขประจำตัวประชาชน</label>
-                            <input class="form-input" type="text" id="" name="pID" value="" inputmode="numeric" maxlength="13" required>
+                            <input class="form-input" type="text" id="" name="pID" value="<?= h((string) ($form_values['pID'] ?? '')) ?>" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="">ชื่อจริง-นามสกุล</label>
@@ -334,7 +334,7 @@ ob_start();
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="">โทรศัพท์</label>
-                            <input class="form-input" type="tel" id="" name="" value="" required>
+                            <input class="form-input" type="tel" id="" name="telephone" value="<?= h((string) ($form_values['telephone'] ?? '')) ?>" inputmode="numeric" maxlength="10" pattern="\d{10}" required>
                         </div>
                         <div class="form-group">
                             <div class="input-group">
@@ -813,7 +813,7 @@ ob_start();
                     <div class="personnel-form-grid">
                         <div class="form-group">
                             <label class="form-label" for="">เลขประจำตัวประชาชน</label>
-                            <input class="form-input" type="text" id="personnelEditPidDisplay" value="" inputmode="numeric" maxlength="13" disabled>
+                            <input class="form-input" type="text" id="personnelEditPidDisplay" value="" disabled>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="">ชื่อจริง-นามสกุล</label>
@@ -821,7 +821,7 @@ ob_start();
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="">โทรศัพท์</label>
-                            <input class="form-input" type="tel" id="" name="" value="" required>
+                            <input class="form-input" type="tel" id="personnelEditTelephone" name="telephone" value="<?= h((string) ($edit_values['telephone'] ?? '')) ?>" inputmode="numeric" maxlength="10" pattern="\d{10}" required>
                         </div>
                         <div class="form-group">
                             <div class="input-group">
@@ -1447,6 +1447,7 @@ ob_start();
                 setValue('#personnelEditPid', row.getAttribute('data-pid') || '');
                 setValue('#personnelEditPidDisplay', row.getAttribute('data-pid') || '');
                 setValue('#personnelEditName', row.getAttribute('data-name') || '');
+                setValue('#personnelEditTelephone', row.getAttribute('data-telephone') || '');
                 setCustomSelectValue('#personnelEditFaction', row.getAttribute('data-fid') || '0');
                 setCustomSelectValue('#personnelEditDepartment', row.getAttribute('data-did') || '0');
                 setCustomSelectValue('#personnelEditLevel', row.getAttribute('data-lid') || '0');
