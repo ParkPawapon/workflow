@@ -47,10 +47,6 @@ if (!function_exists('auth_validate_credentials')) {
             return [false, null, 'กรุณากรอกเลขบัตรประชาชนและรหัสผ่านให้ครบถ้วน'];
         }
 
-        if (!ctype_digit($pid) || strlen($pid) !== 13) {
-            return [false, null, 'เลขบัตรประชาชนไม่ถูกต้อง'];
-        }
-
         $user = user_find_active_by_pid($pid);
 
         if (!$user) {

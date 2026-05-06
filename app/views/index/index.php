@@ -72,6 +72,7 @@ foreach ($announcement_items as $announcement) {
         'announcementCommentText' => $index_plain_text($announcement['announcementComment'] ?? ''),
         'announcementCommentLabel' => $announcement_comment_label,
         'directorCommentText' => $index_plain_text($announcement['announcementComment'] ?? ''),
+        'downloadAllURL' => $circular_id > 0 ? 'public/api/file-download.php?module=circulars&entity_id=' . rawurlencode((string) $circular_id) . '&all=1' : '',
         'files' => $files,
     ];
 }
@@ -154,7 +155,7 @@ if ($index_announcement_payload_json === false) {
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string) ($_SESSION['csrf_token'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="input-id-login-group">
                         <label for="pID">เลขบัตรประชาชน</label>
-                        <input type="text" name="pID" id="pID" placeholder="เลขบัตรประชาชน" inputmode="numeric" maxlength="13" pattern="\d{13}" required>
+                        <input type="text" name="pID" id="pID" placeholder="เลขบัตรประชาชน" required>
                     </div>
 
                     <div class="input-password-login-group">
@@ -208,28 +209,27 @@ if ($index_announcement_payload_json === false) {
 
                 <div class="details-news-bar">
                     <ul>
-                        <!-- <? //php if (empty($announcement_items)) : 
-                                ?>
+                        <?php if (empty($announcement_items)) : ?>
                             <li>
                                 <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
                             </li>
-                        <? //php else : 
-                        ?>
-                            <? //php foreach ($announcement_items as $announcement) :
-                            // $announcement_id = (int) ($announcement['announcementID'] ?? 0);
-                            // $circular_id = (int) ($announcement['circularID'] ?? 0);
-                            // $payload_key = $announcement_id > 0 ? (string) $announcement_id : 'circular-' . (string) $circular_id;
-                            ?>
+                        <?php else : ?>
+                            <?php foreach ($announcement_items as $announcement) : ?>
+                                <?php
+                                $announcement_id = (int) ($announcement['announcementID'] ?? 0);
+                                $circular_id = (int) ($announcement['circularID'] ?? 0);
+                                $payload_key = $announcement_id > 0 ? (string) $announcement_id : 'circular-' . (string) $circular_id;
+                                $announcement_title = trim((string) ($announcement['subject'] ?? ''));
+
+                                if ($announcement_title === '') {
+                                    $announcement_title = 'ข่าวประชาสัมพันธ์';
+                                }
+                                ?>
                                 <li>
-                                    <p class="js-open-order-view-modal" role="button" tabindex="0" data-announcement-id="<?= htmlspecialchars($payload_key, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($announcement['subject'] ?? ''), ENT_QUOTES, 'UTF-8') ?></p>
+                                    <p class="js-open-order-view-modal" role="button" tabindex="0" data-announcement-id="<?= h($payload_key) ?>"><?= h($announcement_title) ?></p>
                                 </li>
-                            <? //php endforeach; 
-                            ?>
-                        <? //php endif; 
-                        ?> -->
-                        <li>
-                            <p class="js-open-order-view-modal">ข่าวประชาสัมพันธ์</p>
-                        </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
@@ -396,18 +396,18 @@ if ($index_announcement_payload_json === false) {
                 <div class="formal-form">
 
                     <div class="header">
-                        <p><span>เรื่อง: </span>กิจกรรมงานวันประวัติศาสตร์ 2570</p>
+                        <p><span>เรื่อง: </span><span id="indexAnnouncementViewSubject">-</span></p>
                     </div>
                     <div class="formal-row">
-                        <div class="group row">
+                        <div class="group row" id="indexAnnouncementViewLink">
                             <label for="">แนบลิ้งก์</label>
-                            <a href="https://www.youtube.com/" target="_blank">https://www.youtube.com/</a>
+                            <span>-</span>
                         </div>
                     </div>
                     <div class="formal-row">
                         <div class="group row">
-                            <label for="">ความคิดเห็นของรองผู้อำนวยการ</label>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur, quas distinctio rerum officiis assumenda architecto laudantium accusamus! Eos corrupti vero incidunt quasi porro nesciunt consequuntur voluptate cum! Mollitia dolorem explicabo, incidunt voluptates reprehenderit recusandae expedita vel nulla magni fugit, culpa laboriosam ducimus quos? Esse ex ut, unde autem voluptates pariatur?</p>
+                            <label for="" id="indexAnnouncementCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</label>
+                            <p id="indexAnnouncementDirectorComment">-</p>
                         </div>
                     </div>
 
@@ -416,12 +416,7 @@ if ($index_announcement_payload_json === false) {
                     <section class="sharing-table">
                         <div class="header">
                             <p>ไฟล์เอกสารแนบจากระบบ</p>
-                            <? //php if ($item && $attachments !== [] && $download_all_url !== '') : 
-                            ?>
-                            <a href="<? //= h($download_all_url) 
-                                        ?>">ดาวน์โหลดไฟล์ทั้งหมด</a>
-                            <? //php endif; 
-                            ?>
+                            <a href="#" id="indexAnnouncementDownloadAll">ดาวน์โหลดไฟล์ทั้งหมด</a>
                         </div>
                         <div class="table-responsive table-circular-notice-index">
                             <table class="custom-table booking-table">
@@ -431,116 +426,9 @@ if ($index_announcement_payload_json === false) {
                                         <th>จัดการ</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <? //php if (!$item || $attachments === []) : 
-                                    ?>
-                                    <!-- <tr>
-                                        <td colspan="2" class="enterprise-empty">ไม่พบไฟล์เอกสารแนบจากระบบ</td>
-                                    </tr> -->
-                                    <? //php else : 
-                                    ?>
-                                    <? //php foreach ($attachments as $file) : 
-                                    ?>
-                                    <? //php
-                                    //$file_id = (int) ($file['fileID'] ?? 0);
-                                    // $view_href = $file_url($file_id, false);
-                                    // $download_href = $file_url($file_id, true);
-                                    // $file_name = trim((string) ($file['fileName'] ?? ''));
-                                    ?>
-                                    <!-- <tr>
-                                            <td><? //= h($file_name !== '' ? $file_name : '-') 
-                                                ?></td>
-                                            <td>
-                                                <a class="booking-action-btn secondary" href="<? //= h($view_href) 
-                                                                                                ?>" target="_blank" rel="noopener">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                    <span class="tooltip">ดูไฟล์</span>
-                                                </a>
-                                                <a class="booking-action-btn secondary" href="<? //= h($download_href) 
-                                                                                                ?>">
-                                                    <i class="fa-solid fa-download"></i>
-                                                    <span class="tooltip">ดาวน์โหลด</span>
-                                                </a>
-                                            </td>
-                                        </tr> -->
-                                    <? //php endforeach; 
-                                    ?>
-                                    <? //php endif; 
-                                    ?>
+                                <tbody id="indexAnnouncementViewFiles">
                                     <tr>
-                                        <td>gen111-campaign-proposal.pdf (ไฟล์หนังสือนำ)</td>
-                                        <td>
-                                            <a class="booking-action-btn secondary" href="<? //= h($view_href) 
-                                                                                            ?>" target="_blank" rel="noopener">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span class="tooltip">ดูไฟล์</span>
-                                            </a>
-                                            <a class="booking-action-btn secondary" href="<? //= h($download_href) 
-                                                                                            ?>">
-                                                <i class="fa-solid fa-download"></i>
-                                                <span class="tooltip">ดาวน์โหลด</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>gen221-campaign-proposal.pdf (ไฟล์เอกสารเพิ่มเติม)</td>
-                                        <td>
-                                            <a class="booking-action-btn secondary" href="<? //= h($view_href) 
-                                                                                            ?>" target="_blank" rel="noopener">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span class="tooltip">ดูไฟล์</span>
-                                            </a>
-                                            <a class="booking-action-btn secondary" href="<? //= h($download_href) 
-                                                                                            ?>">
-                                                <i class="fa-solid fa-download"></i>
-                                                <span class="tooltip">ดาวน์โหลด</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>gen221-campaign-proposal.pdf (ไฟล์เอกสารเพิ่มเติม)</td>
-                                        <td>
-                                            <a class="booking-action-btn secondary" href="<? //= h($view_href) 
-                                                                                            ?>" target="_blank" rel="noopener">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span class="tooltip">ดูไฟล์</span>
-                                            </a>
-                                            <a class="booking-action-btn secondary" href="<? //= h($download_href) 
-                                                                                            ?>">
-                                                <i class="fa-solid fa-download"></i>
-                                                <span class="tooltip">ดาวน์โหลด</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>gen221-campaign-proposal.pdf (ไฟล์เอกสารเพิ่มเติม)</td>
-                                        <td>
-                                            <a class="booking-action-btn secondary" href="<? //= h($view_href) 
-                                                                                            ?>" target="_blank" rel="noopener">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span class="tooltip">ดูไฟล์</span>
-                                            </a>
-                                            <a class="booking-action-btn secondary" href="<? //= h($download_href) 
-                                                                                            ?>">
-                                                <i class="fa-solid fa-download"></i>
-                                                <span class="tooltip">ดาวน์โหลด</span>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>gen221-campaign-proposal.pdf (ไฟล์เอกสารเพิ่มเติม)</td>
-                                        <td>
-                                            <a class="booking-action-btn secondary" href="<? //= h($view_href) 
-                                                                                            ?>" target="_blank" rel="noopener">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span class="tooltip">ดูไฟล์</span>
-                                            </a>
-                                            <a class="booking-action-btn secondary" href="<? //= h($download_href) 
-                                                                                            ?>">
-                                                <i class="fa-solid fa-download"></i>
-                                                <span class="tooltip">ดาวน์โหลด</span>
-                                            </a>
-                                        </td>
+                                        <td colspan="2" class="enterprise-empty">-</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -604,6 +492,8 @@ if ($index_announcement_payload_json === false) {
             const subjectElement = document.getElementById('indexAnnouncementViewSubject');
             const coverList = document.getElementById('indexAnnouncementViewCover');
             const attachmentList = document.getElementById('indexAnnouncementViewAttachments');
+            const fileTableBody = document.getElementById('indexAnnouncementViewFiles');
+            const downloadAllLink = document.getElementById('indexAnnouncementDownloadAll');
             const linkContainer = document.getElementById('indexAnnouncementViewLink');
             const directorCommentElement = document.getElementById('indexAnnouncementDirectorComment');
             const announcementCommentLabelElement = document.getElementById('indexAnnouncementCommentLabel');
@@ -657,6 +547,10 @@ if ($index_announcement_payload_json === false) {
                 return 'fa-file-lines';
             };
 
+            const fileNoteLabel = (file) => {
+                return isCoverFile(file) ? 'ไฟล์หนังสือนำ' : 'ไฟล์เอกสารเพิ่มเติม';
+            };
+
             const renderFiles = (container, files) => {
                 if (!container) {
                     return;
@@ -692,6 +586,61 @@ if ($index_announcement_payload_json === false) {
                 }).join('');
             };
 
+            const renderAnnouncementFiles = (container, files) => {
+                if (!container) {
+                    return;
+                }
+
+                const normalized = Array.isArray(files) ? files : [];
+
+                if (normalized.length === 0) {
+                    container.innerHTML = '<tr><td colspan="2" class="enterprise-empty">-</td></tr>';
+                    return;
+                }
+
+                container.innerHTML = normalized.map((file) => {
+                    const fileName = String(file?.fileName || '').trim() || 'ไฟล์แนบ';
+                    const mimeType = String(file?.mimeType || '').trim();
+                    const url = String(file?.url || '').trim();
+                    const downloadUrl = url !== '' ? `${url}${url.includes('?') ? '&' : '?'}download=1` : '';
+                    const actions = url !== '' ? `
+                        <a class="booking-action-btn secondary" href="${escapeHtml(url)}" target="_blank" rel="noopener">
+                            <i class="fa-solid fa-eye"></i>
+                            <span class="tooltip">ดูไฟล์</span>
+                        </a>
+                        <a class="booking-action-btn secondary" href="${escapeHtml(downloadUrl)}">
+                            <i class="fa-solid fa-download"></i>
+                            <span class="tooltip">ดาวน์โหลด</span>
+                        </a>
+                    ` : '-';
+
+                    return `
+                        <tr>
+                            <td>${escapeHtml(fileName)} (${escapeHtml(fileNoteLabel(file))})</td>
+                            <td>${actions}</td>
+                        </tr>
+                    `;
+                }).join('');
+            };
+
+            const renderDownloadAllLink = (url, files) => {
+                if (!downloadAllLink) {
+                    return;
+                }
+
+                const link = String(url || '').trim();
+                const hasFiles = Array.isArray(files) && files.length > 0;
+
+                if (link === '' || !hasFiles) {
+                    downloadAllLink.style.display = 'none';
+                    downloadAllLink.href = '#';
+                    return;
+                }
+
+                downloadAllLink.style.display = '';
+                downloadAllLink.href = link;
+            };
+
             const renderLink = (url) => {
                 if (!linkContainer) {
                     return;
@@ -703,7 +652,7 @@ if ($index_announcement_payload_json === false) {
                     `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">${label}</a>` :
                     '<span>-</span>';
 
-                linkContainer.innerHTML = `<p><strong>แนบลิ้งก์</strong></p>${linkMarkup}`;
+                linkContainer.innerHTML = `<label for="">แนบลิ้งก์</label>${linkMarkup}`;
             };
 
             const openAnnouncementModal = (payloadKey) => {
@@ -720,6 +669,8 @@ if ($index_announcement_payload_json === false) {
 
                 renderFiles(coverList, coverFiles);
                 renderFiles(attachmentList, attachmentFiles);
+                renderAnnouncementFiles(fileTableBody, Array.isArray(payload.files) ? payload.files : []);
+                renderDownloadAllLink(payload.downloadAllURL, Array.isArray(payload.files) ? payload.files : []);
                 renderLink(payload.linkURL);
 
                 if (announcementCommentLabelElement) {
