@@ -11,19 +11,21 @@ $entity_id = trim((string) ($_GET['entity_id'] ?? ''));
 $file_id = filter_input(INPUT_GET, 'file_id', FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1],
 ]);
-$download = isset($_GET['download']) && $_GET['download'] === '1';
+$download_all = isset($_GET['all']) && $_GET['all'] === '1';
+$download = $download_all || (isset($_GET['download']) && $_GET['download'] === '1');
 $is_outgoing_module = $module === 'outgoing';
 $is_repairs_module = $module === 'repairs';
 $is_certificates_module = $module === 'certificates';
 $auditable_entity_id = ctype_digit($entity_id) ? (int) $entity_id : null;
 $auditable_module = $is_outgoing_module ? 'outgoing' : ($is_repairs_module ? 'repairs' : ($is_certificates_module ? 'certificates' : null));
 $auditable_entity_name = $is_outgoing_module ? 'dh_outgoing_letters' : ($is_repairs_module ? 'dh_repair_requests' : ($is_certificates_module ? 'dh_certificates' : null));
-$auditable_action = $download ? 'ATTACHMENT_DOWNLOAD' : 'ATTACHMENT_VIEW';
-$auditable_log = static function (string $audit_status, ?string $message = null, array $payload = [], ?string $http_method = null, ?int $http_status = null) use ($auditable_module, $auditable_entity_name, $auditable_entity_id, $auditable_action, $file_id): void {
+$auditable_action = $download_all ? 'ATTACHMENT_DOWNLOAD_ALL' : ($download ? 'ATTACHMENT_DOWNLOAD' : 'ATTACHMENT_VIEW');
+$auditable_log = static function (string $audit_status, ?string $message = null, array $payload = [], ?string $http_method = null, ?int $http_status = null) use ($auditable_module, $auditable_entity_name, $auditable_entity_id, $auditable_action, $file_id, $download, $download_all): void {
     if ($auditable_module !== null && $auditable_entity_name !== null && function_exists('audit_log')) {
         audit_log($auditable_module, $auditable_action, $audit_status, $auditable_entity_name, $auditable_entity_id, $message, array_filter(array_merge([
             'fileID' => $file_id ?: null,
-            'download' => isset($_GET['download']) && $_GET['download'] === '1',
+            'download' => $download,
+            'downloadAll' => $download_all,
         ], $payload), static function ($value): bool {
             return $value !== null && $value !== '' && $value !== [];
         }), $http_method ?? (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'), $http_status);
@@ -39,10 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     $auditable_abort(405, 'FAIL', 'invalid_method');
 }
 
-if ($module === '' || $entity_id === '' || !$file_id) {
+if ($module === '' || $entity_id === '' || (!$download_all && !$file_id)) {
     $auditable_abort(400, 'FAIL', 'invalid_params', [
         'module' => $module !== '' ? $module : null,
         'rawEntityID' => $entity_id !== '' ? $entity_id : null,
+        'downloadAll' => $download_all,
     ], 'GET');
 }
 
@@ -58,23 +61,54 @@ if (!in_array($module, $allowed_modules, true)) {
     ], 'GET');
 }
 
-$file_sql = 'SELECT f.fileID, f.fileName, f.filePath, f.mimeType, f.fileSize, r.moduleName, r.entityName, r.entityID
+$file_rows = [];
+
+if ($download_all) {
+    $file_sql = 'SELECT f.fileID, f.fileName, f.filePath, f.mimeType, f.fileSize, r.moduleName, r.entityName, r.entityID
+        FROM dh_file_refs AS r
+        INNER JOIN dh_files AS f ON r.fileID = f.fileID
+        WHERE r.moduleName = ? AND r.entityID = ? AND f.deletedAt IS NULL
+        ORDER BY r.refID ASC';
+    $stmt = mysqli_prepare($connection, $file_sql);
+
+    if ($stmt === false) {
+        error_log('Database Error: ' . mysqli_error($connection));
+        $auditable_abort(500, 'FAIL', 'file_lookup_prepare_failed', [], 'GET');
+    }
+
+    mysqli_stmt_bind_param($stmt, 'ss', $module, $entity_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    while ($result && ($row = mysqli_fetch_assoc($result))) {
+        $file_rows[] = $row;
+    }
+
+    mysqli_stmt_close($stmt);
+    $file_row = $file_rows[0] ?? null;
+} else {
+    $file_sql = 'SELECT f.fileID, f.fileName, f.filePath, f.mimeType, f.fileSize, r.moduleName, r.entityName, r.entityID
     FROM dh_file_refs AS r
     INNER JOIN dh_files AS f ON r.fileID = f.fileID
     WHERE r.moduleName = ? AND r.entityID = ? AND r.fileID = ? AND f.deletedAt IS NULL
     LIMIT 1';
-$stmt = mysqli_prepare($connection, $file_sql);
+    $stmt = mysqli_prepare($connection, $file_sql);
 
-if ($stmt === false) {
-    error_log('Database Error: ' . mysqli_error($connection));
-    $auditable_abort(500, 'FAIL', 'file_lookup_prepare_failed', [], 'GET');
+    if ($stmt === false) {
+        error_log('Database Error: ' . mysqli_error($connection));
+        $auditable_abort(500, 'FAIL', 'file_lookup_prepare_failed', [], 'GET');
+    }
+
+    mysqli_stmt_bind_param($stmt, 'ssi', $module, $entity_id, $file_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $file_row = $result ? mysqli_fetch_assoc($result) : null;
+    mysqli_stmt_close($stmt);
+
+    if ($file_row) {
+        $file_rows[] = $file_row;
+    }
 }
-
-mysqli_stmt_bind_param($stmt, 'ssi', $module, $entity_id, $file_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$file_row = $result ? mysqli_fetch_assoc($result) : null;
-mysqli_stmt_close($stmt);
 
 if (!$file_row) {
     $auditable_abort(404, 'FAIL', 'file_reference_not_found', [], 'GET');
@@ -268,29 +302,99 @@ if (!$authorized) {
     $auditable_abort(403, 'DENY', 'not_authorized', [], 'GET');
 }
 
-$file_path = (string) ($file_row['filePath'] ?? '');
+$resolve_file_path = static function (array $row) use ($auditable_abort): string {
+    $file_path = (string) ($row['filePath'] ?? '');
 
-if ($file_path === '') {
-    $auditable_abort(404, 'FAIL', 'file_path_missing', [], 'GET');
+    if ($file_path === '') {
+        $auditable_abort(404, 'FAIL', 'file_path_missing', [], 'GET');
+    }
+
+    $base_storage = realpath(__DIR__ . '/../../storage/uploads');
+    $base_assets = realpath(__DIR__ . '/../../assets/uploads');
+    $target_path = realpath(__DIR__ . '/../../' . $file_path);
+    $valid = false;
+
+    if ($target_path && $base_storage && strpos($target_path, $base_storage) === 0) {
+        $valid = true;
+    }
+
+    if ($target_path && $base_assets && strpos($target_path, $base_assets) === 0) {
+        $valid = true;
+    }
+
+    if (!$valid || !is_file($target_path)) {
+        $auditable_abort(404, !$valid ? 'DENY' : 'FAIL', !$valid ? 'invalid_file_path' : 'file_missing_on_disk', [], 'GET');
+    }
+
+    return (string) $target_path;
+};
+
+if ($download_all) {
+    if (!class_exists('ZipArchive')) {
+        $auditable_abort(500, 'FAIL', 'zip_extension_missing', [], 'GET');
+    }
+
+    $zip_path = tempnam(sys_get_temp_dir(), 'dh-files-');
+
+    if ($zip_path === false) {
+        $auditable_abort(500, 'FAIL', 'zip_temp_failed', [], 'GET');
+    }
+
+    $zip = new ZipArchive();
+
+    if ($zip->open($zip_path, ZipArchive::OVERWRITE) !== true) {
+        @unlink($zip_path);
+        $auditable_abort(500, 'FAIL', 'zip_open_failed', [], 'GET');
+    }
+
+    $used_names = [];
+    $added_count = 0;
+
+    foreach ($file_rows as $row) {
+        $target_path = $resolve_file_path($row);
+        $base_name = trim((string) ($row['fileName'] ?? ''));
+        $base_name = $base_name !== '' ? basename(str_replace(["\r", "\n"], '', $base_name)) : 'attachment-' . (string) ((int) ($row['fileID'] ?? 0));
+        $base_name = preg_replace('/[\\\\\\/]+/', '-', $base_name) ?: 'attachment-' . (string) ($added_count + 1);
+        $zip_name = $base_name;
+        $extension = pathinfo($base_name, PATHINFO_EXTENSION);
+        $name_only = $extension !== '' ? substr($base_name, 0, -(strlen($extension) + 1)) : $base_name;
+        $suffix = 2;
+
+        while (isset($used_names[$zip_name])) {
+            $zip_name = $name_only . '-' . $suffix . ($extension !== '' ? '.' . $extension : '');
+            $suffix++;
+        }
+
+        if ($zip->addFile($target_path, $zip_name)) {
+            $used_names[$zip_name] = true;
+            $added_count++;
+        }
+    }
+
+    $zip->close();
+
+    if ($added_count === 0 || !is_file($zip_path)) {
+        @unlink($zip_path);
+        $auditable_abort(404, 'FAIL', 'zip_no_files_added', [], 'GET');
+    }
+
+    $archive_name = $module . '-' . preg_replace('/[^A-Za-z0-9_-]+/', '-', $entity_id) . '-attachments.zip';
+
+    $auditable_log('SUCCESS', null, [
+        'fileCount' => $added_count,
+        'archiveName' => $archive_name,
+    ], 'GET', 200);
+
+    header('Content-Type: application/zip');
+    header('Content-Length: ' . (string) filesize($zip_path));
+    header('X-Content-Type-Options: nosniff');
+    header('Content-Disposition: attachment; filename="' . $archive_name . '"');
+    readfile($zip_path);
+    @unlink($zip_path);
+    exit();
 }
 
-$base_storage = realpath(__DIR__ . '/../../storage/uploads');
-$base_assets = realpath(__DIR__ . '/../../assets/uploads');
-$target_path = realpath(__DIR__ . '/../../' . $file_path);
-
-$valid = false;
-
-if ($target_path && $base_storage && strpos($target_path, $base_storage) === 0) {
-    $valid = true;
-}
-
-if ($target_path && $base_assets && strpos($target_path, $base_assets) === 0) {
-    $valid = true;
-}
-
-if (!$valid || !is_file($target_path)) {
-    $auditable_abort(404, !$valid ? 'DENY' : 'FAIL', !$valid ? 'invalid_file_path' : 'file_missing_on_disk', [], 'GET');
-}
+$target_path = $resolve_file_path($file_row);
 
 $file_name = (string) ($file_row['fileName'] ?? 'attachment');
 $mime_type = (string) ($file_row['mimeType'] ?? 'application/octet-stream');
