@@ -122,6 +122,140 @@ ob_start();
     [data-vehicle-final-approver-locked] .custom-options {
         pointer-events: none;
     }
+
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table thead th:nth-child(3),
+    .table-circular-notice-index table tbody td:nth-child(3),
+    .table-circular-notice-index table thead th:nth-child(4),
+    .table-circular-notice-index table thead th:nth-child(5),
+    .table-circular-notice-index table tbody td:nth-child(5),
+    .table-circular-notice-index table thead th:nth-child(6),
+    .table-circular-notice-index table tbody td:nth-child(6) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .booking-table td:nth-child(1) {
+        width: 90px !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .booking-table td:nth-child(2) {
+        width: 260px !important;
+        min-width: 260px !important;
+        max-width: 260px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3),
+    .booking-table td:nth-child(3) {
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .booking-table td:nth-child(4) {
+        width: 180px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5),
+    .booking-table td:nth-child(5) {
+        width: 500px !important;
+        min-width: 500px !important;
+        max-width: 500px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(6),
+    .booking-table td:nth-child(6) {
+        width: 300px !important;
+        min-width: 300px !important;
+        max-width: 300px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(7),
+    .booking-table td:nth-child(7) {
+        width: 180px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table thead th:nth-child(3),
+        .table-circular-notice-index table tbody td:nth-child(3),
+        .table-circular-notice-index table thead th:nth-child(4),
+        .table-circular-notice-index table thead th:nth-child(5),
+        .table-circular-notice-index table tbody td:nth-child(5),
+        .table-circular-notice-index table thead th:nth-child(6),
+        .table-circular-notice-index table tbody td:nth-child(6) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 200px !important;
+            min-width: 200px !important;
+            max-width: 200px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 180px !important;
+            min-width: 180px !important;
+            max-width: 180px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .booking-table td:nth-child(5) {
+            width: 480px !important;
+            min-width: 480px !important;
+            max-width: 480px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6),
+        .booking-table td:nth-child(6) {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(7),
+        .booking-table td:nth-child(7) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+    }
 </style>
 
 <div class="content-header">
@@ -248,17 +382,17 @@ ob_start();
             </div>
         </div>
 
-        <div class="table-responsive approval-table-wrapper">
+        <div class="table-responsive table-circular-notice-index approval-table-wrapper">
             <table class="custom-table booking-table approval-table">
                 <thead>
                     <tr>
+                        <th>จัดการ</th>
                         <th>วัน/เวลา</th>
                         <th>ผู้ขอจอง</th>
                         <th>รถ/ทะเบียน</th>
                         <th>วัตถุประสงค์</th>
                         <th>สถานที่</th>
                         <th>สถานะ</th>
-                        <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1289,6 +1423,44 @@ ob_start();
             if (driverDropdownWrapper && !driverDropdownWrapper.contains(event.target)) {
                 closeDriverDropdown();
             }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
         });
     });
 </script>
