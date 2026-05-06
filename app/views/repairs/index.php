@@ -309,19 +309,6 @@ ob_start();
         vertical-align: top;
     }
 
-    .circular-my-table td:nth-child(3),
-    .circular-my-table td:nth-child(4),
-    .circular-my-table td:nth-child(5) {
-        vertical-align: middle;
-        text-align: center;
-    }
-
-    .circular-my-table th:nth-child(3),
-    .circular-my-table th:nth-child(4),
-    .circular-my-table th:nth-child(5) {
-        text-align: center;
-    }
-
     .repair-detail-preview {
         font-size: var(--font-size-body-2);
         color: var(--color-secondary);
@@ -389,6 +376,103 @@ ob_start();
     @media screen and (min-width: 769px) and (max-width: 1023px) {
         .circular-my-table td:nth-child(4) {
             min-width: 120px;
+        }
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table tbody td:nth-child(1),
+    .table-circular-notice-index table thead th:nth-child(5),
+    .table-circular-notice-index table tbody td:nth-child(5) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(2) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .booking-table td:nth-child(1) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .booking-table td:nth-child(2) {
+        width: 180px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3),
+    .booking-table td:nth-child(3) {
+        width: 650px !important;
+        min-width: 650px !important;
+        max-width: 650px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .booking-table td:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5),
+    .booking-table td:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table tbody td:nth-child(1),
+        .table-circular-notice-index table thead th:nth-child(5),
+        .table-circular-notice-index table tbody td:nth-child(5) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-width: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 500px !important;
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .booking-table td:nth-child(5) {
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
         }
     }
 </style>
@@ -530,15 +614,15 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-responsive circular-my-table-wrap">
+    <div class="table-responsive table-circular-notice-index circular-my-table-wrap">
         <table class="custom-table circular-my-table">
             <thead>
                 <tr>
+                    <th>จัดการ</th>
                     <th>หัวข้อ</th>
                     <th>รายละเอียด</th>
                     <th>วันที่แจ้ง</th>
                     <th>สถานะ</th>
-                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -649,27 +733,6 @@ ob_start();
                         ?>
                         <tr>
                             <td>
-                                <div class="circular-my-subject"><?= h((string) ($req['subject'] ?? '-')) ?></div>
-                            </td>
-
-                            <td>
-                                <div class="repair-detail-preview"><?= h($detail_preview !== '' ? $detail_preview : '-') ?></div>
-                            </td>
-
-                            <td>
-                                <div class="repair-date-stack">
-                                    <div><?= h($date_parts['date']) ?></div>
-                                    <div class="time"><?= h($date_parts['time']) ?></div>
-                                </div>
-                            </td>
-
-                            <td>
-                                <span class="status-pill <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
-                                    <?= h((string) ($row_status['label'] ?? '-')) ?>
-                                </span>
-                            </td>
-
-                            <td>
                                 <div class="circular-my-actions">
                                     <?php if ($can_edit_row) : ?>
                                         <button
@@ -727,6 +790,27 @@ ob_start();
                                     <?php endif; ?>
                                 </div>
                             </td>
+                            <td>
+                                <div class="circular-my-subject"><?= h((string) ($req['subject'] ?? '-')) ?></div>
+                            </td>
+
+                            <td>
+                                <div class="repair-detail-preview"><?= h($detail_preview !== '' ? $detail_preview : '-') ?></div>
+                            </td>
+
+                            <td>
+                                <div class="repair-date-stack">
+                                    <div><?= h($date_parts['date']) ?></div>
+                                    <div class="time"><?= h($date_parts['time']) ?></div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="status-pill <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
+                                    <?= h((string) ($row_status['label'] ?? '-')) ?>
+                                </span>
+                            </td>
+
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -1584,6 +1668,44 @@ ob_start();
             }
         });
 
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 
