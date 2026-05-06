@@ -32,31 +32,6 @@
         $updated_label = $format_thai_datetime((string) ($request_item['updatedAt'] ?? ''));
         ?>
         <tr class="approval-row <?= h($status_class) ?>">
-            <td>
-                <?= h($request_item['roomName'] ?? '-') ?>
-            </td>
-            <td>
-                <?= h($date_range) ?><br>
-                <span class="detail-subtext"><?= h($time_range !== '' ? $time_range : '-') ?></span>
-            </td>
-            <td>
-                <?= h($request_item['requesterName'] ?? '-') ?>
-                <div class="detail-subtext">โทร <?= h($contact_label) ?></div>
-            </td>
-            <td>
-                <?= h($request_item['bookingTopic'] ?? '-') ?>
-                <div class="detail-subtext">ส่งคำขอเมื่อ
-                    <?= h($created_label) ?>
-                </div>
-            </td>
-            <td>
-                <?= h((string) ($request_item['attendeeCount'] ?? '-')) ?>
-            </td>
-            <td>
-                <span class="status-pill <?= h($status_class) ?>">
-                    <?= h($status_label) ?>
-                </span>
-            </td>
             <td class="booking-action-cell">
                 <div class="booking-action-group">
                     <button type="button" class="booking-action-btn secondary" data-approval-action="detail"
@@ -84,6 +59,31 @@
                         <span class="tooltip">ดูรายละเอียด</span>
                     </button>
                 </div>
+            </td>
+            <td>
+                <?= h($request_item['roomName'] ?? '-') ?>
+            </td>
+            <td>
+                <?= h($date_range) ?><br>
+                <span class="detail-subtext"><?= h($time_range !== '' ? $time_range : '-') ?></span>
+            </td>
+            <td>
+                <?= h($request_item['requesterName'] ?? '-') ?>
+                <div class="detail-subtext">โทร <?= h($contact_label) ?></div>
+            </td>
+            <td>
+                <?= h($request_item['bookingTopic'] ?? '-') ?>
+                <div class="detail-subtext">ส่งคำขอเมื่อ
+                    <?= h($created_label) ?>
+                </div>
+            </td>
+            <td>
+                <?= h((string) ($request_item['attendeeCount'] ?? '-')) ?>
+            </td>
+            <td>
+                <span class="status-pill <?= h($status_class) ?>">
+                    <?= h($status_label) ?>
+                </span>
             </td>
         </tr>
     <?php endforeach; ?>
