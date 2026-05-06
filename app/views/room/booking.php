@@ -156,6 +156,60 @@ ob_start();
         width: 95%;
     }
 
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(2),
+    .table-circular-notice-index table thead th:nth-child(3),
+    .table-circular-notice-index table tbody td:nth-child(3) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .booking-table td:nth-child(1) {
+        width: 120px !important;
+        max-width: 120px !important;
+        min-width: 120px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .booking-table td:nth-child(2) {
+        width: 180px !important;
+        max-width: 180px !important;
+        min-width: 180px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3),
+    .booking-table td:nth-child(3) {
+        width: 160px !important;
+        max-width: 160px !important;
+        min-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .booking-table td:nth-child(4) {
+        width: 650px !important;
+        max-width: 650px !important;
+        min-width: 650px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5),
+    .booking-table td:nth-child(5) {
+        width: 120px !important;
+        max-width: 120px !important;
+        min-width: 120px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(6),
+    .booking-table td:nth-child(6) {
+        width: 120px !important;
+        max-width: 120px !important;
+        min-width: 120px !important;
+    }
+
     @media (max-width: 1023px) {
         .modal-header {
             margin: 0;
@@ -173,8 +227,121 @@ ob_start();
         .modal-body {
             padding: 0 20px;
         }
+
         .custom-table {
             min-width: 900px;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2),
+        .table-circular-notice-index table thead th:nth-child(3),
+        .table-circular-notice-index table tbody td:nth-child(3) {
+            text-align: start !important;
+        }
+
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 100px !important;
+            max-width: 100px !important;
+            min-width: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 140px !important;
+            max-width: 140px !important;
+            min-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 140px !important;
+            max-width: 140px !important;
+            min-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 500px !important;
+            max-width: 500px !important;
+            min-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .booking-table td:nth-child(5) {
+            width: 130px !important;
+            max-width: 130px !important;
+            min-width: 130px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6),
+        .booking-table td:nth-child(6) {
+            width: 130px !important;
+            max-width: 130px !important;
+            min-width: 130px !important;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2),
+        .table-circular-notice-index table thead th:nth-child(3),
+        .table-circular-notice-index table tbody td:nth-child(3) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 100px !important;
+            max-width: 100px !important;
+            min-width: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 140px !important;
+            max-width: 140px !important;
+            min-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 140px !important;
+            max-width: 140px !important;
+            min-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 500px !important;
+            max-width: 500px !important;
+            min-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .booking-table td:nth-child(5) {
+            width: 120px !important;
+            max-width: 120px !important;
+            min-width: 120px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6),
+        .booking-table td:nth-child(6) {
+            width: 120px !important;
+            max-width: 120px !important;
+            min-width: 120px !important;
         }
     }
 </style>
@@ -386,16 +553,16 @@ ob_start();
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive table-circular-notice-index">
             <table class="custom-table booking-table">
                 <thead>
                     <tr>
+                        <th>จัดการ</th>
                         <th>ห้อง</th>
                         <th>ช่วงเวลาที่ใช้</th>
                         <th>รายการ</th>
-                        <th>จำนวน</th>
+                        <th>จำนวน (คน)</th>
                         <th>สถานะ</th>
-                        <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -440,16 +607,6 @@ ob_start();
                             $updated_label = $format_thai_datetime((string) ($booking_item['updatedAt'] ?? ''));
                             ?>
                             <tr>
-                                <td><?= h($booking_item['roomName'] ?? '-') ?></td>
-                                <td>
-                                    <?= h($date_range) ?><br>
-                                    <span class="detail-subtext"><?= h($time_range !== '' ? $time_range : '-') ?></span>
-                                </td>
-                                <td><?= h($booking_item['bookingTopic'] ?? 'ประชุม/อบรม') ?></td>
-                                <td><?= h((string) ($booking_item['attendeeCount'] ?? '-')) ?></td>
-                                <td>
-                                    <span class="status-pill <?= h($status_class) ?>"><?= h($status_label) ?></span>
-                                </td>
                                 <td class="booking-action-cell">
                                     <div class="booking-action-group">
                                         <button type="button" class="booking-action-btn secondary" data-booking-action="detail"
@@ -482,6 +639,16 @@ ob_start();
                                             </button>
                                         <?php endif; ?>
                                     </div>
+                                </td>
+                                <td><?= h($booking_item['roomName'] ?? '-') ?></td>
+                                <td>
+                                    <?= h($date_range) ?><br>
+                                    <span class="detail-subtext"><?= h($time_range !== '' ? $time_range : '-') ?></span>
+                                </td>
+                                <td><?= h($booking_item['bookingTopic'] ?? 'ประชุม/อบรม') ?></td>
+                                <td><?= h((string) ($booking_item['attendeeCount'] ?? '-')) ?></td>
+                                <td>
+                                    <span class="status-pill <?= h($status_class) ?>"><?= h($status_label) ?></span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -634,6 +801,46 @@ ob_start();
 </div>
 
 <textarea id="roomBookingEventsData" class="hidden" aria-hidden="true"><?= h($room_booking_events_json) ?></textarea>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    });
+</script>
 
 <?php
 $content = ob_get_clean();
