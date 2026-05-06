@@ -333,6 +333,10 @@ ob_start();
                             <input class="form-input" type="text" id="" name="passWord" value="" required>
                         </div>
                         <div class="form-group">
+                            <label class="form-label" for="">โทรศัพท์</label>
+                            <input class="form-input" type="tel" id="" name="" value="" required>
+                        </div>
+                        <div class="form-group">
                             <div class="input-group">
                                 <label class="form-label" for="">กลุ่มงาน</label>
                                 <div class="custom-select-wrapper">
@@ -814,6 +818,10 @@ ob_start();
                         <div class="form-group">
                             <label class="form-label" for="">ชื่อจริง-นามสกุล</label>
                             <input class="form-input" type="text" id="personnelEditName" name="fName" value="" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="">โทรศัพท์</label>
+                            <input class="form-input" type="tel" id="" name="" value="" required>
                         </div>
                         <div class="form-group">
                             <div class="input-group">

@@ -6029,7 +6029,7 @@ select {
   outline: none;
   background-color: var(--color-neutral-lightest);
   padding: 0 20px;
-  box-shadow: 0 0 12px 0 rgba(var(--rgb-secondary), 0.05);
+  /* box-shadow: 0 0 12px 0 rgba(var(--rgb-secondary), 0.05); */
   font-size: var(--font-size-body-1);
   color: var(--color-secondary);
   transition: 0.3s;
