@@ -171,6 +171,115 @@ ob_start();
     .table-circular-notice-index table thead th:nth-child(4) {
         min-width: 150px;
     }
+
+    .table-circular-notice-index table thead th:nth-child(1) {
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2) {
+        min-width: 500px !important;
+        max-width: 500px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-height: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(6) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 45px !important;
+            min-width: 45px !important;
+            max-width: 45px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 45px !important;
+            min-width: 45px !important;
+            max-width: 45px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 200px !important;
+            min-width: 200px !important;
+            max-width: 200px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+    }
 </style>
 
 <div class="content-header">
@@ -1683,6 +1792,44 @@ ob_start();
         ) {
             closeReviewDropdowns();
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 
