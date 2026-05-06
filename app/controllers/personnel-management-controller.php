@@ -103,7 +103,7 @@ if (!function_exists('personnel_management_normalize_form')) {
     function personnel_management_normalize_form(array $input, array $option_maps, bool $is_create, int $default_role_id): array
     {
         $defaults = personnel_management_defaults();
-        $pid = preg_replace('/\D+/', '', (string) ($input['pID'] ?? ''));
+        $pid = trim((string) ($input['pID'] ?? ''));
         $telephone = preg_replace('/\D+/', '', (string) ($input['telephone'] ?? ''));
         $role_ids = rbac_parse_role_ids($input['role_ids'] ?? []);
 
@@ -134,11 +134,11 @@ if (!function_exists('personnel_management_normalize_form')) {
 if (!function_exists('personnel_management_validate_form')) {
     function personnel_management_validate_form(array $data, bool $is_create): ?array
     {
-        if ($data['pID'] === '' || !ctype_digit($data['pID']) || strlen($data['pID']) !== 13) {
+        if ($data['pID'] === '') {
             return [
                 'type' => 'danger',
                 'title' => 'ข้อมูลไม่ถูกต้อง',
-                'message' => 'กรุณากรอกรหัสบัตรประชาชน 13 หลักให้ถูกต้อง',
+                'message' => 'กรุณากรอกรหัสประจำตัวบุคลากร',
             ];
         }
 
@@ -259,10 +259,11 @@ if (!function_exists('personnel_management_store_image_upload')) {
             throw new RuntimeException(personnel_management_upload_error_message($error));
         }
 
-        $safe_pid = preg_replace('/\D+/', '', $pid);
+        $safe_pid = preg_replace('/[^A-Za-z0-9_-]+/', '_', trim($pid));
+        $safe_pid = trim((string) $safe_pid, '_');
 
         if ($safe_pid === '') {
-            throw new RuntimeException('ไม่พบรหัสบุคลากรสำหรับจัดเก็บไฟล์');
+            $safe_pid = substr(hash('sha256', trim($pid)), 0, 16);
         }
 
         $allowed_types = [
@@ -431,15 +432,16 @@ if (!function_exists('personnel_management_update')) {
             $data['oID'],
             $data['positionID'],
             rbac_format_role_ids($data['roleIDs']),
+            $data['telephone'],
             $data['picture'],
             $data['signature'] !== '' ? $data['signature'] : null,
             $data['LineID'],
             $data['status'],
         ];
-        $types = 'siiiiissssi';
+        $types = 'siiiiisssssi';
         $sql = 'UPDATE teacher
                 SET fName = ?, fID = ?, dID = ?, lID = ?, oID = ?, positionID = ?, roleID = ?,
-                    picture = ?, signature = ?, LineID = ?, status = ?';
+                    telephone = ?, picture = ?, signature = ?, LineID = ?, status = ?';
 
         $sql .= ' WHERE pID = ?';
         $params[] = $original_pid;
