@@ -166,11 +166,11 @@ if (!function_exists('personnel_management_validate_form')) {
             ];
         }
 
-        if ($data['telephone'] !== '' && strlen($data['telephone']) !== 10) {
+        if ($data['telephone'] !== '' && strlen($data['telephone']) > 10) {
             return [
                 'type' => 'danger',
                 'title' => 'ข้อมูลไม่ถูกต้อง',
-                'message' => 'เบอร์โทรศัพท์ต้องมี 10 หลัก หรือเว้นว่างไว้',
+                'message' => 'เบอร์โทรศัพท์ต้องเป็นตัวเลขไม่เกิน 10 หลัก หรือเว้นว่างไว้',
             ];
         }
 

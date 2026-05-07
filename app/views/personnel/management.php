@@ -334,7 +334,7 @@ ob_start();
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="">โทรศัพท์</label>
-                            <input class="form-input" type="tel" id="" name="telephone" value="<?= h((string) ($form_values['telephone'] ?? '')) ?>" inputmode="numeric" maxlength="10" pattern="\d{10}" required>
+                            <input class="form-input" type="tel" id="" name="telephone" value="<?= h((string) ($form_values['telephone'] ?? '')) ?>" inputmode="numeric" maxlength="10" pattern="\d{0,10}" title="กรอกเฉพาะตัวเลขไม่เกิน 10 หลัก">
                         </div>
                         <div class="form-group">
                             <div class="input-group">
@@ -821,7 +821,7 @@ ob_start();
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="">โทรศัพท์</label>
-                            <input class="form-input" type="tel" id="personnelEditTelephone" name="telephone" value="<?= h((string) ($edit_values['telephone'] ?? '')) ?>" inputmode="numeric" maxlength="10" pattern="\d{10}" required>
+                            <input class="form-input" type="tel" id="personnelEditTelephone" name="telephone" value="<?= h((string) ($edit_values['telephone'] ?? '')) ?>" inputmode="numeric" maxlength="10" pattern="\d{0,10}" title="กรอกเฉพาะตัวเลขไม่เกิน 10 หลัก">
                         </div>
                         <div class="form-group">
                             <div class="input-group">
@@ -2019,6 +2019,12 @@ ob_start();
         if (editModalContainer) {
             setupPersonnelRoleDropdown(editModalContainer);
         }
+
+        document.querySelectorAll('#personnelAddForm input[name="telephone"], #personnelEditForm input[name="telephone"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                input.value = input.value.replace(/\D/g, '').slice(0, 10);
+            });
+        });
     });
 </script>
 <?php
