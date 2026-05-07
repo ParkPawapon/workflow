@@ -177,6 +177,99 @@ ob_start();
         border: 0;
         background: transparent;
     }
+
+    .table-circular-notice-keep table thead th:nth-child(1),
+    .table-circular-notice-keep table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-keep table thead th:nth-child(4),
+    .table-circular-notice-keep table tbody td:nth-child(4) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .booking-table td:nth-child(1) {
+        width: 80px !important;
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .booking-table td:nth-child(2) {
+        width: 650px !important;
+        min-width: 650px !important;
+        max-width: 650px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3),
+    .booking-table td:nth-child(3) {
+        width: 190px !important;
+        min-width: 190px !important;
+        max-width: 190px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .booking-table td:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5),
+    .booking-table td:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .table-circular-notice-keep table thead th:nth-child(1),
+        .table-circular-notice-keep table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-keep table thead th:nth-child(4),
+        .table-circular-notice-keep table tbody td:nth-child(4) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 600px !important;
+            min-width: 600px !important;
+            max-width: 600px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .booking-table td:nth-child(5) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+    }
 </style>
 
 <div class="content-header">
@@ -260,15 +353,15 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-circular-notice-keep">
+    <div class="table-circular-notice-keep table-circular-notice-index">
         <table>
             <thead>
                 <tr>
+                    <th>จัดการ</th>
                     <th>เรื่อง / เลขที่คำสั่ง</th>
                     <th>ผู้ส่งคำสั่ง</th>
                     <th>วันที่รับ</th>
                     <th>สถานะ</th>
-                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -295,20 +388,6 @@ ob_start();
                         }
                         ?>
                         <tr>
-                            <td class="orders-inbox-topic-cell">
-                                <p class="orders-inbox-subject"><?= h($subject !== '' ? $subject : '-') ?></p>
-                                <p class="orders-inbox-order-no">เลขที่คำสั่ง <?= h($order_no !== '' ? $order_no : ('#' . $order_id)) ?></p>
-                            </td>
-                            <td><?= h($sender_name !== '' ? $sender_name : '-') ?></td>
-                            <td class="orders-inbox-date-cell">
-                                <p class="orders-inbox-date"><?= h($received_display['date']) ?></p>
-                                <?php if ($received_display['time'] !== '') : ?>
-                                    <p class="orders-inbox-time"><?= h($received_display['time']) ?></p>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span>
-                            </td>
                             <td>
                                 <button
                                     class="booking-action-btn secondary js-open-order-view-modal"
@@ -324,6 +403,20 @@ ob_start();
                                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                     <span class="tooltip">รายละเอียด</span>
                                 </button>
+                            </td>
+                            <td class="orders-inbox-topic-cell">
+                                <p class="orders-inbox-subject"><?= h($subject !== '' ? $subject : '-') ?></p>
+                                <p class="orders-inbox-order-no">เลขที่คำสั่ง <?= h($order_no !== '' ? $order_no : ('#' . $order_id)) ?></p>
+                            </td>
+                            <td><?= h($sender_name !== '' ? $sender_name : '-') ?></td>
+                            <td class="orders-inbox-date-cell">
+                                <p class="orders-inbox-date"><?= h($received_display['date']) ?></p>
+                                <?php if ($received_display['time'] !== '') : ?>
+                                    <p class="orders-inbox-time"><?= h($received_display['time']) ?></p>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -399,54 +492,6 @@ ob_start();
         </div>
     </div>
 
-    <!-- <div class="modal-overlay-circular-notice-keep" id="orderArchiveModalOverlay" style="display: none;">
-        <div class="modal-content">
-            <div class="header-modal">
-                <p>แสดงข้อความรายละเอียดคำสั่งราชการ</p>
-                <i class="fa-solid fa-xmark" id="orderArchiveModalClose"></i>
-            </div>
-
-            <div class="content-modal">
-                <div class="content-topic-sec">
-                    <p><strong>เลขที่คำสั่ง :</strong></p>
-                    <p id="orderArchiveModalOrderNo">-</p>
-                </div>
-                <div class="content-topic-sec">
-                    <p><strong>เรื่อง :</strong></p>
-                    <p id="orderArchiveModalSubject">-</p>
-                </div>
-                <div class="content-topic-sec">
-                    <p><strong>ผู้สร้างเลขคำสั่ง :</strong></p>
-                    <p id="orderArchiveModalSender">-</p>
-                </div>
-                <div class="content-topic-sec">
-                    <p><strong>วันที่รับ :</strong></p>
-                    <p id="orderArchiveModalDate">-</p>
-                </div>
-
-                <div class="content-details-sec">
-                    <p><strong>รายละเอียดเพิ่มเติม</strong></p>
-                    <p id="orderArchiveModalDetail">-</p>
-                </div>
-
-                <div class="content-file-sec">
-                    <p>ไฟล์เอกสารแนบจากระบบ</p>
-                    <div class="file-section" id="orderArchiveModalFileSection"></div>
-                </div>
-            </div>
-
-            <div class="footer-modal">
-                <form method="POST" id="orderArchiveUnarchiveForm" action="<?= h($post_action_url) ?>">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="inbox_id" id="orderArchiveModalInboxId" value="">
-                    <input type="hidden" name="action" value="unarchive">
-                    <button type="submit">
-                        <p>ย้ายกลับ</p>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div> -->
 </section>
 
 <div class="button-circular-notice-keep"></div>
@@ -889,6 +934,44 @@ ob_start();
             }
         });
     })
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    });
 </script>
 
 <?php
