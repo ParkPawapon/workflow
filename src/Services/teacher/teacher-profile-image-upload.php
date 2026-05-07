@@ -48,10 +48,10 @@ if ($profile_file['error'] !== UPLOAD_ERR_OK) {
     exit();
 }
 
-$max_profile_size = 2 * 1024 * 1024;
+$max_profile_size = 20 * 1024 * 1024;
 
 if ((int) $profile_file['size'] > $max_profile_size) {
-    $set_profile_alert('warning', 'ไฟล์มีขนาดใหญ่เกินไป', 'รองรับไฟล์ขนาดไม่เกิน 2MB');
+    $set_profile_alert('warning', 'ไฟล์มีขนาดใหญ่เกินไป', 'รองรับไฟล์ขนาดไม่เกิน 20MB');
     header('Location: ' . $redirect_url, true, 303);
     exit();
 }
