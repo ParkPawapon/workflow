@@ -43,7 +43,7 @@ ob_start();
             </div>
 
             <input type="file" id="profileFileInput" name="profile_image" hidden accept="image/png, image/jpeg">
-            <div class="file-hint">รองรับไฟล์นามสกุล .JPG , .PNG เท่านั้น ขนาดไม่เกิน 2MB</div>
+            <div class="file-hint">รองรับไฟล์นามสกุล .JPG , .PNG เท่านั้น ขนาดไม่เกิน 20MB</div>
 
             <div class="modal-button-content upload-actions">
                 <button type="button" class="btn-confirm" id="btnConfirmCrop">ยืนยัน</button>
