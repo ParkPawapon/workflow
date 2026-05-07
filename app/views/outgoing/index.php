@@ -236,6 +236,92 @@ ob_start();
             max-width: 250px;
         }
     }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table thead th:nth-child(3),
+    .table-circular-notice-index table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(4),
+    .circular-my-table thead th:nth-child(4) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .booking-table td:nth-child(1) {
+        width: 80px !important;
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .booking-table td:nth-child(2) {
+        width: 600px !important;
+        min-width: 600px !important;
+        max-width: 600px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3),
+    .booking-table td:nth-child(3) {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .booking-table td:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table thead th:nth-child(3),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(4),
+        .circular-my-table thead th:nth-child(4) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 550px !important;
+            min-width: 550px !important;
+            max-width: 550px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 180px !important;
+            min-width: 180px !important;
+            max-width: 180px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+    }
 </style>
 
 <div class="content-header">
@@ -3494,17 +3580,17 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-responsive circular-my-table-wrap order-create">
+    <div class="table-responsive table-circular-notice-index circular-my-table-wrap order-create">
         <script type="application/json" class="js-order-send-map">
             <?= (string) json_encode($send_modal_payload_map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
         </script>
         <table class="custom-table circular-my-table">
             <thead>
                 <tr>
+                    <th>จัดการ</th>
                     <th>เรื่อง</th>
                     <th>สถานะ</th>
                     <th>วันที่ดำเนินการ</th>
-                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -3527,27 +3613,6 @@ ob_start();
                         ?>
                         <tr>
                             <td>
-                                <?php if ($outgoing_no !== ''): ?>
-                                    <div class="circular-my-subject">เลขทะเบียนส่ง <?= h($outgoing_no) ?></div>
-                                <?php endif; ?>
-                                <div class="circular-my-meta"><?= h((string) ($item['subject'] ?? '-')) ?></div>
-                            </td>
-                            <td>
-                                <span
-                                    class="status-pill <?= h((string) ($status_meta['pill'] ?? 'pending')) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span>
-                                <?php if ($attachment_count > 0): ?>
-                                    <p class="viewer">แนบไฟล์แล้ว <?= h((string) $attachment_count) ?> ไฟล์</p>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="order-create-datetime">
-                                    <span
-                                        class="order-create-datetime-date"><?= h((string) ($date_display_parts['date'] ?? '-')) ?></span>
-                                    <span
-                                        class="order-create-datetime-time"><?= h((string) ($date_display_parts['time'] ?? '-')) ?></span>
-                                </div>
-                            </td>
-                            <td>
                                 <div class="circular-my-actions">
                                     <?php if ($is_waiting_attachment): ?>
                                         <button class="booking-action-btn secondary js-open-order-edit-modal" type="button"
@@ -3566,6 +3631,27 @@ ob_start();
                                             <span class="tooltip">ดูรายละเอียด</span>
                                         </button>
                                     <?php endif; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php if ($outgoing_no !== ''): ?>
+                                    <div class="circular-my-subject">เลขทะเบียนส่ง <?= h($outgoing_no) ?></div>
+                                <?php endif; ?>
+                                <div class="circular-my-meta"><?= h((string) ($item['subject'] ?? '-')) ?></div>
+                            </td>
+                            <td>
+                                <span
+                                    class="status-pill <?= h((string) ($status_meta['pill'] ?? 'pending')) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span>
+                                <?php if ($attachment_count > 0): ?>
+                                    <p class="viewer">แนบไฟล์แล้ว <?= h((string) $attachment_count) ?> ไฟล์</p>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="order-create-datetime">
+                                    <span
+                                        class="order-create-datetime-date"><?= h((string) ($date_display_parts['date'] ?? '-')) ?></span>
+                                    <span
+                                        class="order-create-datetime-time"><?= h((string) ($date_display_parts['time'] ?? '-')) ?></span>
                                 </div>
                             </td>
                         </tr>
@@ -6823,87 +6909,6 @@ ob_start();
     </div>
 </div>
 
-<!-- <div class="content-circular-notice-index circular-track-modal-host">
-    <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
-        <div class="modal-content">
-            <div class="header-modal">
-                <div class="first-header">
-                    <p id="modalOutgoingViewTitle">ดูรายละเอียดออกเลขทะเบียนส่ง</p>
-                </div>
-                <div class="sec-header">
-                    <i class="fa-solid fa-xmark" id="modalOrderViewCloseBtn"></i>
-                </div>
-            </div>
-
-            <div class="content-modal">
-                <div class="type-urgent">
-                    <p>ประเภท</p>
-                    <div class="radio-group-urgent">
-                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="normal" checked
-                            id="modalOutgoingViewUrgentNormal"><label for="modalOutgoingViewUrgentNormal">ปกติ</label>
-                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="urgent" disabled
-                            id="modalOutgoingViewUrgentUrgent"><label for="modalOutgoingViewUrgentUrgent">ด่วน</label>
-                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="high" disabled
-                            id="modalOutgoingViewUrgentHigh"><label for="modalOutgoingViewUrgentHigh">ด่วนมาก</label>
-                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="highest" disabled
-                            id="modalOutgoingViewUrgentHighest"><label
-                            for="modalOutgoingViewUrgentHighest">ด่วนที่สุด</label>
-                    </div>
-                </div>
-                <div class="content-topic-sec">
-                    <div class="more-details">
-                        <p><strong>เลขทะเบียน</strong></p>
-                        <input type="text" id="modalOutgoingViewNo" class="order-no-display" value="-" disabled>
-                    </div>
-                    <div class="more-details">
-                        <p><strong>เรื่อง</strong></p>
-                        <input type="text" id="modalOutgoingViewSubject" class="order-no-display" value="-" disabled>
-                    </div>
-                </div>
-
-                <div class="content-topic-sec">
-                    <div class="more-details">
-                        <p><strong>ลงวันที่</strong></p>
-                        <input type="date" id="modalOutgoingViewEffectiveDate" class="order-no-display" value=""
-                            disabled>
-                    </div>
-                    <div class="more-details">
-                        <p><strong>ส่งถึง</strong></p>
-                        <input type="text" id="modalOutgoingViewIssuer" class="order-no-display" value="-" disabled>
-                    </div>
-                </div>
-
-                <div class="content-topic-sec">
-                    <div class="more-details">
-                        <p><strong>ผู้ออกเลข</strong></p>
-                        <input type="text" id="modalOutgoingViewIssuerName" class="order-no-display" value="" disabled>
-                    </div>
-                    <div class="more-details" hidden style="display: none;" aria-hidden="true">
-                        <p><strong>เจ้าของเรื่อง</strong></p>
-                        <input type="text" id="modalOutgoingViewOwnerNames" class="order-no-display" value="" disabled>
-                    </div>
-                </div>
-
-                <div class="file-section" id="sectionViewCover">
-                    <p><strong>ไฟล์หนังสือนำ</strong></p>
-                    <div class="file-list" id="containerViewCover" aria-live="polite"></div>
-                </div>
-
-                <div class="file-section" id="sectionViewAttachments">
-                    <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
-                    <div class="file-list" id="containerViewAttachments" aria-live="polite"></div>
-                </div>
-
-
-            </div>
-
-            <div class="footer-modal">
-            </div>
-
-        </div>
-    </div>
-</div> -->
-
 <div class="content-circular-notice-index circular-track-modal-host">
     <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
         <div class="modal-content">
@@ -8426,6 +8431,44 @@ ob_start();
             });
         }
 
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 
