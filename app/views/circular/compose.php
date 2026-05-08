@@ -636,13 +636,107 @@ ob_start();
             border-bottom-width: 1px;
             padding: 0 0 10px;
         }
+
         .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-section {
             padding: 0;
         }
+
         .content-circular-notice-index .modal-overlay-circular-notice-index .sender-row .form-group {
             gap: 10px;
             margin: 0 0 10px;
         }
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table thead th:nth-child(3),
+    .table-circular-notice-index table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(2) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2) {
+
+        width: 700px !important;
+        min-width: 700px !important;
+        max-width: 700px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        min-width: 160px !important;
+        max-width: 160px !important;
+
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        width: 180px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+
+    }
+
+    @media screen and (min-width: 769px) and (max-width: 1023px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table thead th:nth-child(3),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+
+            width: 600px !important;
+            min-width: 600px !important;
+            max-width: 600px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            min-width: 140px !important;
+            max-width: 140px !important;
+
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+
+        }
+
     }
 </style>
 
@@ -1133,15 +1227,15 @@ ob_start();
             </div>
         </div>
 
-        <div class="table-responsive circular-my-table-wrap">
+        <div class="table-responsive table-circular-notice-index circular-my-table-wrap">
             <table class="custom-table circular-my-table">
                 <thead>
                     <tr>
+                        <th>จัดการ</th>
                         <th>เรื่อง</th>
-                        <th>สถานะ</th>
                         <th>อ่านแล้ว/ทั้งหมด</th>
                         <th class="circular-track-sent-date">วันที่ส่ง</th>
-                        <th>จัดการ</th>
+                        <th>สถานะ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1215,22 +1309,6 @@ ob_start();
                             ?>
                             <tr>
                                 <td>
-                                    <div class="circular-my-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
-                                    <?php if (!empty($item['senderFactionName'])) : ?>
-                                        <div class="circular-my-meta">ในนาม <?= h((string) $item['senderFactionName']) ?></div>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="status-pill <?= h((string) ($status_meta['pill'] ?? 'pending')) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span>
-                                </td>
-                                <td><?= h((string) $read_count) ?>/<?= h((string) $recipient_count) ?></td>
-                                <td class="circular-track-sent-date">
-                                    <div class="circular-track-sent-date-display" aria-label="<?= h($date_display) ?>">
-                                        <span><?= h($date_line_display) ?></span>
-                                        <span><?= h($time_line_display) ?></span>
-                                    </div>
-                                </td>
-                                <td>
                                     <div class="circular-my-actions">
                                         <?php if ($item_type === 'INTERNAL' && $status_key === INTERNAL_STATUS_SENT && !$has_any_read) : ?>
                                             <form method="POST">
@@ -1296,6 +1374,22 @@ ob_start();
                                             </button>
                                         <?php endif; ?>
                                     </div>
+                                </td>
+                                <td>
+                                    <div class="circular-my-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
+                                    <?php if (!empty($item['senderFactionName'])) : ?>
+                                        <div class="circular-my-meta">ในนาม <?= h((string) $item['senderFactionName']) ?></div>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= h((string) $read_count) ?>/<?= h((string) $recipient_count) ?></td>
+                                <td class="circular-track-sent-date">
+                                    <div class="circular-track-sent-date-display" aria-label="<?= h($date_display) ?>">
+                                        <span><?= h($date_line_display) ?></span>
+                                        <span><?= h($time_line_display) ?></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-pill <?= h((string) ($status_meta['pill'] ?? 'pending')) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -2677,6 +2771,44 @@ ob_start();
             if (event.target === editModal) editModal.style.display = 'none';
         });
 
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 <?php
