@@ -317,7 +317,8 @@ ob_start();
 
     .table-circular-notice-index table thead th:nth-child(4),
     .table-circular-notice-index table tbody td:nth-child(4),
-    .table-circular-notice-index table tbody td:nth-child(2) {
+    .table-circular-notice-index table tbody td:nth-child(2),
+    .table-responsive.order-create .custom-table tbody tr td:nth-child(3) {
         text-align: start !important;
     }
 
@@ -366,7 +367,8 @@ ob_start();
 
         .table-circular-notice-index table thead th:nth-child(4),
         .table-circular-notice-index table tbody td:nth-child(4),
-        .table-circular-notice-index table tbody td:nth-child(2) {
+        .table-circular-notice-index table tbody td:nth-child(2),
+        .table-responsive.order-create .custom-table tbody tr td:nth-child(3) {
             text-align: start !important;
         }
 
