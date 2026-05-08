@@ -95,6 +95,12 @@ ob_start();
 ?>
 
 <style>
+    .orders-send-modal-shell {
+        display: none;
+    }
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec {
+        border-bottom: none !important;
+    }
     .table-circular-notice-index table thead th:nth-child(2),
     .table-circular-notice-index table tbody td:nth-child(2) {
         text-align: center !important;
@@ -422,7 +428,7 @@ ob_start();
                     <i class="fa-solid fa-xmark" id="closeModalOrderView"></i>
                 </div>
             </div>
-            <div class="content-modal">
+            <!-- <div class="content-modal">
                 <div class="content-topic-sec">
                     <div class="more-details row-format">
                         <p><strong>คำสั่งที่</strong></p>
@@ -480,24 +486,61 @@ ob_start();
                     <p><strong>ไฟล์เอกสารแนบจากระบบ</strong></p>
                     <div class="file-list" id="modalOrderSendFileSection">
                         <p class="existing-file-empty">ยังไม่มีไฟล์แนบ</p>
-                        <!-- <div class="file-banner">
-                            <div class="file-info">
-                                <div class="file-icon"><i class="fa-solid fa-image" aria-hidden="true"></i></div>
-                                <div class="file-text">
-                                    <span class="file-name">Screenshot 2569-03-01 at 14.48.38.png</span>
-                                    <span class="file-type">image/png</span>
-                                </div>
-                            </div>
-                            <div class="file-actions">
-                                <a href="public/api/file-download.php?module=orders&amp;entity_id=93&amp;file_id=121" target="_blank" rel="noopener">
-                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                </a>
-                            </div>
-                        </div> -->
 
                     </div>
                 </div>
 
+            </div> -->
+
+            <div class="formal-form content-modal">
+                <div class="formal-row">
+                    <div class="group">
+                        <label>คำสั่งที่</label>
+                        <input type="text" id="modalOrderSendNo" class="order-no-display" value="-" disabled>
+                    </div>
+                    <div class="group">
+                        <label>เรื่อง</label>
+                        <input type="text" id="modalOrderSendSubject" class="order-no-display" value="-" disabled>
+                    </div>
+                </div>
+                <div class="formal-row">
+                    <div class="group">
+                        <label>ทั้งนี้ตั้งแต่วันที่</label>
+                        <input type="date" id="modalOrderSendEffectiveDate" class="order-no-display" value="" disabled>
+                    </div>
+                    <div class="group">
+                        <label>สั่ง ณ วันที่</label>
+                        <input type="date" id="modalOrderSendDate" class="order-no-display" value="" disabled>
+                    </div>
+                </div>
+                <div class="formal-row">
+                    <div class="group">
+                        <label>ผู้สร้างเลขคำสั่ง</label>
+                        <input type="text" id="modalOrderSendIssuer" class="order-no-display" value="-" disabled>
+                    </div>
+                    <div class="group">
+                        <label>กลุ่ม</label>
+                        <input type="text" id="modalOrderSendGroup" class="order-no-display" value="-" disabled>
+                    </div>
+                </div>
+
+                <div class="orders-send-modal-shell orders-send-card">
+                    <div id="modalOrderSendFormSection">
+                        <form method="POST" action="orders-create.php" class="orders-send-form" id="modalOrderSendForm">
+                            <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
+                            <input type="hidden" name="order_action" value="send">
+                            <input type="hidden" name="send_order_id" id="modalOrderSendOrderId" value="">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="content-file-sec">
+                    <p><strong>ไฟล์เอกสารแนบจากระบบ</strong></p>
+                    <div class="file-list" id="modalOrderSendFileSection">
+                        <p class="existing-file-empty">ยังไม่มีไฟล์แนบ</p>
+
+                    </div>
+                </div>
             </div>
 
         </div>
