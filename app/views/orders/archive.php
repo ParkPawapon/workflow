@@ -157,6 +157,12 @@ ob_start();
 ?>
 
 <style>
+    .orders-send-modal-shell {
+        display: none;
+    }
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec {
+        border-bottom: none
+    }
     .table-circular-notice-keep table thead th:nth-child(1) {
         min-width: 150px;
     }
@@ -437,7 +443,7 @@ ob_start();
                         <i class="fa-solid fa-xmark" id="closeModalOrderView"></i>
                     </div>
                 </div>
-                <div class="content-modal">
+                <!-- <div class="content-modal">
                     <div class="content-topic-sec">
                         <div class="more-details">
                             <p><strong>คำสั่งที่</strong></p>
@@ -486,6 +492,55 @@ ob_start();
                         <div class="file-section" id="modalOrderViewFileSection"></div>
                     </div>
 
+                </div> -->
+
+                <div class="formal-form content-modal">
+                    <div class="formal-row">
+                        <div class="group">
+                            <label><strong>คำสั่งที่</strong></label>
+                            <input type="text" id="modalOrderViewNo" class="order-no-display" value="-" disabled>
+
+                        </div>
+                        <div class="group">
+                            <label><strong>เรื่อง</strong></label>
+                            <input type="text" id="modalOrderViewSubject" class="order-no-display" value="-" disabled>
+                        </div>
+                    </div>
+                    <div class="formal-row">
+                        <div class="group">
+                            <label><strong>ทั้งนี้ตั้งแต่วันที่</strong></label>
+                            <input type="date" id="modalOrderViewEffectiveDate" class="order-no-display" value="" disabled>
+                        </div>
+                        <div class="group">
+                            <label><strong>สั่ง ณ วันที่</strong></label>
+                            <input type="date" id="modalOrderViewDate" class="order-no-display" value="" disabled>
+                        </div>
+                    </div>
+                    <div class="formal-row">
+                        <div class="group">
+                            <label><strong>ผู้สร้างเลขคำสั่ง</strong></label>
+                            <input type="text" id="modalOrderViewIssuer" class="order-no-display" value="-" disabled>
+                        </div>
+                        <div class="group">
+                            <label><strong>กลุ่ม</strong></label>
+                            <input type="text" id="modalOrderViewGroup" class="order-no-display" value="-" disabled>
+                        </div>
+                    </div>
+
+                    <div class="orders-send-modal-shell orders-send-card">
+                        <div id="modalOrderViewFormSection">
+                            <form method="POST" action="orders-create.php" class="orders-send-form" id="modalOrderViewForm">
+                                <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
+                                <input type="hidden" name="order_action" value="send">
+                                <input type="hidden" name="send_order_id" id="modalOrderViewOrderId" value="">
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="content-file-sec">
+                        <p><strong>ไฟล์เอกสารแนบจากระบบ</strong></p>
+                        <div class="file-section" id="modalOrderViewFileSection"></div>
+                    </div>
                 </div>
 
             </div>
