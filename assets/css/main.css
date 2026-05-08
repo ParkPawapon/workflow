@@ -16322,6 +16322,16 @@ label {
   gap: 40px;
 }
 
+.formal-form input {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  height: 28px;
+  font-size: var(--font-size-body-1);
+  font-weight: bold;
+  color: var(--color-secondary);
+}
+
 .formal-form hr {
   margin: 0;
   outline: none;
@@ -25748,6 +25758,16 @@ label {
     padding: 10px 20px;
     font-size: var(--font-size-desc-1);
     gap: 20px;
+  }
+
+  .formal-form input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    height: 28px;
+    font-size: var(--font-size-desc-1);
+    font-weight: bold;
+    color: var(--color-secondary);
   }
 
   .formal-form .header {
@@ -35980,6 +36000,16 @@ label {
     gap: 10px;
   }
 
+  .formal-form input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    height: 28px;
+    font-size: var(--font-size-desc-3);
+    font-weight: bold;
+    color: var(--color-secondary);
+  }
+
   .formal-form .header {
     font-size: var(--font-size-desc-2);
   }
@@ -36003,6 +36033,12 @@ label {
     max-width: 70px !important;
   }
 
+}
+
+@media screen and (max-width: 500px) {
+  .formal-form .formal-row .group {
+    grid-column: span 2;
+  }
 }
 
 @media screen and (max-width: 400px) {
