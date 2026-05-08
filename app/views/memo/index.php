@@ -458,6 +458,103 @@ ob_start();
         text-overflow: clip;
         white-space: normal;
     }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(2),
+    .table-circular-notice-index table thead th:nth-child(4),
+    .table-circular-notice-index table tbody td:nth-child(4) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1),
+    .booking-table td:nth-child(1) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .booking-table td:nth-child(2) {
+        width: 650px !important;
+        min-width: 650px !important;
+        max-width: 650px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3),
+    .booking-table td:nth-child(3) {
+        width: 190px !important;
+        min-width: 190px !important;
+        max-width: 190px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .booking-table td:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5),
+    .booking-table td:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2),
+        .table-circular-notice-index table thead th:nth-child(4),
+        .table-circular-notice-index table tbody td:nth-child(4) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .booking-table td:nth-child(1) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .booking-table td:nth-child(2) {
+            width: 500px !important;
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3),
+        .booking-table td:nth-child(3) {
+            width: 190px !important;
+            min-width: 190px !important;
+            max-width: 190px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .booking-table td:nth-child(4) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .booking-table td:nth-child(5) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+    }
 </style>
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
@@ -618,15 +715,15 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive table-circular-notice-index">
         <table class="custom-table booking-table memo-mine-table">
             <thead>
                 <tr>
+                    <th>จัดการ</th>
                     <th>เรื่อง</th>
                     <th>สถานะ</th>
                     <th class="memo-date-col">วันที่ส่ง</th>
                     <th class="memo-date-col">อัปเดตล่าสุด</th>
-                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -695,22 +792,6 @@ ob_start();
                             data-memo-subject="<?= h($subject) ?>"
                             data-memo-no="<?= h($memo_no) ?>"
                             data-memo-sent-ts="<?= h((string) $sent_sort_ts) ?>">
-                            <td>
-                                <p><?= h($truncate_subject($subject)) ?></p>
-                            </td>
-                            <td>
-                                <span class="status-pill <?= h((string) ($status_meta['pill_variant'] ?? 'pending')) ?>">
-                                    <?= h((string) ($status_meta['label'] ?? '-')) ?>
-                                </span>
-                            </td>
-                            <td class="memo-date-col">
-                                <?= h($date_line) ?><br>
-                                <span class="detail-subtext"><?= h($time_line) ?></span>
-                            </td>
-                            <td class="memo-date-col">
-                                <?= h($updated_date_line) ?><br>
-                                <span class="detail-subtext"><?= h($updated_time_line) ?></span>
-                            </td>
                             <td>
                                 <button
                                     type="button"
@@ -807,6 +888,22 @@ ob_start();
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </td>
+                            <td>
+                                <p><?= h($truncate_subject($subject)) ?></p>
+                            </td>
+                            <td>
+                                <span class="status-pill <?= h((string) ($status_meta['pill_variant'] ?? 'pending')) ?>">
+                                    <?= h((string) ($status_meta['label'] ?? '-')) ?>
+                                </span>
+                            </td>
+                            <td class="memo-date-col">
+                                <?= h($date_line) ?><br>
+                                <span class="detail-subtext"><?= h($time_line) ?></span>
+                            </td>
+                            <td class="memo-date-col">
+                                <?= h($updated_date_line) ?><br>
+                                <span class="detail-subtext"><?= h($updated_time_line) ?></span>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -821,7 +918,7 @@ ob_start();
             <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ</p>
             <i class="fa-solid fa-xmark" id="closeModalView" aria-hidden="true"></i>
         </div>
-        
+
         <div class="content-modal">
             <div class="content-memo">
                 <div class="memo-header">
@@ -2841,6 +2938,44 @@ ob_start();
     closeRecipients?.addEventListener('click', () => recipientModal?.classList.remove('active'));
     recipientModal?.addEventListener('click', (e) => {
         if (e.target === recipientModal) recipientModal.classList.remove('active');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 <?php
