@@ -279,8 +279,113 @@ ob_start();
             gap: 10px;
             margin: 10px 0 0;
         }
+
         .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-section {
             padding: 0 0 20px;
+        }
+    }
+
+
+
+
+    .table-circular-notice-index table thead th:nth-child(2),
+    .table-circular-notice-index table tbody td:nth-child(2) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5),
+    .table-circular-notice-index table tbody td:nth-child(5) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1) {
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2) {
+
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        min-width: 500px !important;
+        max-width: 500px !important;
+
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+
+    }
+
+    .table-circular-notice-index table thead th:nth-child(6) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-height: 140px !important;
+    }
+
+    @media screen and (min-width: 769px) and (max-width: 1023px) {
+
+        .table-circular-notice-index table thead th:nth-child(2),
+        .table-circular-notice-index table tbody td:nth-child(2) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5),
+        .table-circular-notice-index table tbody td:nth-child(5) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 45px !important;
+            min-width: 45px !important;
+            max-width: 45px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            min-width: 450px !important;
+            max-width: 450px !important;
+
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 260px !important;
+            min-width: 260px !important;
+            max-width: 260px !important;
+
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+
+        }
+
+        .table-circular-notice-index table thead th:nth-child(6) {
+            width: 120px !important;
+            min-width: 120px !important;
+            max-height: 120px !important;
         }
     }
 </style>
@@ -391,11 +496,11 @@ ob_start();
                             <?php if ($show_book_type_column) : ?>
                                 <th>ประเภทหนังสือ</th>
                             <?php endif; ?>
+                            <th>จัดการ</th>
                             <th>หัวเรื่อง</th>
                             <th>ผู้ส่ง</th>
                             <th>วันที่ส่ง</th>
                             <th>สถานะ</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -419,20 +524,6 @@ ob_start();
                                     <td>
                                         <input type="checkbox" class="check-table" name="selected_ids[]" value="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">
                                     </td>
-                                    <?php if ($show_book_type_column) : ?>
-                                        <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
-                                    <?php endif; ?>
-                                    <td><?= h((string) ($item['subject'] ?? '')) ?></td>
-                                    <td>
-                                        <div class="circular-sender-stack">
-                                            <span class="circular-sender-name"><?= h((string) ($item['sender_name'] ?? '-')) ?></span>
-                                            <?php if (!empty($item['sender_faction_name'])) : ?>
-                                                <span class="circular-sender-faction"><?= h((string) $item['sender_faction_name']) ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                    <td><?= h((string) ($item['delivered_date'] ?? '-')) ?></td>
-                                    <td><span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span></td>
                                     <td>
                                         <div class="circular-action-stack">
                                             <button
@@ -471,6 +562,20 @@ ob_start();
                                             </button>
                                         </div>
                                     </td>
+                                    <?php if ($show_book_type_column) : ?>
+                                        <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
+                                    <?php endif; ?>
+                                    <td><?= h((string) ($item['subject'] ?? '')) ?></td>
+                                    <td>
+                                        <div class="circular-sender-stack">
+                                            <span class="circular-sender-name"><?= h((string) ($item['sender_name'] ?? '-')) ?></span>
+                                            <?php if (!empty($item['sender_faction_name'])) : ?>
+                                                <span class="circular-sender-faction"><?= h((string) $item['sender_faction_name']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td><?= h((string) ($item['delivered_date'] ?? '-')) ?></td>
+                                    <td><span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -483,11 +588,11 @@ ob_start();
             <table>
                 <thead>
                     <tr>
+                        <th>จัดการ</th>
                         <th>วันที่รับ</th>
                         <th>เลขที่ / เรื่อง</th>
                         <th>ความเร่งด่วน</th>
                         <th>สถานะปัจุบัน</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -502,18 +607,6 @@ ob_start();
                             $priority_label = (string) ($item['ext_priority_label'] ?? 'ปกติ');
                             ?>
                             <tr>
-                                <td>
-                                    <p><?= h((string) ($item['delivered_date'] ?? '-')) ?></p>
-                                    <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
-                                </td>
-                                <td>
-                                    <p><?= h((string) ($item['ext_book_no'] ?? '-')) ?></p>
-                                    <p><?= h((string) ($item['subject'] ?? '')) ?></p>
-                                </td>
-                                <td><button class="urgency-status <?= h((string) ($item['urgency_class'] ?? 'normal')) ?>">
-                                        <p><?= h($priority_label) ?></p>
-                                    </button></td>
-                                <td><?= h((string) ($item['status_label'] ?? '-')) ?></td>
                                 <td>
                                     <div class="circular-action-stack">
                                         <button
@@ -541,6 +634,18 @@ ob_start();
                                         <a class="button-open-workflow" href="<?= h($detail_workflow_page) ?>?inbox_id=<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">อ่าน/ดำเนินการ</a>
                                     </div>
                                 </td>
+                                <td>
+                                    <p><?= h((string) ($item['delivered_date'] ?? '-')) ?></p>
+                                    <p><?= h((string) ($item['delivered_time'] ?? '-')) ?></p>
+                                </td>
+                                <td>
+                                    <p><?= h((string) ($item['ext_book_no'] ?? '-')) ?></p>
+                                    <p><?= h((string) ($item['subject'] ?? '')) ?></p>
+                                </td>
+                                <td><button class="urgency-status <?= h((string) ($item['urgency_class'] ?? 'normal')) ?>">
+                                        <p><?= h($priority_label) ?></p>
+                                    </button></td>
+                                <td><?= h((string) ($item['status_label'] ?? '-')) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -2274,6 +2379,44 @@ ob_start();
             }
         }
 
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
     });
 </script>
 
