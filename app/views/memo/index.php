@@ -714,47 +714,41 @@ ob_start();
                             <td>
                                 <button
                                     type="button"
-                                    class="booking-action-btn secondary js-open-view-modal">
+                                    class="booking-action-btn secondary js-open-view-modal"
+                                    data-type="INTERNAL"
+                                    data-circular-id="<?= h((string) $memo_id) ?>"
+                                    data-detail="<?= h($detail_for_attr) ?>"
+                                    data-detail-b64="<?= h($detail_b64) ?>"
+                                    data-subject="<?= h($subject !== '' ? $subject : '-') ?>"
+                                    data-bookno="<?= h($book_no_display) ?>"
+                                    data-issued="<?= h((string) ($memo['writeDate'] ?? '-')) ?>"
+                                    data-from="<?= h($current_name !== '' ? $current_name : '-') ?>"
+                                    data-sender="<?= h($current_sender_faction_name !== '' ? $current_sender_faction_name : '-') ?>"
+                                    data-to="<?= h($to_label) ?>"
+                                    data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
+                                    data-consider="considering"
+                                    data-received-time="<?= h(trim($date_line . ' ' . $time_line)) ?>"
+                                    data-read-stats="[]"
+                                    data-head-name="<?= h((string) ($memo['headName'] ?? '')) ?>"
+                                    data-head-position="<?= h((string) ($memo['headPositionName'] ?? '')) ?>"
+                                    data-head-signature="<?= h((string) ($memo['headSignature'] ?? '')) ?>"
+                                    data-head-note-b64="<?= h($head_note_b64) ?>"
+                                    data-head-action="<?= h((string) ($memo['headAction'] ?? '')) ?>"
+                                    data-deputy-name="<?= h((string) ($memo['deputyName'] ?? '')) ?>"
+                                    data-deputy-position="<?= h((string) ($memo['deputyPositionName'] ?? '')) ?>"
+                                    data-deputy-signature="<?= h((string) ($memo['deputySignature'] ?? '')) ?>"
+                                    data-deputy-note-b64="<?= h($deputy_note_b64) ?>"
+                                    data-deputy-action="<?= h((string) ($memo['deputyAction'] ?? '')) ?>"
+                                    data-director-name="<?= h((string) ($memo['directorName'] ?? '')) ?>"
+                                    data-director-position="<?= h((string) ($memo['directorPositionName'] ?? '')) ?>"
+                                    data-director-signature="<?= h((string) ($memo['directorSignature'] ?? '')) ?>"
+                                    data-director-note-b64="<?= h($director_note_b64) ?>"
+                                    data-director-action="<?= h((string) ($memo['directorAction'] ?? '')) ?>"
+                                    data-files="<?= h($memo_files_json) ?>">
                                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                    <span class="tooltip">ดูรายละเอียด (2)</span>
+                                    <span class="tooltip">ดูรายละเอียด</span>
                                 </button>
                                 <?php if ($can_edit_and_submit) : ?>
-                                    <button
-                                        type="button"
-                                        class="booking-action-btn secondary js-open-view-modal"
-                                        data-type="INTERNAL"
-                                        data-circular-id="<?= h((string) $memo_id) ?>"
-                                        data-detail="<?= h($detail_for_attr) ?>"
-                                        data-detail-b64="<?= h($detail_b64) ?>"
-                                        data-subject="<?= h($subject !== '' ? $subject : '-') ?>"
-                                        data-bookno="<?= h($book_no_display) ?>"
-                                        data-issued="<?= h((string) ($memo['writeDate'] ?? '-')) ?>"
-                                        data-from="<?= h($current_name !== '' ? $current_name : '-') ?>"
-                                        data-sender="<?= h($current_sender_faction_name !== '' ? $current_sender_faction_name : '-') ?>"
-                                        data-to="<?= h($to_label) ?>"
-                                        data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
-                                        data-consider="considering"
-                                        data-received-time="<?= h(trim($date_line . ' ' . $time_line)) ?>"
-                                        data-read-stats="[]"
-                                        data-head-name="<?= h((string) ($memo['headName'] ?? '')) ?>"
-                                        data-head-position="<?= h((string) ($memo['headPositionName'] ?? '')) ?>"
-                                        data-head-signature="<?= h((string) ($memo['headSignature'] ?? '')) ?>"
-                                        data-head-note-b64="<?= h($head_note_b64) ?>"
-                                        data-head-action="<?= h((string) ($memo['headAction'] ?? '')) ?>"
-                                        data-deputy-name="<?= h((string) ($memo['deputyName'] ?? '')) ?>"
-                                        data-deputy-position="<?= h((string) ($memo['deputyPositionName'] ?? '')) ?>"
-                                        data-deputy-signature="<?= h((string) ($memo['deputySignature'] ?? '')) ?>"
-                                        data-deputy-note-b64="<?= h($deputy_note_b64) ?>"
-                                        data-deputy-action="<?= h((string) ($memo['deputyAction'] ?? '')) ?>"
-                                        data-director-name="<?= h((string) ($memo['directorName'] ?? '')) ?>"
-                                        data-director-position="<?= h((string) ($memo['directorPositionName'] ?? '')) ?>"
-                                        data-director-signature="<?= h((string) ($memo['directorSignature'] ?? '')) ?>"
-                                        data-director-note-b64="<?= h($director_note_b64) ?>"
-                                        data-director-action="<?= h((string) ($memo['directorAction'] ?? '')) ?>"
-                                        data-files="<?= h($memo_files_json) ?>">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                        <span class="tooltip">ดูรายละเอียด</span>
-                                    </button>
                                     <button
                                         type="button"
                                         class="booking-action-btn secondary js-open-suggest-modal"
@@ -790,42 +784,6 @@ ob_start();
                                         </form>
                                     <?php endif; ?>
                                 <?php elseif ($status === 'CANCELLED' || $status === 'SUBMITTED') : ?>
-                                    <button
-                                        type="button"
-                                        class="booking-action-btn secondary js-open-view-modal"
-                                        data-type="INTERNAL"
-                                        data-circular-id="<?= h((string) $memo_id) ?>"
-                                        data-detail="<?= h($detail_for_attr) ?>"
-                                        data-detail-b64="<?= h($detail_b64) ?>"
-                                        data-subject="<?= h($subject !== '' ? $subject : '-') ?>"
-                                        data-bookno="<?= h($book_no_display) ?>"
-                                        data-issued="<?= h((string) ($memo['writeDate'] ?? '-')) ?>"
-                                        data-from="<?= h($current_name !== '' ? $current_name : '-') ?>"
-                                        data-sender="<?= h($current_sender_faction_name !== '' ? $current_sender_faction_name : '-') ?>"
-                                        data-to="<?= h($to_label) ?>"
-                                        data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
-                                        data-consider="considering"
-                                        data-received-time="<?= h(trim($date_line . ' ' . $time_line)) ?>"
-                                        data-read-stats="[]"
-                                        data-head-name="<?= h((string) ($memo['headName'] ?? '')) ?>"
-                                        data-head-position="<?= h((string) ($memo['headPositionName'] ?? '')) ?>"
-                                        data-head-signature="<?= h((string) ($memo['headSignature'] ?? '')) ?>"
-                                        data-head-note-b64="<?= h($head_note_b64) ?>"
-                                        data-head-action="<?= h((string) ($memo['headAction'] ?? '')) ?>"
-                                        data-deputy-name="<?= h((string) ($memo['deputyName'] ?? '')) ?>"
-                                        data-deputy-position="<?= h((string) ($memo['deputyPositionName'] ?? '')) ?>"
-                                        data-deputy-signature="<?= h((string) ($memo['deputySignature'] ?? '')) ?>"
-                                        data-deputy-note-b64="<?= h($deputy_note_b64) ?>"
-                                        data-deputy-action="<?= h((string) ($memo['deputyAction'] ?? '')) ?>"
-                                        data-director-name="<?= h((string) ($memo['directorName'] ?? '')) ?>"
-                                        data-director-position="<?= h((string) ($memo['directorPositionName'] ?? '')) ?>"
-                                        data-director-signature="<?= h((string) ($memo['directorSignature'] ?? '')) ?>"
-                                        data-director-note-b64="<?= h($director_note_b64) ?>"
-                                        data-director-action="<?= h((string) ($memo['directorAction'] ?? '')) ?>"
-                                        data-files="<?= h($memo_files_json) ?>">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                        <span class="tooltip">ดูรายละเอียด</span>
-                                    </button>
                                     <?php if ($can_preview_pdf && $memo_pdf_preview_href !== '') : ?>
                                         <a
                                             class="booking-action-btn secondary"
@@ -837,42 +795,6 @@ ob_start();
                                         </a>
                                     <?php endif; ?>
                                 <?php else : ?>
-                                    <button
-                                        type="button"
-                                        class="booking-action-btn secondary js-open-view-modal"
-                                        data-type="INTERNAL"
-                                        data-circular-id="<?= h((string) $memo_id) ?>"
-                                        data-detail="<?= h($detail_for_attr) ?>"
-                                        data-detail-b64="<?= h($detail_b64) ?>"
-                                        data-subject="<?= h($subject !== '' ? $subject : '-') ?>"
-                                        data-bookno="<?= h($book_no_display) ?>"
-                                        data-issued="<?= h((string) ($memo['writeDate'] ?? '-')) ?>"
-                                        data-from="<?= h($current_name !== '' ? $current_name : '-') ?>"
-                                        data-sender="<?= h($current_sender_faction_name !== '' ? $current_sender_faction_name : '-') ?>"
-                                        data-to="<?= h($to_label) ?>"
-                                        data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
-                                        data-consider="considering"
-                                        data-received-time="<?= h(trim($date_line . ' ' . $time_line)) ?>"
-                                        data-read-stats="[]"
-                                        data-head-name="<?= h((string) ($memo['headName'] ?? '')) ?>"
-                                        data-head-position="<?= h((string) ($memo['headPositionName'] ?? '')) ?>"
-                                        data-head-signature="<?= h((string) ($memo['headSignature'] ?? '')) ?>"
-                                        data-head-note-b64="<?= h($head_note_b64) ?>"
-                                        data-head-action="<?= h((string) ($memo['headAction'] ?? '')) ?>"
-                                        data-deputy-name="<?= h((string) ($memo['deputyName'] ?? '')) ?>"
-                                        data-deputy-position="<?= h((string) ($memo['deputyPositionName'] ?? '')) ?>"
-                                        data-deputy-signature="<?= h((string) ($memo['deputySignature'] ?? '')) ?>"
-                                        data-deputy-note-b64="<?= h($deputy_note_b64) ?>"
-                                        data-deputy-action="<?= h((string) ($memo['deputyAction'] ?? '')) ?>"
-                                        data-director-name="<?= h((string) ($memo['directorName'] ?? '')) ?>"
-                                        data-director-position="<?= h((string) ($memo['directorPositionName'] ?? '')) ?>"
-                                        data-director-signature="<?= h((string) ($memo['directorSignature'] ?? '')) ?>"
-                                        data-director-note-b64="<?= h($director_note_b64) ?>"
-                                        data-director-action="<?= h((string) ($memo['directorAction'] ?? '')) ?>"
-                                        data-files="<?= h($memo_files_json) ?>">
-                                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                        <span class="tooltip">ดูรายละเอียด</span>
-                                    </button>
                                     <?php if ($can_preview_pdf && $memo_pdf_preview_href !== '') : ?>
                                         <a
                                             class="booking-action-btn secondary"
@@ -896,7 +818,7 @@ ob_start();
 <div class="modal-overlay-memo details" id="modalViewOverlay" style="display: none;">
     <div class="modal-content">
         <div class="header-modal">
-            <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ 2</p>
+            <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ</p>
             <i class="fa-solid fa-xmark" id="closeModalView" aria-hidden="true"></i>
         </div>
         
@@ -916,24 +838,24 @@ ob_start();
                     <div class="memo-detail">
                         <div class="form-group-row row-format-inline" style="display: flex !important;" id="memoViewSenderRow">
                             <p><strong>ส่วนราชการ</strong></p>
-                            <p>Lorem ipsum dolor sit amet.</p>
+                            <p id="memoViewSenderFaction">-</p>
                             <p><strong>โรงเรียนดีบุกพังงาวิทยายน</strong></p>
                         </div>
 
                         <div class="form-group-row memo-subject-row row-format" id="memoViewSubjectRow">
                             <p><strong>เรื่อง</strong></p>
-                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, nisi!</p>
+                            <p id="memoViewSubject">-</p>
                         </div>
 
                         <div class="form-group-row memo-to-row row-format" id="memoViewToRow">
                             <p><strong>เรียน</strong></p>
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nemo, dolor!</p>
+                            <p id="memoViewToLabel"><?= h($memo_director_label) ?></p>
                         </div>
 
                         <div class="content-editor column-format" id="memoViewDetailWrap">
                             <p><strong>รายละเอียด:</strong></p>
                             <br>
-                            <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Possimus provident sed impedit voluptate vitae eligendi ducimus earum vero in tempora facere, adipisci tenetur, deserunt vel eum alias consequatur voluptates expedita nulla enim! Consequuntur est cupiditate quos, doloribus, in modi amet sed debitis harum nesciunt ipsa soluta explicabo saepe voluptates ab.</p>
+                            <p id="memo_editor_view">-</p>
                         </div>
 
 
@@ -1019,188 +941,6 @@ ob_start();
         </div>
 
     </div>
-
-</div>
-
-<div class="modal-overlay-memo details" id="modalViewOverlay" style="display: none;">
-    <div class="modal-content">
-        <div class="header-modal">
-            <p id="modalTypeLabel">รายละเอียดบันทึกข้อความ</p>
-            <i class="fa-solid fa-xmark" id="closeModalView" aria-hidden="true"></i>
-        </div>
-
-        <div class="content-modal">
-            <div class="content-memo">
-                <div class="memo-header">
-                    <img src="assets/img/garuda-logo.png" alt="">
-                    <p>บันทึกข้อความ</p>
-                    <div></div>
-                </div>
-
-                <form method="POST" id="memoViewForm">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="flow_mode" value="CHAIN">
-                    <input type="hidden" name="to_choice" value="DIRECTOR">
-
-                    <div class="memo-detail">
-                        <div class="form-group-row" id="memoViewSenderRow">
-                            <p><strong>ส่วนราชการ</strong></p>
-                            <input type="text" id="memoViewSenderFaction" value="" disabled>
-                            <!-- <div class="custom-select-wrapper"> -->
-                            <!-- <div class="custom-select-trigger">
-                                    <p class="select-value">
-                                        <?php
-                                        $selected_faction_name = '';
-
-                                        foreach ($factions as $faction) {
-                                            if ((string) ($faction['fID'] ?? '') === $selected_sender_fid) {
-                                                $selected_faction_name = (string) ($faction['fname'] ?? '');
-                                                break;
-                                            }
-                                        }
-                                        echo h($selected_faction_name !== '' ? $selected_faction_name : 'เลือกส่วนราชการ');
-                                        ?>
-                                    </p>
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </div> -->
-
-                            <!-- <div class="custom-options">
-                                    <?php foreach ($factions as $faction) : ?>
-                                        <?php $fid = (string) ($faction['fID'] ?? ''); ?>
-                                        <div class="custom-option<?= $fid === $selected_sender_fid ? ' selected' : '' ?>" data-value="<?= h($fid) ?>">
-                                            <?= h((string) ($faction['fname'] ?? '')) ?>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div> -->
-
-                            <!-- <div class="custom-options">
-                                    <div class="custom-option" data-value="2">
-                                        กลุ่มบริหารงานวิชาการ </div>
-                                    <div class="custom-option" data-value="3">
-                                        กลุ่มบริหารงานบุคคลและงบประมาณ </div>
-                                    <div class="custom-option selected" data-value="4">
-                                        กลุ่มบริหารงานทั่วไป </div>
-                                    <div class="custom-option" data-value="5">
-                                        กลุ่มบริหารกิจการนักเรียน </div>
-                                    <div class="custom-option" data-value="6">
-                                        กลุ่มสนับสนุนการสอน </div>
-                                </div> -->
-
-                            <!-- <input type="hidden" name="sender_fid" value="<?= h($selected_sender_fid) ?>"> -->
-                            <!-- </div> -->
-
-                            <p><strong>โรงเรียนดีบุกพังงาวิทยายน</strong></p>
-                        </div>
-
-                        <div class="form-group-row memo-subject-row" id="memoViewSubjectRow">
-                            <p><strong>เรื่อง</strong></p>
-                            <input type="text" id="memoViewSubject" value="" disabled style="width: 100%">
-                        </div>
-
-                        <div class="form-group-row memo-to-row" id="memoViewToRow">
-                            <p><strong>เรียน</strong></p>
-                            <p id="memoViewToLabel"><?= h($memo_director_label) ?></p>
-                        </div>
-
-                        <div class="content-editor" id="memoViewDetailWrap">
-                            <p><strong>รายละเอียด:</strong></p>
-                            <br>
-                            <textarea id="memo_editor_view" disabled rows="7"></textarea>
-                        </div>
-
-
-                        <div class="memo-file-row file-sec" id="memoViewFileRow">
-                            <div class="memo-input-content">
-                                <label>ไฟล์เอกสาร <strong>(เอกสารได้สูงสุด 5 ไฟล์)</strong></label>
-                                <!-- <div>
-                                    <button type="button" class="btn btn-upload-small" onclick="document.getElementById('attachment').click()">
-                                        <p>เพิ่มไฟล์</p>
-                                    </button>
-                                </div> -->
-                                <!-- <input type="file" id="attachment" name="attachments[]" class="file-input" multiple="" accept=".pdf,image/png,image/jpeg" hidden=""> -->
-                                <!-- <p class="form-error hidden" id="attachmentError">แนบได้สูงสุด 5 ไฟล์</p> -->
-                            </div>
-
-                            <div class="file-list" id="attachmentListView" aria-live="polite">
-                                <p class="attachment-empty">ยังไม่มีไฟล์แนบ</p>
-                            </div>
-                        </div>
-
-                        <div class="form-group-row signature">
-                            <?php if ($signature_src !== '') : ?>
-                                <img src="<?= h($signature_src) ?>" alt="">
-                            <?php endif; ?>
-                            <p id="memoViewSignerName">(<?= h($current_name !== '' ? $current_name : '-') ?>)</p>
-                            <p id="memoViewSignerPosition"><?= h($current_position !== '' ? $current_position : '-') ?></p>
-                        </div>
-
-
-                        <div class="form-group-row secondary u-hidden" data-memo-optional="1" id="memoViewHeadNoteRow">
-                            <p><strong>ความคิดเห็นและข้อเสนอแนะของหัวหน้ากลุ่มสาระการเรียนรู้</strong></p>
-                            <div class="content-editor" style="width:100%">
-                                <textarea id="memoViewHeadNote" disabled rows="7"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group-row signature secondary u-hidden" data-memo-optional="1" id="memoViewHeadSignatureRow">
-                            <img id="memoViewHeadSignatureImage" src="" alt="" style="display:none;">
-                            <p id="memoViewHeadSignatureName">(-)</p>
-                            <p id="memoViewHeadSignaturePosition">-</p>
-                        </div>
-
-                        <div class="form-group-row comment u-hidden" data-memo-optional="1" id="memoViewDeputyActionRow">
-                            <p><strong>เสนอ :</strong></p>
-                            <input type="text" id="memoViewDeputyAction" disabled>
-                        </div>
-
-                        <div class="form-group-row primary u-hidden" data-memo-optional="1" id="memoViewDeputyNoteRow">
-                            <p><strong>ความคิดเห็นและข้อเสนอแนะของรองผู้อำนวยการ</strong></p>
-                            <div class="content-editor" style="width:100%">
-                                <textarea id="memoViewDeputyNote" disabled rows="7"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group-row signature primary u-hidden" data-memo-optional="1" id="memoViewDeputySignatureRow">
-                            <img id="memoViewDeputySignatureImage" src="" alt="" style="display:none;">
-                            <p id="memoViewDeputySignatureName">(-)</p>
-                            <p id="memoViewDeputySignaturePosition">-</p>
-                        </div>
-
-
-                        <div class="form-group-row comment secondary u-hidden" data-memo-optional="1" id="memoViewDirectorActionRow">
-                            <p><strong>ผู้บริหารดำเนินการต่อ</strong></p>
-                            <input type="text" id="memoViewDirectorAction" disabled>
-                        </div>
-
-                        <div class="form-group-row secondary u-hidden" data-memo-optional="1" id="memoViewDirectorNoteRow">
-                            <p><strong>ความคิดเห็นและข้อเสนอแนะของผู้อำนวยการโรงเรียน</strong></p>
-                            <div class="content-editor" style="width:100%">
-                                <textarea id="memoViewDirectorNote" disabled rows="7"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group-row signature secondary u-hidden" data-memo-optional="1" id="memoViewDirectorSignatureRow">
-                            <img id="memoViewDirectorSignatureImage" src="" alt="" style="display:none;">
-                            <p id="memoViewDirectorSignatureName">(-)</p>
-                            <p id="memoViewDirectorSignaturePosition">-</p>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- <div class="footer-modal">
-                    <form method="POST" id="modalArchiveForm">
-                        <input type="hidden" name="csrf_token" value="3ece51cef25df8dcbb025b7f59af78f9d7fa9c90963b44be41d39e6d5152a6ac">                        <input type="hidden" name="inbox_id" id="modalInboxId" value="10">
-                        <input type="hidden" name="action" value="archive">
-                        <button type="submit">
-                            <p>ย้ายกลับ</p>
-                        </button>
-                    </form>
-                </div> -->
 
 </div>
 
@@ -1486,7 +1226,7 @@ ob_start();
         });
 
         tinymce.init({
-            selector: '#memo_editor_view, #memoViewHeadNote, #memoViewDeputyNote, #memoViewDirectorNote',
+            selector: '#memoViewHeadNote, #memoViewDeputyNote, #memoViewDirectorNote',
             height: 500,
             menubar: false,
             language: 'th_TH',
@@ -2178,201 +1918,6 @@ ob_start();
             if (e.target === recipientModal) recipientModal.classList.remove('active');
         });
 
-        const detailModal = document.getElementById('modalNoticeKeepOverlay');
-        const closeDetailModalBtn = document.getElementById('closeModalNoticeKeep');
-        const openDetailBtns = document.querySelectorAll('.js-open-view-modal');
-        const modalUrgency = document.getElementById('modalUrgency');
-        const modalBookNo = document.getElementById('modalBookNo');
-        const modalIssuedDate = document.getElementById('modalIssuedDate');
-        const modalFromText = document.getElementById('modalFromText');
-        const modalToText = document.getElementById('modalToText');
-        const modalSubject = document.getElementById('modalSubject');
-        const modalDetail = document.getElementById('modalDetail');
-        const modalFileSection = document.getElementById('modalFileSection');
-        const modalReceivedTime = document.getElementById('modalReceivedTime');
-        const modalStatus = document.getElementById('modalStatus');
-        const modalConsiderStatus = document.getElementById('modalConsiderStatus');
-        const receiptStatusTableBody = document.getElementById('receiptStatusTableBody');
-
-        const buildModalFileItem = (file, entityId) => {
-            const container = document.createElement('div');
-            container.className = 'file-banner';
-
-            const info = document.createElement('div');
-            info.className = 'file-info';
-
-            const iconWrap = document.createElement('div');
-            iconWrap.className = 'file-icon';
-            const icon = document.createElement('i');
-            const mime = String(file?.mimeType || '').toLowerCase();
-            if (mime.includes('pdf')) {
-                icon.className = 'fa-solid fa-file-pdf';
-            } else if (mime.includes('image')) {
-                icon.className = 'fa-solid fa-file-image';
-            } else {
-                icon.className = 'fa-solid fa-file';
-            }
-            iconWrap.appendChild(icon);
-
-            const text = document.createElement('div');
-            text.className = 'file-text';
-            const nameEl = document.createElement('span');
-            nameEl.className = 'file-name';
-            nameEl.textContent = String(file?.fileName || '-');
-            const typeEl = document.createElement('span');
-            typeEl.className = 'file-type';
-            typeEl.textContent = String(file?.mimeType || '');
-            text.appendChild(nameEl);
-            text.appendChild(typeEl);
-
-            info.appendChild(iconWrap);
-            info.appendChild(text);
-
-            const viewAction = document.createElement('div');
-            viewAction.className = 'file-actions';
-            const viewLink = document.createElement('a');
-            viewLink.href = 'public/api/file-download.php?module=circulars&entity_id=' +
-                encodeURIComponent(String(entityId || '')) +
-                '&file_id=' + encodeURIComponent(String(file?.fileID || ''));
-            viewLink.target = '_blank';
-            viewLink.rel = 'noopener';
-            viewLink.innerHTML = '<i class="fa-solid fa-eye"></i>';
-            viewAction.appendChild(viewLink);
-
-            const downloadAction = document.createElement('div');
-            downloadAction.className = 'file-actions';
-            const downloadLink = document.createElement('a');
-            downloadLink.href = 'public/api/file-download.php?module=circulars&entity_id=' +
-                encodeURIComponent(String(entityId || '')) +
-                '&file_id=' + encodeURIComponent(String(file?.fileID || '')) +
-                '&download=1';
-            downloadLink.innerHTML = '<i class="fa-solid fa-download"></i>';
-            downloadAction.appendChild(downloadLink);
-
-            container.appendChild(info);
-            container.appendChild(viewAction);
-            container.appendChild(downloadAction);
-            return container;
-        };
-
-        const renderModalFiles = (files, entityId) => {
-            if (!modalFileSection) return;
-            modalFileSection.innerHTML = '';
-
-            if (!Array.isArray(files) || files.length === 0) {
-                modalFileSection.innerHTML = '<div class="content-details-sec" style="margin: 0;"><p id="modalDetail">-</p></div>';
-                return;
-            }
-
-            files.forEach((file) => {
-                modalFileSection.appendChild(buildModalFileItem(file, entityId));
-            });
-        };
-
-        const renderReceiptRows = (stats) => {
-            if (!receiptStatusTableBody) return;
-            receiptStatusTableBody.innerHTML = '';
-
-            if (!Array.isArray(stats) || stats.length === 0) {
-                const emptyRow = document.createElement('tr');
-                emptyRow.innerHTML = '<td colspan="3" class="enterprise-empty">ไม่พบข้อมูลผู้รับ</td>';
-                receiptStatusTableBody.appendChild(emptyRow);
-                return;
-            }
-
-            stats.forEach((item) => {
-                const name = String(item?.name || '-');
-                const statusText = String(item?.status || 'ยังไม่อ่าน');
-                const pill = String(item?.pill || 'pending');
-                const readAt = String(item?.readAt || '-');
-                const row = document.createElement('tr');
-                const nameTd = document.createElement('td');
-                nameTd.textContent = name;
-
-                const statusTd = document.createElement('td');
-                const statusSpan = document.createElement('span');
-                statusSpan.className = `status-pill ${pill}`;
-                statusSpan.textContent = statusText;
-                statusTd.appendChild(statusSpan);
-
-                const readAtTd = document.createElement('td');
-                readAtTd.textContent = readAt;
-
-                row.appendChild(nameTd);
-                row.appendChild(statusTd);
-                row.appendChild(readAtTd);
-                receiptStatusTableBody.appendChild(row);
-            });
-        };
-
-        openDetailBtns.forEach((btn) => {
-            btn.addEventListener('click', (event) => {
-                event.preventDefault();
-                const circularType = String(btn.getAttribute('data-type') || 'INTERNAL').toUpperCase();
-                const circularId = String(btn.getAttribute('data-circular-id') || '').trim();
-                const detail = String(btn.getAttribute('data-detail') || '').trim();
-                const subject = String(btn.getAttribute('data-subject') || '').trim();
-                const bookNo = String(btn.getAttribute('data-bookno') || '-').trim();
-                const issuedDate = String(btn.getAttribute('data-issued') || '-').trim();
-                const fromText = String(btn.getAttribute('data-from') || '-').trim();
-                const toText = String(btn.getAttribute('data-to') || '-').trim();
-                const statusText = String(btn.getAttribute('data-status') || '-').trim();
-                const considerClass = String(btn.getAttribute('data-consider') || 'considering').trim() || 'considering';
-                const receivedTime = String(btn.getAttribute('data-received-time') || '-').trim();
-                let stats = [];
-                let files = [];
-                try {
-                    stats = JSON.parse(String(btn.getAttribute('data-read-stats') || '[]'));
-                } catch (error) {
-                    stats = [];
-                }
-                try {
-                    files = JSON.parse(String(btn.getAttribute('data-files') || '[]'));
-                } catch (error) {
-                    files = [];
-                }
-
-                if (modalUrgency) {
-                    modalUrgency.className = 'urgency-status normal';
-                    const typeLabel = circularType === 'EXTERNAL' ? 'ภายนอก' : 'ภายใน';
-                    const urgencyLabel = modalUrgency.querySelector('p');
-                    if (urgencyLabel) {
-                        urgencyLabel.textContent = typeLabel;
-                    }
-                }
-                if (modalBookNo) modalBookNo.value = bookNo !== '' ? bookNo : '-';
-                if (modalIssuedDate) modalIssuedDate.value = issuedDate !== '' ? issuedDate : '-';
-                if (modalFromText) modalFromText.value = fromText !== '' ? fromText : '-';
-                if (modalToText) modalToText.value = toText !== '' ? toText : '-';
-                if (modalSubject) modalSubject.textContent = subject !== '' ? subject : '-';
-                if (modalDetail) modalDetail.textContent = detail !== '' ? detail : '-';
-                if (modalReceivedTime) modalReceivedTime.value = receivedTime !== '' ? receivedTime : '-';
-                if (modalStatus) modalStatus.value = statusText !== '' ? statusText : '-';
-
-                if (modalConsiderStatus) {
-                    modalConsiderStatus.className = `consider-status ${considerClass}`;
-                    modalConsiderStatus.textContent = statusText !== '' ? statusText : '-';
-                }
-
-                renderModalFiles(files, circularId);
-                renderReceiptRows(stats);
-
-                if (detailModal) {
-                    detailModal.style.display = 'flex';
-                }
-            });
-        });
-
-        closeDetailModalBtn?.addEventListener('click', () => {
-            if (detailModal) {
-                detailModal.style.display = 'none';
-            }
-        });
-        detailModal?.addEventListener('click', (event) => {
-            if (event.target === detailModal) {
-                detailModal.style.display = 'none';
-            }
-        });
     });
 
 
@@ -2693,8 +2238,32 @@ ob_start();
         }
     };
 
+    const isMemoViewFormControl = (element) => {
+        if (!element) {
+            return false;
+        }
+
+        const tagName = String(element.tagName || '').toUpperCase();
+        return tagName === 'TEXTAREA' || tagName === 'INPUT';
+    };
+
+    const setMemoViewTextField = (element, value) => {
+        if (!element) {
+            return;
+        }
+
+        const content = String(value || '').trim() || '-';
+
+        if (isMemoViewFormControl(element)) {
+            element.value = content;
+            return;
+        }
+
+        element.textContent = content;
+    };
+
     const autoResizeTextarea = (textarea) => {
-        if (!textarea) {
+        if (!textarea || String(textarea.tagName || '').toUpperCase() !== 'TEXTAREA') {
             return;
         }
 
@@ -2711,6 +2280,12 @@ ob_start();
         }
 
         const content = String(value || '').trim();
+
+        if (!isMemoViewFormControl(textarea)) {
+            textarea.textContent = content !== '' ? content : '-';
+            return;
+        }
+
         textarea.value = content;
 
         if (!window.tinymce || typeof window.tinymce.get !== 'function' || textarea.id === '') {
@@ -2948,7 +2523,6 @@ ob_start();
             const toText = normalizeMemoText(btn.getAttribute('data-to'));
             const detailRawFromBase64 = decodeBase64Utf8(btn.getAttribute('data-detail-b64'));
             const detailRaw = detailRawFromBase64 !== '' ? detailRawFromBase64 : String(btn.getAttribute('data-detail') || '');
-            const detailHtml = String(detailRaw || '').trim();
             const detailText = normalizeMemoDetailText(detailRaw);
             let files = [];
 
@@ -2958,28 +2532,13 @@ ob_start();
                 files = [];
             }
 
-            if (memoViewSenderInput) {
-                memoViewSenderInput.value = senderText;
-            }
-            if (memoViewSubjectInput) {
-                memoViewSubjectInput.value = subjectText;
-            }
+            setMemoViewTextField(memoViewSenderInput, senderText);
+            setMemoViewTextField(memoViewSubjectInput, subjectText);
             if (memoViewToLabel) {
                 memoViewToLabel.textContent = toText !== '' ? toText : memoDirectorLabel;
             }
             if (memoViewDetailInput) {
                 setMemoReadonlyEditorContent(memoViewDetailInput, detailText);
-            }
-
-            if (window.tinymce && typeof window.tinymce.get === 'function') {
-                const viewEditor = tinymce.get('memo_editor_view');
-                if (viewEditor) {
-                    const normalizedHtml = detailHtml !== '' && detailHtml !== '-' ?
-                        detailHtml :
-                        (detailText !== '' ? detailText.replace(/\n/g, '<br>') : '');
-                    viewEditor.setContent(normalizedHtml);
-                    viewEditor.mode.set('readonly');
-                }
             }
 
             setMemoViewVisible(memoViewSenderRow, senderText !== '');
@@ -3034,9 +2593,6 @@ ob_start();
 
                 // Recalculate after modal becomes visible; hidden elements report wrong scrollHeight.
                 window.requestAnimationFrame(() => {
-                    if (window.tinymce && typeof window.tinymce.get === 'function' && tinymce.get('memo_editor_view')) {
-                        return;
-                    }
                     autoResizeTextarea(memoViewDetailInput);
                     autoResizeTextarea(memoViewHeadNote);
                     autoResizeTextarea(memoViewDeputyNote);
