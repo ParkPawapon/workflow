@@ -672,7 +672,7 @@ ob_start();
                 </div>
             </div>
         </header>
-        <div class="modal-body booking-detail-body">
+        <!-- <div class="modal-body booking-detail-body">
             <div class="booking-detail-row">
                 <div class="booking-detail-content">
                     <label>ห้อง/สถานที่</label>
@@ -738,10 +738,70 @@ ob_start();
                 </div>
             </div>
 
-        </div>
-        <!-- <div class="booking-detail-actions" style="flex-grow: 1; align-items: flex-end;">
-            <button type="button" class="booking-action-btn" data-booking-modal-close="bookingDetailModal">ปิดหน้าต่าง</button>
         </div> -->
+
+        <div class="formal-form">
+            <div class="formal-row">
+                <div class="group">
+                    <label>ห้อง/สถานที่</label>
+                    <p data-booking-detail="room">-</p>
+                </div>
+                <div class="group">
+                    <label>วันที่ใช้ และเวลา</label>
+                    <div style="display:flex; gap: 10px;">
+                        <p data-booking-detail="date">-</p>
+                        <p data-booking-detail="time">-</p>
+                        <p>น.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="formal-row">
+                <div class="group">
+                    <label>จำนวนผู้เข้าร่วม</label>
+                    <p data-booking-detail="attendees">-</p>
+                </div>
+                <div class="group">
+                    <label>ผู้จองสถานที่ / ห้อง</label>
+                    <p data-booking-detail="requester">-</p>
+                </div>
+            </div>
+            <div class="formal-row">
+                <div class="group row">
+                    <label>หัวข้อการจอง</label>
+                    <p data-booking-detail="topic">-</p>
+                </div>
+            </div>
+            <div class="formal-row">
+                <div class="group row">
+                    <label>รายละเอียด/วัตถุประสงค์</label>
+                    <p data-booking-detail="detail">-</p>
+                </div>
+            </div>
+            <div class="formal-row">
+                <div class="group row">
+                    <label>อุปกรณ์ที่ต้องการ</label>
+                    <p data-booking-detail="equipment">-</p>
+                </div>
+            </div>
+            <div class="formal-row">
+                <div class="group row">
+                    <label>สร้างรายการเมื่อ</label>
+                    <p data-booking-detail="created">-</p>
+                </div>
+            </div>
+            <div class="formal-row" data-booking-detail="approval-item">
+                <div class="group">
+                    <label>ผู้อนุมัติ</label>
+                    <p data-booking-detail="approval-name">-</p>
+                </div>
+                <div class="group">
+                    <label>วันที่ดำเนินการ</label>
+                    <p data-booking-detail="approval-at">-</p>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 </div>
 
