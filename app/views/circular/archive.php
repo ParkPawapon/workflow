@@ -24,6 +24,92 @@ $unread_checked = $filter_read === 'unread' || $filter_read === 'all';
 
 ob_start();
 ?>
+
+<style>
+    .table-circular-notice-index table thead th:nth-child(1),
+    .table-circular-notice-index table tbody td:nth-child(1) {
+        text-align: center !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4),
+    .table-circular-notice-index table tbody td:nth-child(4) {
+        text-align: start !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(1) {
+        width: 80px !important;
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(2) {
+        width: 500px !important;
+        min-width: 500px !important;
+        max-width: 500px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(3) {
+        width: 180px !important;
+        min-width: 180px !important;
+        max-width: 180px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(4) {
+        width: 100px !important;
+        min-width: 100px !important;
+        max-width: 100px !important;
+    }
+
+    .table-circular-notice-index table thead th:nth-child(5) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .table-circular-notice-index table thead th:nth-child(1),
+        .table-circular-notice-index table tbody td:nth-child(1) {
+            text-align: center !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4),
+        .table-circular-notice-index table tbody td:nth-child(4) {
+            text-align: start !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(2) {
+            width: 450px !important;
+            min-width: 450px !important;
+            max-width: 450px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(3) {
+            width: 160px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(4) {
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
+        }
+
+        .table-circular-notice-index table thead th:nth-child(5) {
+            width: 120px !important;
+            min-width: 120px !important;
+            max-width: 120px !important;
+        }
+    }
+</style>
+
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
     <p>หนังสือเวียน / หนังสือเวียนที่จัดเก็บ</p>
@@ -103,15 +189,15 @@ ob_start();
             </div>
         </div>
 
-        <div class="table-circular-notice-keep">
+        <div class="table-circular-notice-keep table-circular-notice-index">
             <table>
                 <thead>
                     <tr>
+                        <th>จัดการ</th>
                         <th>หัวเรื่อง</th>
                         <th>ผู้ส่ง</th>
                         <th>วันที่ส่ง</th>
                         <th>สถานะ</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -123,10 +209,6 @@ ob_start();
                         <?php foreach ($items as $item) : ?>
                             <?php $file_json = (string) ($item['files_json'] ?? '[]'); ?>
                             <tr>
-                                <td><?= h((string) ($item['subject'] ?? '')) ?></td>
-                                <td><?= h((string) ($item['sender_name'] ?? '-')) ?></td>
-                                <td><?= h((string) ($item['delivered_date'] ?? '-')) ?></td>
-                                <td><span class="status-badge <?= h(($item['is_read'] ?? false) ? 'read' : 'unread') ?>"><?= h(($item['is_read'] ?? false) ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span></td>
                                 <td>
                                     <button
                                         class="booking-action-btn secondary js-open-circular-modal"
@@ -145,6 +227,10 @@ ob_start();
                                         <span class="tooltip">ดูรายละเอียด</span>
                                     </button>
                                 </td>
+                                <td><?= h((string) ($item['subject'] ?? '')) ?></td>
+                                <td><?= h((string) ($item['sender_name'] ?? '-')) ?></td>
+                                <td><?= h((string) ($item['delivered_date'] ?? '-')) ?></td>
+                                <td><span class="status-badge <?= h(($item['is_read'] ?? false) ? 'read' : 'unread') ?>"><?= h(($item['is_read'] ?? false) ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -422,6 +508,46 @@ ob_start();
         </button>
     </div>
 <?php endif; ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-circular-notice-index');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    });
+</script>
 
 <?php
 $content = ob_get_clean();
