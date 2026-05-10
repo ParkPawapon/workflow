@@ -664,7 +664,7 @@ select {
   padding: calc(5px + 0.5vw) calc(10px + 1vw);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -676,7 +676,7 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 0 30px;
+  margin: 0 0 10px;
 }
 
 .header-login .logo-login img {
@@ -733,12 +733,12 @@ select {
 
 .form-login input[type="text"],
 .form-login input[type="password"] {
-  width: 100%;
-  height: 40px;
-  border-radius: 12px;
-  padding: 10px 20px;
-  margin: 0 0 20px;
-  font-size: var(--font-size-body-2);
+  width: calc(116px + 20vw);
+  height: calc(22px + 2vw);
+  border-radius: clamp(8px, 1vw, 16px);
+  padding: 14px 24px;
+  margin: 0 0 calc(6px + 1.5vw) 0;
+  font-size: calc(1px + 1vw);
   color: var(--color-primary-deep);
   background-color: var(--color-neutral-lightest);
   box-shadow: 1px 1px 6px 0px var(--color-secondary);
@@ -746,6 +746,7 @@ select {
   border: none;
   transition: 0.4s ease-in-out;
 }
+
 
 .form-login input[type="text"]:hover,
 .form-login input[type="password"]:hover {
@@ -779,17 +780,18 @@ select {
 }
 
 .remember-me-group {
-  width: 100%;
+  width: calc(116px + 20vw);
+  height: calc(1px + 1vw);
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: start;
   position: relative;
-  font-size: var(--font-size-body-2);
+  font-size: calc(1px + 1vw);
   color: var(--color-primary-deep);
   -webkit-user-select: none;
   user-select: none;
-  margin: 0 0 40px 0;
+  margin: 0 0 50px 0;
 }
 
 .remember-me-group input {
@@ -809,8 +811,8 @@ select {
   position: relative;
   top: 0;
   left: 0;
-  height: 18px;
-  width: 18px;
+  height: calc(14px + 0.5vw);
+  width: calc(14px + 0.5vw);
   cursor: pointer;
   background-color: var(--color-neutral-lightest);
   border: 1px solid var(--color-neutral-medium);
@@ -830,14 +832,14 @@ select {
 }
 
 .button-login-group button {
-  width: 180px;
-  height: 40px;
+  width: calc(134px + 5vw);
+  height: calc(20px + 1.5vw);
   background-color: var(--color-secondary);
-  border-radius: 12px;
+  border-radius: clamp(8px, 1vw, 16px);
   box-shadow: 0 4px 4px 0 rgba(var(--rgb-neutral-dark), 0.25);
   outline: none;
   border: none;
-  font-size: var(--font-size-body-2);
+  font-size: calc(1px + 1vw);
   font-weight: normal;
   color: var(--color-neutral-lightest);
   cursor: pointer;
@@ -1137,7 +1139,7 @@ select {
   align-items: center;
   text-align: center;
   color: var(--color-neutral-lightest);
-  font-size: calc(2px + 1vw);
+  font-size: var(--font-size-body-2);
   padding: 0 0 0 24px;
 }
 
@@ -1219,7 +1221,7 @@ select {
 
 .container-notification-section .news-bar .details-news-bar li {
   list-style: none;
-  font-size: var(--font-size-desc-2);
+  font-size: var(--font-size-desc-1);
   font-weight: bold;
   color: var(--color-neutral-lightest);
   height: 30px;
@@ -16489,7 +16491,7 @@ label {
   .footer-login p {
     margin: 0;
     font-size: var(--font-size-desc-2);
-    line-height: 1;
+    line-height: 1.4;
   }
 
   .slide-down {
@@ -26190,7 +26192,7 @@ label {
 
   .form-login form {
     width: 100%;
-    max-width: 400px;
+    max-width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;

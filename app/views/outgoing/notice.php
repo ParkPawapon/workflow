@@ -238,7 +238,6 @@ if (!empty($subject_head_members)) {
 $deputy_position_ids_for_forward = array_values(array_filter(array_map('intval', (array) ($deputy_position_ids ?? [])), static function (int $position_id): bool {
     return $position_id > 0;
 }));
-$acting_pid_for_forward = trim((string) ($acting_pid ?? ''));
 $forward_is_reviewer_return = $box_key === 'director'
     && ((bool) ($is_director_box ?? false) || (bool) ($is_acting_director ?? false) || (bool) ($is_deputy_reviewer ?? false));
 $forward_is_registry_handoff = (bool) ($can_manage_external ?? false)
@@ -283,7 +282,6 @@ if ($forward_restrict_to_deputies) {
             $pid === ''
             || $name === ''
             || (!isset($deputy_forward_pids_for_forward[$pid]) && !in_array($position_id, $deputy_position_ids_for_forward, true))
-            || ($acting_pid_for_forward !== '' && $pid === $acting_pid_for_forward)
         ) {
             continue;
         }
@@ -472,7 +470,6 @@ ob_start();
     .table-circular-notice-index.outside-person table tbody td:nth-child(3) {
         text-align: start;
     }
-
 
     .table-circular-notice-index.first-table table thead th:nth-child(1) {
         width: 45px !important;
@@ -683,6 +680,54 @@ ob_start();
             font-size: 8px;
         }
     }
+
+    <?php if ($archived) : ?>.table-circular-notice-index.first-table table thead th:nth-child(1),
+    .table-circular-notice-index.first-table table tbody td:nth-child(1),
+    .table-circular-notice-index.first-table table thead th:nth-child(5),
+    .table-circular-notice-index.first-table table tbody td:nth-child(5) {
+        text-align: center;
+    }
+
+    .table-circular-notice-index.first-table table thead th:nth-child(2),
+    .table-circular-notice-index.first-table table tbody td:nth-child(2),
+    .table-circular-notice-index.first-table table thead th:nth-child(3),
+    .table-circular-notice-index.first-table table tbody td:nth-child(3),
+    .table-circular-notice-index.first-table table thead th:nth-child(4),
+    .table-circular-notice-index.first-table table tbody td:nth-child(4) {
+        text-align: start;
+    }
+
+    .table-circular-notice-index.first-table table thead th:nth-child(1) {
+        width: 80px !important;
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
+
+    .table-circular-notice-index.first-table table thead th:nth-child(2) {
+        width: 600px !important;
+        min-width: 600px !important;
+        max-width: 600px !important;
+    }
+
+    .table-circular-notice-index.first-table table thead th:nth-child(3) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
+
+    .table-circular-notice-index.first-table table thead th:nth-child(4) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    .table-circular-notice-index.first-table table thead th:nth-child(5) {
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+    }
+
+    <?php endif; ?>
 </style>
 <div class="content-header">
     <h1>ยินดีต้อนรับ</h1>
@@ -776,18 +821,21 @@ ob_start();
     </div>
 
     <?php if (!$is_outside_view) : ?>
+        <?php $show_bulk_archive_controls = !$archived; ?>
         <form
             id="bulkActionForm"
             method="POST">
             <?= csrf_field() ?>
-            <input type="hidden" name="action" value="<?= h($archived ? 'unarchive_selected' : 'archive_selected') ?>">
+            <input type="hidden" name="action" value="archive_selected">
             <div class="table-circular-notice-index first-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>
-                                <input type="checkbox" class="check-table checkall" id="checkAllCircular">
-                            </th>
+                            <?php if ($show_bulk_archive_controls) : ?>
+                                <th>
+                                    <input type="checkbox" class="check-table checkall" id="checkAllCircular">
+                                </th>
+                            <?php endif; ?>
                             <th>จัดการ</th>
                             <?php if ($show_book_type_column) : ?>
                                 <th>ประเภทหนังสือ</th>
@@ -801,7 +849,7 @@ ob_start();
                     <tbody>
                         <?php if (empty($items)) : ?>
                             <tr>
-                                <td colspan="<?= h($show_book_type_column ? '7' : '6') ?>" class="enterprise-empty">ไม่มีรายการ</td>
+                                <td colspan="<?= h((string) (($show_book_type_column ? 6 : 5) + ($show_bulk_archive_controls ? 1 : 0))) ?>" class="enterprise-empty">ไม่มีรายการ</td>
                             </tr>
                         <?php else : ?>
                             <?php foreach ($items as $item) : ?>
@@ -827,9 +875,11 @@ ob_start();
                                 }
                                 ?>
                                 <tr>
-                                    <td>
-                                        <input type="checkbox" class="check-table" name="selected_ids[]" value="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">
-                                    </td>
+                                    <?php if ($show_bulk_archive_controls) : ?>
+                                        <td>
+                                            <input type="checkbox" class="check-table" name="selected_ids[]" value="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">
+                                        </td>
+                                    <?php endif; ?>
                                     <td>
                                         <div class="circular-action-stack">
                                             <button
@@ -2055,18 +2105,18 @@ ob_start();
 
 </section>
 
-<?php if (!$is_outside_view) : ?>
+<?php if (!$is_outside_view && !$archived) : ?>
     <div class="button-circular-notice-index">
         <button
             class="button-keep"
             type="submit"
             form="bulkActionForm"
-            data-confirm="<?= h($archived ? 'ต้องการย้ายหนังสือเวียนที่เลือกกลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนที่เลือกหรือไม่') ?>"
-            data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>"
+            data-confirm="ต้องการจัดเก็บหนังสือเวียนที่เลือกหรือไม่"
+            data-confirm-title="ยืนยันการจัดเก็บ"
             data-confirm-ok="ยืนยัน"
             data-confirm-cancel="ยกเลิก">
             <i class="fa-solid fa-file-import"></i>
-            <p><?= h($archived ? 'ย้ายกลับ' : 'จัดเก็บ') ?></p>
+            <p>จัดเก็บ</p>
         </button>
     </div>
 <?php else : ?>
