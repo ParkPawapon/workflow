@@ -60,13 +60,12 @@ if (!function_exists('outgoing_notice_deputy_forward_pids')) {
             ...$params
         );
 
-        $acting_pid = trim((string) $acting_pid);
         $pids = [];
 
         foreach ($rows as $row) {
             $pid = trim((string) ($row['pID'] ?? ''));
 
-            if ($pid === '' || !ctype_digit($pid) || ($acting_pid !== '' && $pid === $acting_pid)) {
+            if ($pid === '' || !ctype_digit($pid)) {
                 continue;
             }
 
