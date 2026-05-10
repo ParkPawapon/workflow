@@ -43,7 +43,7 @@ if (!function_exists('circular_archive_index')) {
         $inbox_type = $box_map[$box_key];
         $is_outside_view = $box_key !== 'normal';
 
-        $default_type = $is_outside_view ? 'external' : 'all';
+        $default_type = $is_outside_view ? 'external' : 'internal';
         $filter_type = (string) ($_GET['type'] ?? $default_type);
         $filter_read = (string) ($_GET['read'] ?? 'all');
         $filter_sort = (string) ($_GET['sort'] ?? 'newest');
@@ -51,13 +51,17 @@ if (!function_exists('circular_archive_index')) {
         $filter_search = trim((string) ($_GET['q'] ?? ''));
         $selected_dh_year = (int) ($_GET['dh_year'] ?? 0);
 
-        $allowed_types = ['all', 'internal', 'external'];
+        $allowed_types = $is_outside_view ? ['external'] : ['internal'];
         $allowed_reads = ['all', 'read', 'unread'];
         $allowed_sort = ['newest', 'oldest'];
         $allowed_views = ['table1', 'table2'];
 
         if (!in_array($filter_type, $allowed_types, true)) {
             $filter_type = $default_type;
+        }
+
+        if (!$is_outside_view) {
+            $filter_type = 'internal';
         }
 
         if (!in_array($filter_read, $allowed_reads, true)) {
