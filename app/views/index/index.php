@@ -115,6 +115,20 @@ if ($index_announcement_payload_json === false) {
         padding: 0px 40px 20px;
     }
 
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person {
+        padding: 20px;
+    }
+
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content {
+        width: 90%;
+        max-width: 90%;
+        height: 90%;
+    }
+
+    #newsModalOverlay {
+        z-index: 1111;
+    }
+
     #newsModalOverlay .modal-body {
         padding: 0 40px;
     }
@@ -131,6 +145,7 @@ if ($index_announcement_payload_json === false) {
         padding: 10px 0;
         margin: 0;
         width: 100%;
+        cursor: pointer;
         /* border-bottom: 1px solid var(--color-secondary); */
     }
 
@@ -362,7 +377,7 @@ if ($index_announcement_payload_json === false) {
                 <div class="booking-section">
                     <ul>
                         <?php for ($x = 1; $x <= 220; $x++) { ?>
-                            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit, suscipit <?= $x ?></li>
+                            <li class="js-open-order-view-modal">Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit, suscipit <?= $x ?></li>
                         <?php } ?>
                     </ul>
                 </div>
