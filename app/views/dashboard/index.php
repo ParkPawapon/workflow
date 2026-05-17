@@ -274,6 +274,84 @@ ob_start();
         width: 100%;
     }
 
+    .circular-track-modal-host {
+        width: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person {
+        padding: 20px;
+    }
+
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content {
+        width: 90%;
+        max-width: 90%;
+        height: 90%;
+    }
+
+    #newsModalOverlay {
+        z-index: 111;
+    }
+
+    #newsModalOverlay .modal-body {
+        padding: 0 40px;
+    }
+
+    #newsModalOverlay ul {
+        padding: 0;
+    }
+
+    #newsModalOverlay ul li {
+        font-size: var(--font-size-body-1);
+        color: var(--color-secondary);
+        text-decoration: none;
+        list-style: none;
+        padding: 10px 0;
+        margin: 0;
+        width: 100%;
+        cursor: pointer;
+        /* border-bottom: 1px solid var(--color-secondary); */
+    }
+
+    #newsModalOverlay ul li:nth-child(even) {
+        background-color: rgba(var(--rgb-secondary-light), 0.05);
+    }
+
+    .teacher-phone-footer-control {
+        height: 80px;
+        padding: 20px 40px;
+        box-shadow: 0px -12px 12px -2px rgba(var(--rgb-neutral-dark), 0.05)
+    }
+
+    @media screen and (max-width: 1024px) {
+        #newsModalOverlay .modal-body {
+            padding: 0 20px;
+        }
+
+        #newsModalOverlay ul {
+            margin: 0;
+        }
+
+        #newsModalOverlay modal-body {
+            padding: 20px 10px;
+        }
+
+        #newsModalOverlay ul li {
+            font-size: var(--font-size-desc-1);
+            padding: 5px 0;
+            margin: 0;
+        }
+
+        .teacher-phone-footer-control {
+            height: 60px;
+            padding: 10px 20px;
+        }
+    }
+
     @media screen and (max-width: 768px) {
         .file-list {
             margin: 5px 0;
@@ -282,6 +360,21 @@ ob_start();
         .file-banner {
             max-width: 250px;
             min-width: 250px;
+        }
+
+        #newsModalOverlay .modal-body {
+            padding: 0 10px;
+        }
+
+        #newsModalOverlay ul li {
+            font-size: var(--font-size-desc-3);
+            padding: 0;
+            margin: 0;
+        }
+
+        .teacher-phone-footer-control {
+            height: 40px;
+            padding: 0 10px;
         }
     }
 
@@ -438,11 +531,14 @@ ob_start();
 
         <section>
             <div class="dashboard-header" id="news-paper">
-                <img src="public/assets/img/icon/news-paper.png" alt="">
-                <p><strong>ข่าวประชาสัมพันธ์ และตารางนัดหมาย</strong></p>
+                <div>
+                    <img src="public/assets/img/icon/news-paper.png" alt="">
+                    <p><strong>ข่าวประชาสัมพันธ์ และตารางนัดหมาย</strong></p>
+                </div>
+                <a href="#" id="newsButton">ดูข่าวทั้งหมด</a>
             </div>
 
-            <aside class="container-notification-section dashboard">
+            <aside class="container-notification-section dashboard" style="z-index: 1">
 
                 <div class="news-bar">
                     <div class="details-news-bar">
@@ -504,6 +600,73 @@ ob_start();
 
             </aside>
         </section>
+
+        <div id="newsModalOverlay" class="modal-overlay hidden">
+            <div class="modal-content">
+                <header class="modal-header">
+                    <div class="modal-title">
+                        <!-- <i class="fa-regular fa-calendar-days"></i> -->
+                        <span>ข่าวประชาสัมพันธ์ทั้งหมด</span>
+                    </div>
+                    <div class="close-modal-btn">
+                        <i class="fa-solid fa-xmark" id="newsCloseBtn" aria-hidden="true"></i>
+                    </div>
+                </header>
+
+                <div class="modal-body">
+                    <div class="booking-section">
+                        <ul>
+                            <?php for ($x = 1; $x <= 220; $x++) { ?>
+                                <li class="js-open-order-view-modal">Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit, suscipit <?= $x ?></li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+
+
+                </div>
+
+                <div class="teacher-phone-footer-control">
+                    <div class="count-text" id="count-text">
+                        <p>จำนวน <? //= h((string) number_format($teacher_directory_total)) 
+                                    ?> รายชื่อ</p>
+                    </div>
+                    <div class="teacher-phone-pagination" id="pagination">
+
+                        <button type="button" data-page="<? //= h((string) $prev_page) 
+                                                            ?>" <? //= $current_page <= 1 ? 'disabled' : '' 
+                                                                ?> aria-label="Previous page">
+                            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                        </button>
+
+                        <button type="button" data-page="1" <? //= $current_page === 1 ? 'class="active"' : '' 
+                                                            ?>>1</button>
+                        <span class="enterprise-ellipsis">...</span>
+
+                        <button type="button" data-page="<? //= h((string) $i) 
+                                                            ?>" <? //= $i === $current_page ? 'class="active"' : '' 
+                                                                ?>><? //= h((string) $i) 
+                                                                    ?></button>
+
+
+                        <span class="enterprise-ellipsis">...</span>
+
+                        <button type="button" data-page="<? //= h((string) $total_pages) 
+                                                            ?>" <? //= $current_page === $total_pages ? 'class="active"' : '' 
+                                                                ?>><? //= h((string) $total_pages) 
+                                                                    ?></button>
+
+                        <button type="button" data-page="<? //= h((string) $next_page) 
+                                                            ?>" <? //= $current_page >= $total_pages ? 'disabled' : '' 
+                                                                ?> aria-label="Next page">
+                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </main>
 
     <div id="event-modal-overlay" class="modal-overlay hidden">
@@ -1076,6 +1239,201 @@ ob_start();
 
             slider.scrollLeft = scrollLeft - walk;
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalOverlay = document.getElementById('newsModalOverlay');
+        const openBtn = document.getElementById('newsButton');
+        const closeBtn = document.getElementById('newsCloseBtn');
+
+        const list = modalOverlay?.querySelector('.booking-section ul');
+        const rows = list ? Array.from(list.querySelectorAll('li')) : [];
+
+        const pagination = document.getElementById('pagination');
+        const countText = document.getElementById('count-text');
+
+        const rowsPerPage = 20;
+        let currentPage = 1;
+        const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+        const getPaginationRange = () => {
+            let startPage = 1;
+            let endPage = totalPages;
+
+            if (totalPages > 7) {
+                if (currentPage <= 4) {
+                    endPage = 5;
+                } else if (currentPage >= totalPages - 3) {
+                    startPage = totalPages - 4;
+                } else {
+                    startPage = currentPage - 2;
+                    endPage = currentPage + 2;
+                }
+            }
+
+            return {
+                startPage,
+                endPage,
+            };
+        };
+
+        const createPageButton = (page) => {
+            const button = document.createElement('button');
+
+            button.type = 'button';
+            button.dataset.page = String(page);
+            button.textContent = page;
+
+            if (page === currentPage) {
+                button.classList.add('active');
+            }
+
+            button.addEventListener('click', () => {
+                currentPage = page;
+                renderPage();
+            });
+
+            return button;
+        };
+
+        const createEllipsis = () => {
+            const span = document.createElement('span');
+
+            span.className = 'enterprise-ellipsis';
+            span.textContent = '...';
+
+            return span;
+        };
+
+        const renderPagination = () => {
+            if (!pagination) return;
+
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+            const prevPage = Math.max(1, currentPage - 1);
+            const nextPage = Math.min(totalPages, currentPage + 1);
+
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.dataset.page = String(prevPage);
+            prevBtn.setAttribute('aria-label', 'Previous page');
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left" aria-hidden="true"></i>';
+            prevBtn.disabled = currentPage <= 1;
+
+            prevBtn.addEventListener('click', () => {
+                if (currentPage <= 1) return;
+
+                currentPage = prevPage;
+                renderPage();
+            });
+
+            pagination.appendChild(prevBtn);
+
+            const {
+                startPage,
+                endPage
+            } = getPaginationRange();
+
+            if (startPage > 1) {
+                pagination.appendChild(createPageButton(1));
+
+                if (startPage > 2) {
+                    pagination.appendChild(createEllipsis());
+                }
+            }
+
+            for (let page = startPage; page <= endPage; page++) {
+                pagination.appendChild(createPageButton(page));
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination.appendChild(createEllipsis());
+                }
+
+                pagination.appendChild(createPageButton(totalPages));
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.dataset.page = String(nextPage);
+            nextBtn.setAttribute('aria-label', 'Next page');
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right" aria-hidden="true"></i>';
+            nextBtn.disabled = currentPage >= totalPages;
+
+            nextBtn.addEventListener('click', () => {
+                if (currentPage >= totalPages) return;
+
+                currentPage = nextPage;
+                renderPage();
+            });
+
+            pagination.appendChild(nextBtn);
+        };
+
+        const renderPage = () => {
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+
+            rows.forEach((row, index) => {
+                row.style.display = index >= startIndex && index < endIndex ? '' : 'none';
+            });
+
+            if (countText) {
+                const startNumber = rows.length === 0 ? 0 : startIndex + 1;
+                const endNumber = Math.min(endIndex, rows.length);
+
+                countText.innerHTML = `
+                <p style="line-height: 1.2;">จำนวน ${rows.length} รายการ</p>
+            `;
+            }
+
+            renderPagination();
+        };
+
+        const openModal = (event) => {
+            event?.preventDefault();
+
+            if (!modalOverlay) return;
+
+            modalOverlay.classList.remove('hidden');
+            modalOverlay.style.display = 'flex';
+
+            currentPage = 1;
+            renderPage();
+        };
+
+        const closeModal = () => {
+            if (!modalOverlay) return;
+
+            modalOverlay.classList.add('hidden');
+            modalOverlay.style.display = 'none';
+        };
+
+        openBtn?.addEventListener('click', openModal);
+        closeBtn?.addEventListener('click', closeModal);
+
+        modalOverlay?.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (
+                event.key === 'Escape' &&
+                modalOverlay &&
+                !modalOverlay.classList.contains('hidden')
+            ) {
+                closeModal();
+            }
+        });
+
+        renderPage();
     });
 </script>
 <?php

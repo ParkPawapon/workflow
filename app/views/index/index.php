@@ -1061,7 +1061,7 @@ if ($index_announcement_payload_json === false) {
                     const endNumber = Math.min(endIndex, rows.length);
 
                     countText.innerHTML = `
-                <p>แสดง ${startNumber}-${endNumber} จากทั้งหมด ${rows.length} รายการ</p>
+                <p style="line-height: 1.2;">จำนวน ${rows.length} รายการ</p>
             `;
                 }
 
