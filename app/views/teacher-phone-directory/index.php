@@ -105,32 +105,32 @@ ob_start();
                 }
             }
 
-if ($start_page > 1) {
-    ?>
+            if ($start_page > 1) {
+            ?>
                 <button type="button" data-page="1" <?= $current_page === 1 ? 'class="active"' : '' ?>>1</button>
                 <?php if ($start_page > 2) : ?>
                     <span class="enterprise-ellipsis">...</span>
                 <?php endif; ?>
-                <?php
-}
+            <?php
+            }
 
-for ($i = $start_page; $i <= $end_page; $i++) {
-    ?>
+            for ($i = $start_page; $i <= $end_page; $i++) {
+            ?>
                 <button type="button" data-page="<?= h((string) $i) ?>" <?= $i === $current_page ? 'class="active"' : '' ?>><?= h((string) $i) ?></button>
                 <?php
-}
+            }
 
-if ($end_page < $total_pages) {
-    if ($end_page < $total_pages - 1) {
-        ?>
+            if ($end_page < $total_pages) {
+                if ($end_page < $total_pages - 1) {
+                ?>
                     <span class="enterprise-ellipsis">...</span>
-                    <?php
-    }
-    ?>
-                <button type="button" data-page="<?= h((string) $total_pages) ?>" <?= $current_page === $total_pages ? 'class="active"' : '' ?>><?= h((string) $total_pages) ?></button>
                 <?php
-}
-?>
+                }
+                ?>
+                <button type="button" data-page="<?= h((string) $total_pages) ?>" <?= $current_page === $total_pages ? 'class="active"' : '' ?>><?= h((string) $total_pages) ?></button>
+            <?php
+            }
+            ?>
             <button type="button" data-page="<?= h((string) $next_page) ?>" <?= $current_page >= $total_pages ? 'disabled' : '' ?> aria-label="Next page">
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
             </button>
