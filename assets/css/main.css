@@ -14355,6 +14355,34 @@ label {
   align-items: center;
 }
 
+#news-paper {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+#news-paper>div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#news-paper img {
+  width: 40px;
+  height: 40px;
+  margin: 0 20px 0 0;
+}
+
+#news-paper a {
+  font-size: var(--font-size-body-1);
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#news-paper a:hover {
+  text-decoration: underline;
+}
+
 .dashboard-container .dashboard-header:last-of-type {
   margin: 0;
 }
@@ -17943,6 +17971,20 @@ label {
   .dashboard-container .dashboard-content img {
     width: 40px;
     height: 40px;
+  }
+
+  #news-paper {
+    padding: 0 20px;
+  }
+
+  #news-paper img {
+    width: 20px;
+    height: 20px;
+    margin: 0 10px 0 0;
+  }
+
+  #news-paper a {
+    font-size: var(--font-size-body-2);
   }
 
   .notification-list ul li {
@@ -27659,6 +27701,23 @@ label {
     width: 20px;
     height: 20px;
     margin: 0 10px 0 0;
+  }
+
+  #news-paper {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  #news-paper img {
+    width: 20px;
+    height: 20px;
+    margin: 0 10px 0 0;
+  }
+
+  #news-paper a {
+    font-size: var(--font-size-desc-1);
   }
 
   .panel-system section .container-notification-section {
