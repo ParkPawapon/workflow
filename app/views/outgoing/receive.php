@@ -356,6 +356,15 @@ ob_start();
         min-width: 160px !important;
         max-width: 160px !important;
     }
+    
+    .circular-track-modal-host {
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+    }
 
     @media screen and (max-width: 1024px) {
 
@@ -2484,7 +2493,7 @@ ob_start();
 
 <div class="form-group row">
     <section class="upload-layout">
-        <input type="file" id="coverFileInput" name="cover_file" accept="application/pdf,image/png,image/jpeg" style="display: none;">
+        <input type="file" id="coverFileInput" name="cover_file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" style="display: none;">
         <div class="row form-group">
             <button class="btn btn-upload-small" type="button" id="btnCoverAddFile">
                 <p>เพิ่มไฟล์</p>
@@ -2503,7 +2512,7 @@ ob_start();
     <div class="input-group">
         <p><strong>อัปโหลดไฟล์เอกสาร</strong></p>
         <section class="upload-layout">
-            <input type="file" id="fileInput" name="attachments[]" multiple accept="application/pdf,image/png,image/jpeg" style="display: none;" />
+            <input type="file" id="fileInput" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" style="display: none;" />
 
             <div class="upload-box" id="dropzone">
                 <i class="fa-solid fa-upload"></i>
@@ -2686,11 +2695,8 @@ ob_start();
                                 </div>
                             </td>
                             <td>
-                                <?php if ($receive_seq > 0) : ?>
-                                    <div class="outgoing-receive-doc-line">#<?= h((string) $receive_seq) ?></div>
-                                <?php endif; ?>
                                 <?php if ($book_no !== '') : ?>
-                                    <div class="outgoing-receive-doc-line">เลขที่หนังสือ <?= h($book_no) ?></div>
+                                    <div class="outgoing-receive-doc-line">#<?= h((string) $receive_seq) ?>, <?= h($book_no) ?></div>
                                 <?php endif; ?>
                                 <div class="outgoing-receive-doc-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
                             </td>
@@ -4750,7 +4756,7 @@ ob_start();
                             type="file"
                             id="coverFileInput_modal"
                             name="cover_file"
-                            accept="application/pdf,image/png,image/jpeg"
+                            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
                             style="display: none;">
 
                         <div class="row form-group">
@@ -4772,7 +4778,7 @@ ob_start();
                     <div class="input-group">
                         <p><strong>อัปโหลดไฟล์เอกสาร</strong></p>
                         <section class="upload-layout">
-                            <input type="file" id="fileInput_modal" name="attachments[]" multiple accept="application/pdf,image/png,image/jpeg" style="display: none;" />
+                            <input type="file" id="fileInput_modal" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" style="display: none;" />
 
                             <div class="upload-box" id="dropzone_modal">
                                 <i class="fa-solid fa-upload"></i>
@@ -5003,6 +5009,77 @@ ob_start();
         branding: false,
         readonly: true
     });
+    
+    window.addEventListener('load', function() {
+      var iframe = document.getElementById('memo_editor_compose_ifr'); 
+      
+      if (iframe) {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var style = doc.createElement('style');
+        doc.head.appendChild(style);
+        
+        var mediaDesktop = window.matchMedia('(min-width: 1024px)');
+        var mediaTablet = window.matchMedia('(min-width: 768px)');
+    
+        function ดึงขนาดหน้าจอหลัก() {
+          var fontSize = '8px';
+    
+          if (mediaDesktop.matches) {
+            fontSize = '16px';
+          } else if (mediaTablet.matches) {
+            fontSize = '12px';
+          }
+    
+          style.innerHTML = 'body#tinymce p { font-size: ' + fontSize + ' !important; }';
+        }
+    
+        ดึงขนาดหน้าจอหลัก();
+    
+        if (mediaDesktop.addEventListener) {
+          mediaDesktop.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+        } else {
+          mediaDesktop.addListener(ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addListener(ดึงขนาดหน้าจอหลัก);
+        }
+      }
+    });
+    
+    window.addEventListener('load', function() {
+      var iframe = document.getElementById('memo_editor_view_ifr'); 
+      
+      if (iframe) {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var style = doc.createElement('style');
+        doc.head.appendChild(style);
+        
+        var mediaDesktop = window.matchMedia('(min-width: 1024px)');
+        var mediaTablet = window.matchMedia('(min-width: 768px)');
+    
+        function ดึงขนาดหน้าจอหลัก() {
+          var fontSize = '8px';
+    
+          if (mediaDesktop.matches) {
+            fontSize = '16px';
+          } else if (mediaTablet.matches) {
+            fontSize = '12px';
+          }
+    
+          style.innerHTML = 'body#tinymce p { font-size: ' + fontSize + ' !important; }';
+        }
+    
+        ดึงขนาดหน้าจอหลัก();
+    
+        if (mediaDesktop.addEventListener) {
+          mediaDesktop.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+        } else {
+          mediaDesktop.addListener(ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addListener(ดึงขนาดหน้าจอหลัก);
+        }
+      }
+    });
+    
 
     const limitOutgoingOwnerDepartmentOptions = (section) => {
         if (!section || section.getAttribute('data-owner-flat-list') !== 'true') {
@@ -5414,6 +5491,9 @@ ob_start();
             const form = fileInput ? fileInput.closest('form') : null;
 
             const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+            const getFileExtension = (file) => String(file?.name || '').split('.').pop().toLowerCase();
+            const isAllowedFile = (file) => allowedTypes.includes(file.type) || allowedExtensions.includes(getFileExtension(file));
             let selectedFiles = [];
             let existingFiles = [];
             let existingEntityId = '';
@@ -5578,7 +5658,7 @@ ob_start();
 
                 if (maxFiles === 1) {
                     const file = files[0];
-                    if (allowedTypes.includes(file.type)) {
+                    if (isAllowedFile(file)) {
                         selectedFiles = [file];
                     } else {
                         alert('ประเภทไฟล์ไม่ได้รับอนุญาต');
@@ -5589,11 +5669,11 @@ ob_start();
 
                     Array.from(files).forEach((file) => {
                         const key = `${file.name}-${file.size}-${file.lastModified}`;
-                        if (!existing.has(key) && allowedTypes.includes(file.type) && currentTotal < maxFiles) {
+                        if (!existing.has(key) && isAllowedFile(file) && currentTotal < maxFiles) {
                             selectedFiles.push(file);
                             existing.add(key);
                             currentTotal++;
-                        } else if (!allowedTypes.includes(file.type)) {
+                        } else if (!isAllowedFile(file)) {
                             console.warn('ประเภทไฟล์ไม่ได้รับอนุญาต:', file.name);
                         } else if (currentTotal >= maxFiles) {
                             console.warn('เกินจำนวนไฟล์สูงสุดแล้ว');

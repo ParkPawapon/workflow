@@ -471,6 +471,7 @@ ob_start();
         text-align: start;
     }
 
+
     .table-circular-notice-index.first-table table thead th:nth-child(1) {
         width: 45px !important;
         min-width: 45px !important;
@@ -575,9 +576,9 @@ ob_start();
         }
 
         .table-circular-notice-index.outside-person table thead th:nth-child(1) {
-            width: 150px !important;
-            min-width: 150px !important;
-            max-width: 150px !important;
+            width: 100px !important;
+            min-width: 100px !important;
+            max-width: 100px !important;
         }
 
         .table-circular-notice-index.outside-person table thead th:nth-child(2) {
@@ -607,15 +608,15 @@ ob_start();
 
     @media screen and (max-width: 768px) {
         .table-circular-notice-index.first-table table thead th:nth-child(2) {
-            width: 45px !important;
-            min-width: 45px !important;
-            max-width: 45px !important;
-        }
-
-        .table-circular-notice-index.first-table table thead th:nth-child(1) {
             width: 80px !important;
             min-width: 80px !important;
             max-width: 80px !important;
+        }
+
+        .table-circular-notice-index.first-table table thead th:nth-child(1) {
+            width: 40px !important;
+            min-width: 40px !important;
+            max-width: 40px !important;
         }
 
         .table-circular-notice-index.first-table table thead th:nth-child(3) {
@@ -926,7 +927,7 @@ ob_start();
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
                                             </button>
-                                            <?php if (empty($item['is_announced'])) : ?>
+                                            <?php if (empty($item['is_announced']) && !($archived && $box_key === 'normal' && $filter_type === 'external' && $filter_view === 'table1')) : ?>
                                                 <button
                                                     class="booking-action-btn secondary js-open-circular-send-modal"
                                                     type="button"
@@ -1042,6 +1043,10 @@ ob_start();
                             }
 
                             if (!empty($item['is_announced'])) {
+                                $show_workflow_action = false;
+                            }
+
+                            if ($archived && $box_key === 'normal' && $filter_type === 'external' && $filter_view === 'table1') {
                                 $show_workflow_action = false;
                             }
 
@@ -2151,6 +2156,77 @@ ob_start();
             });
         },
     });
+    
+    window.addEventListener('load', function() {
+      var iframe = document.getElementById('noticeOutgoingDirectorComment_ifr'); 
+      
+      if (iframe) {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var style = doc.createElement('style');
+        doc.head.appendChild(style);
+        
+        var mediaDesktop = window.matchMedia('(min-width: 1024px)');
+        var mediaTablet = window.matchMedia('(min-width: 768px)');
+    
+        function ดึงขนาดหน้าจอหลัก() {
+          var fontSize = '8px';
+    
+          if (mediaDesktop.matches) {
+            fontSize = '16px';
+          } else if (mediaTablet.matches) {
+            fontSize = '12px';
+          }
+    
+          style.innerHTML = 'body#tinymce p { font-size: ' + fontSize + ' !important; }';
+        }
+    
+        ดึงขนาดหน้าจอหลัก();
+    
+        if (mediaDesktop.addEventListener) {
+          mediaDesktop.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+        } else {
+          mediaDesktop.addListener(ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addListener(ดึงขนาดหน้าจอหลัก);
+        }
+      }
+    });
+    
+    window.addEventListener('load', function() {
+      var iframe = document.getElementById('notice_memo_editor_view_ifr'); 
+      
+      if (iframe) {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var style = doc.createElement('style');
+        doc.head.appendChild(style);
+        
+        var mediaDesktop = window.matchMedia('(min-width: 1024px)');
+        var mediaTablet = window.matchMedia('(min-width: 768px)');
+    
+        function ดึงขนาดหน้าจอหลัก() {
+          var fontSize = '8px';
+    
+          if (mediaDesktop.matches) {
+            fontSize = '16px';
+          } else if (mediaTablet.matches) {
+            fontSize = '12px';
+          }
+    
+          style.innerHTML = 'body#tinymce p { font-size: ' + fontSize + ' !important; }';
+        }
+    
+        ดึงขนาดหน้าจอหลัก();
+    
+        if (mediaDesktop.addEventListener) {
+          mediaDesktop.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+        } else {
+          mediaDesktop.addListener(ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addListener(ดึงขนาดหน้าจอหลัก);
+        }
+      }
+    });
+    
 
     document.addEventListener("DOMContentLoaded", function() {
         const forwardOpenInboxId = <?= json_encode($forward_open_inbox_id, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
