@@ -10766,46 +10766,6 @@ label {
   align-items: center;
 }
 
-.content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considering {
-  width: 140px;
-  height: 30px;
-  border-radius: 16px;
-  background-color: var(--color-warning);
-  border: 3px solid #c89e00;
-  font-size: var(--font-size-body-2);
-  color: var(--color-neutral-lightest);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considered {
-  width: 140px;
-  height: 30px;
-  border-radius: 16px;
-  background-color: var(--color-danger);
-  border: 3px solid #bd0000;
-  font-size: var(--font-size-body-2);
-  color: var(--color-neutral-lightest);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.success {
-  width: 100%;
-  padding: 0 10px;
-  height: 30px;
-  border-radius: 16px;
-  background-color: var(--color-success);
-  border: 3px solid #00ae2c;
-  font-size: var(--font-size-body-2);
-  color: var(--color-neutral-lightest);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal {
   width: 100%;
   height: auto;
@@ -22984,46 +22944,6 @@ label {
   }
 
 
-  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considering {
-    width: 120px;
-    height: 25px;
-    border-radius: 16px;
-    background-color: var(--color-warning);
-    border: 3px solid #c89e00;
-    font-size: var(--font-size-desc-1);
-    color: var(--color-neutral-lightest);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considered {
-    width: 120px;
-    height: 25px;
-    border-radius: 16px;
-    background-color: var(--color-danger);
-    border: 3px solid #bd0000;
-    font-size: var(--font-size-body-2);
-    color: var(--color-neutral-lightest);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.success {
-    width: 100%;
-    padding: 0 5px;
-    height: 25px;
-    border-radius: 16px;
-    background-color: var(--color-success);
-    border: 3px solid #00ae2c;
-    font-size: var(--font-size-body-2);
-    color: var(--color-neutral-lightest);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal {
     width: 100%;
     height: auto;
@@ -33326,46 +33246,6 @@ label {
     align-items: center;
   }
 
-
-  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considering {
-    width: 120px;
-    height: 25px;
-    border-radius: 16px;
-    background-color: var(--color-warning);
-    border: 3px solid #c89e00;
-    font-size: var(--font-size-desc-1);
-    color: var(--color-neutral-lightest);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considered {
-    width: 120px;
-    height: 25px;
-    border-radius: 16px;
-    background-color: var(--color-danger);
-    border: 3px solid #bd0000;
-    font-size: var(--font-size-body-2);
-    color: var(--color-neutral-lightest);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.success {
-    width: 100%;
-    padding: 0 5px;
-    height: 25px;
-    border-radius: 16px;
-    background-color: var(--color-success);
-    border: 3px solid #00ae2c;
-    font-size: var(--font-size-body-2);
-    color: var(--color-neutral-lightest);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal {
     width: 100%;

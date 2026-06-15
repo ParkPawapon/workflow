@@ -576,9 +576,9 @@ ob_start();
         }
 
         .table-circular-notice-index.outside-person table thead th:nth-child(1) {
-            width: 150px !important;
-            min-width: 150px !important;
-            max-width: 150px !important;
+            width: 100px !important;
+            min-width: 100px !important;
+            max-width: 100px !important;
         }
 
         .table-circular-notice-index.outside-person table thead th:nth-child(2) {
@@ -2191,6 +2191,42 @@ ob_start();
         }
       }
     });
+    
+    window.addEventListener('load', function() {
+      var iframe = document.getElementById('notice_memo_editor_view_ifr'); 
+      
+      if (iframe) {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var style = doc.createElement('style');
+        doc.head.appendChild(style);
+        
+        var mediaDesktop = window.matchMedia('(min-width: 1024px)');
+        var mediaTablet = window.matchMedia('(min-width: 768px)');
+    
+        function ดึงขนาดหน้าจอหลัก() {
+          var fontSize = '8px';
+    
+          if (mediaDesktop.matches) {
+            fontSize = '16px';
+          } else if (mediaTablet.matches) {
+            fontSize = '12px';
+          }
+    
+          style.innerHTML = 'body#tinymce p { font-size: ' + fontSize + ' !important; }';
+        }
+    
+        ดึงขนาดหน้าจอหลัก();
+    
+        if (mediaDesktop.addEventListener) {
+          mediaDesktop.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+        } else {
+          mediaDesktop.addListener(ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addListener(ดึงขนาดหน้าจอหลัก);
+        }
+      }
+    });
+    
 
     document.addEventListener("DOMContentLoaded", function() {
         const forwardOpenInboxId = <?= json_encode($forward_open_inbox_id, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
