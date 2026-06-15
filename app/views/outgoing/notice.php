@@ -2159,30 +2159,36 @@ ob_start();
     
     window.addEventListener('load', function() {
       var iframe = document.getElementById('noticeOutgoingDirectorComment_ifr'); 
-    
-    if (iframe) {
+      
+      if (iframe) {
         var doc = iframe.contentDocument || iframe.contentWindow.document;
         var style = doc.createElement('style');
-      
-        style.innerHTML = `
-            body#tinymce p { 
-                font-size: 8px !important; 
-            }
-
-            @media (min-width: 480px) {
-                body#tinymce p { 
-                    font-size: 12px !important; 
-                }
-              }
-
-            @media (min-width: 1024px) {
-                body#tinymce p { 
-                    font-size: 16px !important; 
-                }
-            }
-        `;
-      
         doc.head.appendChild(style);
+        
+        var mediaDesktop = window.matchMedia('(min-width: 1024px)');
+        var mediaTablet = window.matchMedia('(min-width: 768px)');
+    
+        function ดึงขนาดหน้าจอหลัก() {
+          var fontSize = '8px';
+    
+          if (mediaDesktop.matches) {
+            fontSize = '16px';
+          } else if (mediaTablet.matches) {
+            fontSize = '12px';
+          }
+    
+          style.innerHTML = 'body#tinymce p { font-size: ' + fontSize + ' !important; }';
+        }
+    
+        ดึงขนาดหน้าจอหลัก();
+    
+        if (mediaDesktop.addEventListener) {
+          mediaDesktop.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addEventListener('change', ดึงขนาดหน้าจอหลัก);
+        } else {
+          mediaDesktop.addListener(ดึงขนาดหน้าจอหลัก);
+          mediaTablet.addListener(ดึงขนาดหน้าจอหลัก);
+        }
       }
     });
 
