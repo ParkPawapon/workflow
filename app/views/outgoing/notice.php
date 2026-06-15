@@ -2164,7 +2164,23 @@ ob_start();
         var doc = iframe.contentDocument || iframe.contentWindow.document;
         var style = doc.createElement('style');
       
-        style.innerHTML = 'body#tinymce p { font-size: clamp(8px, 1.5vw, 18px) !important; }';
+        style.innerHTML = `
+            body#tinymce p { 
+                font-size: 8px !important; 
+            }
+
+            @media (min-width: 480px) {
+                body#tinymce p { 
+                    font-size: 12px !important; 
+                }
+              }
+
+            @media (min-width: 1024px) {
+                body#tinymce p { 
+                    font-size: 16px !important; 
+                }
+            }
+        `;
       
         doc.head.appendChild(style);
       }
