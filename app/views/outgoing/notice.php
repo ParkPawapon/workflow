@@ -471,6 +471,7 @@ ob_start();
         text-align: start;
     }
 
+
     .table-circular-notice-index.first-table table thead th:nth-child(1) {
         width: 45px !important;
         min-width: 45px !important;
@@ -607,15 +608,15 @@ ob_start();
 
     @media screen and (max-width: 768px) {
         .table-circular-notice-index.first-table table thead th:nth-child(2) {
-            width: 45px !important;
-            min-width: 45px !important;
-            max-width: 45px !important;
-        }
-
-        .table-circular-notice-index.first-table table thead th:nth-child(1) {
             width: 80px !important;
             min-width: 80px !important;
             max-width: 80px !important;
+        }
+
+        .table-circular-notice-index.first-table table thead th:nth-child(1) {
+            width: 40px !important;
+            min-width: 40px !important;
+            max-width: 40px !important;
         }
 
         .table-circular-notice-index.first-table table thead th:nth-child(3) {
@@ -926,7 +927,7 @@ ob_start();
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
                                             </button>
-                                            <?php if (empty($item['is_announced'])) : ?>
+                                            <?php if (empty($item['is_announced']) && !($archived && $box_key === 'normal' && $filter_type === 'external' && $filter_view === 'table1')) : ?>
                                                 <button
                                                     class="booking-action-btn secondary js-open-circular-send-modal"
                                                     type="button"
@@ -1042,6 +1043,10 @@ ob_start();
                             }
 
                             if (!empty($item['is_announced'])) {
+                                $show_workflow_action = false;
+                            }
+
+                            if ($archived && $box_key === 'normal' && $filter_type === 'external' && $filter_view === 'table1') {
                                 $show_workflow_action = false;
                             }
 
@@ -2150,6 +2155,19 @@ ob_start();
                 }
             });
         },
+    });
+    
+    window.addEventListener('load', function() {
+      var iframe = document.getElementById('noticeOutgoingDirectorComment_ifr'); 
+    
+    if (iframe) {
+        var doc = iframe.contentDocument || iframe.contentWindow.document;
+        var style = doc.createElement('style');
+      
+        style.innerHTML = 'body#tinymce p { font-size: clamp(8px, 1.5vw, 18px) !important; }';
+      
+        doc.head.appendChild(style);
+      }
     });
 
     document.addEventListener("DOMContentLoaded", function() {

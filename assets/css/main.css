@@ -9802,7 +9802,7 @@ label {
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
-  font-size: var(--font-size-h3);
+  font-size: var(--font-size-h1);
   /* color: var(--color-danger); */
   background-color: var(--color-neutral-lightest);
   width: 60px;
@@ -9885,6 +9885,14 @@ label {
 .content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .modal-content {
   width: 80%;
   height: 90%;
+}
+
+.content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .modal-content .sec-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.keep-sending .content-modal p {
@@ -10716,6 +10724,46 @@ label {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.consider-status.considering {
+  width: 140px;
+  height: 30px;
+  border-radius: 16px;
+  background-color: var(--color-warning);
+  border: 3px solid #c89e00;
+  font-size: var(--font-size-body-2);
+  color: var(--color-neutral-lightest);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.consider-status.considered {
+  width: 140px;
+  height: 30px;
+  border-radius: 16px;
+  background-color: var(--color-danger);
+  border: 3px solid #bd0000;
+  font-size: var(--font-size-body-2);
+  color: var(--color-neutral-lightest);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.consider-status.success {
+  width: 100%;
+  padding: 0 10px;
+  height: 30px;
+  border-radius: 16px;
+  background-color: var(--color-success);
+  border: 3px solid #00ae2c;
+  font-size: var(--font-size-body-2);
+  color: var(--color-neutral-lightest);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considering {
@@ -14355,34 +14403,6 @@ label {
   align-items: center;
 }
 
-#news-paper {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-
-#news-paper>div {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-#news-paper img {
-  width: 40px;
-  height: 40px;
-  margin: 0 20px 0 0;
-}
-
-#news-paper a {
-  font-size: var(--font-size-body-1);
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-#news-paper a:hover {
-  text-decoration: underline;
-}
-
 .dashboard-container .dashboard-header:last-of-type {
   margin: 0;
 }
@@ -17971,20 +17991,6 @@ label {
   .dashboard-container .dashboard-content img {
     width: 40px;
     height: 40px;
-  }
-
-  #news-paper {
-    padding: 0 20px;
-  }
-
-  #news-paper img {
-    width: 20px;
-    height: 20px;
-    margin: 0 10px 0 0;
-  }
-
-  #news-paper a {
-    font-size: var(--font-size-body-2);
   }
 
   .notification-list ul li {
@@ -22620,7 +22626,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
-    font-size: var(--font-size-body-1);
+    font-size: var(--font-size-h3);
     /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 40px;
@@ -22920,6 +22926,47 @@ label {
     align-items: center;
     gap: 20px;
   }
+
+  .consider-status.considering {
+    width: 120px;
+    height: 25px;
+    border-radius: 16px;
+    background-color: var(--color-warning);
+    border: 3px solid #c89e00;
+    font-size: var(--font-size-desc-1);
+    color: var(--color-neutral-lightest);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .consider-status.considered {
+    width: 120px;
+    height: 25px;
+    border-radius: 16px;
+    background-color: var(--color-danger);
+    border: 3px solid #bd0000;
+    font-size: var(--font-size-desc-1);
+    color: var(--color-neutral-lightest);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .consider-status.success {
+    width: 100%;
+    padding: 0 5px;
+    height: 25px;
+    border-radius: 16px;
+    background-color: var(--color-success);
+    border: 3px solid #00ae2c;
+    font-size: var(--font-size-desc-1);
+    color: var(--color-neutral-lightest);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considering {
     width: 120px;
@@ -27701,23 +27748,6 @@ label {
     width: 20px;
     height: 20px;
     margin: 0 10px 0 0;
-  }
-
-  #news-paper {
-    padding: 0 20px;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-  }
-
-  #news-paper img {
-    width: 20px;
-    height: 20px;
-    margin: 0 10px 0 0;
-  }
-
-  #news-paper a {
-    font-size: var(--font-size-desc-1);
   }
 
   .panel-system section .container-notification-section {
@@ -32926,7 +32956,7 @@ label {
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-icon {
-    font-size: var(--font-size-body-1);
+    font-size: var(--font-size-h4);
     /* color: var(--color-danger); */
     background-color: var(--color-neutral-lightest);
     width: 35px;
@@ -33223,6 +33253,47 @@ label {
     align-items: center;
     gap: 20px;
   }
+
+  .consider-status.considering {
+    width: 90px;
+    height: 20px;
+    border-radius: 16px;
+    background-color: var(--color-warning);
+    border: 3px solid #c89e00;
+    font-size: var(--font-size-desc-3);
+    color: var(--color-neutral-lightest);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .consider-status.considered {
+    width: 90px;
+    height: 20px;
+    border-radius: 16px;
+    background-color: var(--color-danger);
+    border: 3px solid #bd0000;
+    font-size: var(--font-size-desc-3);
+    color: var(--color-neutral-lightest);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .consider-status.success {
+    width: 90px;
+    padding: 0 5px;
+    height: 20px;
+    border-radius: 16px;
+    background-color: var(--color-success);
+    border: 3px solid #00ae2c;
+    font-size: var(--font-size-desc-3);
+    color: var(--color-neutral-lightest);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .header-modal .sec-header .consider-status.considering {
     width: 120px;
