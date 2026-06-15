@@ -22587,14 +22587,14 @@ label {
     margin: 0 0 10px;
   }
 
-  .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
-    border-bottom: 1px solid var(--color-secondary);
-    padding: 0 0 25px;
-  }
+.content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
+  /* border-bottom: 1px solid var(--color-secondary);
+    padding: 0 0 25px; */
+}
 
-  .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec p:first-child {
-    min-width: 75px;
-  }
+.content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec p:first-child {
+  /* min-width: 75px; */
+}
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-details-sec {
     display: flex;
@@ -23053,8 +23053,9 @@ label {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 20px 40px;
-    padding: 0 0 10px;
-    border-bottom: 2px solid var(--color-secondary);
+     /* padding: 0 0 30px; */
+    margin: 0 0 20px;
+  /* border-bottom: 1px solid var(--color-secondary); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details {
@@ -25855,7 +25856,6 @@ label {
     align-items: flex-start;
     gap: 10px 20px;
     margin: 0 0 10px;
-    border-bottom-width: 1px;
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .existing-file-empty {
@@ -32933,14 +32933,14 @@ label {
     margin: 0 0 6px;
   }
 
-  .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
-    border-bottom: 1px solid var(--color-secondary);
-    padding: 0 0 10px;
-  }
+.content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
+  /* border-bottom: 1px solid var(--color-secondary);
+    padding: 0 0 25px; */
+}
 
-  .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec p:first-child {
-    min-width: 75px;
-  }
+.content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec p:first-child {
+  /* min-width: 75px; */
+}
 
   .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-details-sec {
     display: flex;
@@ -33400,8 +33400,9 @@ label {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 10px 30px;
-    padding: 0 0 10px;
-    border-bottom: 1px solid var(--color-secondary);
+     /* padding: 0 0 30px; */
+    margin: 0 0 10px;
+  /* border-bottom: 1px solid var(--color-secondary); */
   }
 
   .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec .more-details {
