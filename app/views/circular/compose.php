@@ -501,7 +501,7 @@ ob_start();
     }
 
     .delete-btn {
-        font-size: var(--font-size-title);
+        font-size: var(--font-size-h3);
     }
 
     .modal-title {
@@ -1941,7 +1941,7 @@ ob_start();
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
                 deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
                 deleteBtn.addEventListener('click', () => {
                     selectedFiles = selectedFiles.filter((_, i) => i !== index);
                     syncFiles();
@@ -1999,7 +1999,7 @@ ob_start();
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
                 deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
                 deleteBtn.addEventListener('click', () => {
                     if (fileId !== '' && !removedExistingFileIds.includes(fileId)) {
                         removedExistingFileIds.push(fileId);

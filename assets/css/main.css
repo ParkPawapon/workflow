@@ -8542,7 +8542,7 @@ label {
   background: none;
   border: none;
   color: var(--color-danger);
-  font-size: var(--font-size-body-1);
+  font-size: var(--font-size-h3);
   cursor: pointer;
   transition: transform 0.2s;
 }
@@ -21428,7 +21428,7 @@ label {
     background: none;
     border: none;
     color: var(--color-danger);
-    font-size: var(--font-size-desc-1) !important;
+    font-size: var(--font-size-title) !important;
     cursor: pointer;
     transition: transform 0.2s;
   }
@@ -31746,7 +31746,7 @@ label {
     background: none;
     border: none;
     color: var(--color-danger);
-    font-size: var(--font-size-desc-3) !important;
+    font-size: var(--font-size-desc-1) !important;
     cursor: pointer;
     transition: transform 0.2s;
   }
