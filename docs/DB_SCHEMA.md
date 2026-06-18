@@ -53,6 +53,7 @@ These tables exist to support cross-module document abstractions and read tracki
 
 ### Notes
 - Internal and external circulars share the same primary document table.
+- `dh_circulars.circularID` is the primary key. External source document numbers in `extBookNo` may repeat; the per-year internal receive sequence in `extReceiveSeq` remains unique.
 - Inbox rows drive recipient-facing visibility.
 - Route rows preserve forward/review/return history.
 

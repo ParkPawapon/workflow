@@ -134,6 +134,7 @@ $sidebar_alerts['home'] = (int) ($sidebar_counts['unread_external_circulars'] ??
                 </div>
                 <ul class="navigation-links-sub-menu">
                     <li><a href="outgoing-notice.php?box=normal&type=external&read=all&sort=newest&view=table1">กล่องหนังสือเวียน</a></li>
+                    <li><a href="outgoing-notice.php?box=normal&type=external&read=all&sort=newest&view=table1&archived=1">กล่องหนังสือเวียนที่จัดเก็บ</a></li>
                     <?php if ($can_manage_external_circular): ?>
                         <li><a href="outgoing-receive.php">ลงทะเบียนรับหนังสือ</a></li>
                         <li><a href="outgoing-notice.php?box=clerk&type=external&read=all&sort=newest&view=table1">กล่องกำลังเสนอ</a></li>

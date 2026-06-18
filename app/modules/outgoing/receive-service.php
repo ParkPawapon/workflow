@@ -96,7 +96,6 @@ if (!function_exists('outgoing_receive_list_registered')) {
         $search = trim($search);
         $status_filter = outgoing_receive_normalize_track_filter_status($status_filter);
         $sort = outgoing_receive_normalize_track_filter_sort($sort);
-        $can_manage_external = in_array(trim($current_pid), circular_external_manager_pids(), true);
         $has_receive_seq = db_column_exists(db_connection(), 'dh_circulars', 'extReceiveSeq');
         $params = [CIRCULAR_TYPE_EXTERNAL];
         $types = 's';
@@ -123,11 +122,9 @@ if (!function_exists('outgoing_receive_list_registered')) {
             WHERE c.deletedAt IS NULL
               AND c.circularType = ?';
 
-        if (!$can_manage_external) {
-            $sql .= ' AND c.createdByPID = ?';
-            $types .= 's';
-            $params[] = $current_pid;
-        }
+        $sql .= ' AND c.createdByPID = ?';
+        $types .= 's';
+        $params[] = $current_pid;
 
         if ($search !== '') {
             $like = '%' . $search . '%';
@@ -488,12 +485,12 @@ if (!function_exists('outgoing_receive_build_state')) {
             !$candidate
             || !circular_can_manage_external_workflow($candidate, $current_pid)
             || (string) ($candidate['circularType'] ?? '') !== CIRCULAR_TYPE_EXTERNAL
-            || (string) ($candidate['status'] ?? '') !== EXTERNAL_STATUS_SUBMITTED
+            || !in_array((string) ($candidate['status'] ?? ''), [EXTERNAL_STATUS_SUBMITTED, EXTERNAL_STATUS_PENDING_REVIEW], true)
         ) {
             $state['alert'] = [
                 'type' => 'warning',
                 'title' => 'ไม่สามารถแก้ไขรายการนี้ได้',
-                'message' => 'ต้องเป็นหนังสือเวียนภายนอกสถานะรับเข้าแล้ว และผู้ใช้ต้องมีสิทธิ์สารบรรณ',
+                'message' => 'ต้องเป็นหนังสือเวียนภายนอกสถานะรับเข้าแล้วหรือกำลังเสนอ และผู้ใช้ต้องเป็นเจ้าของรายการ',
             ];
 
             return $state;
@@ -517,7 +514,10 @@ if (!function_exists('outgoing_receive_build_state')) {
         $values['extGroupFID'] = ($candidate_fid > 0 && isset($allowed_faction_ids[$candidate_fid])) ? (string) $candidate_fid : '';
         $values['linkURL'] = (string) ($candidate['linkURL'] ?? '');
         $values['detail'] = (string) ($candidate['detail'] ?? '');
-        $values['reviewerPID'] = outgoing_receive_default_reviewer_pid($reviewers);
+        $last_reviewer_pid = (string) (circular_external_last_reviewer_pid($edit_circular_id) ?? '');
+        $values['reviewerPID'] = ($last_reviewer_pid !== '' && isset($reviewer_ids[$last_reviewer_pid]))
+            ? $last_reviewer_pid
+            : outgoing_receive_default_reviewer_pid($reviewers);
 
         $state['values'] = $values;
 
@@ -622,27 +622,6 @@ if (!function_exists('outgoing_receive_submit')) {
             $edit_circular_id = (int) ($state['edit_circular_id'] ?? 0);
             $is_edit_mode = !empty($state['is_edit_mode']);
             $values = (array) ($state['values'] ?? []);
-
-            if ($is_edit_mode && $edit_circular_id > 0) {
-                $existing = db_fetch_one(
-                    'SELECT circularID FROM dh_circulars WHERE dh_year = ? AND extBookNo = ? AND deletedAt IS NULL AND circularID <> ? LIMIT 1',
-                    'isi',
-                    $dh_year,
-                    $values['extBookNo'],
-                    $edit_circular_id
-                );
-            } else {
-                $existing = db_fetch_one(
-                    'SELECT circularID FROM dh_circulars WHERE dh_year = ? AND extBookNo = ? AND deletedAt IS NULL LIMIT 1',
-                    'is',
-                    $dh_year,
-                    $values['extBookNo']
-                );
-            }
-
-            if ($existing) {
-                throw new RuntimeException('เลขที่หนังสือนี้ถูกใช้งานแล้วในปีสารบรรณปัจจุบัน');
-            }
 
             if ($is_edit_mode && $edit_circular_id > 0) {
                 $allowed_file_ids = [];

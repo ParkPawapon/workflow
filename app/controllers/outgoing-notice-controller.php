@@ -645,6 +645,15 @@ if (!function_exists('outgoing_notice_index')) {
                 }
             }
 
+            if ($box_key === 'clerk' && $filter_type === 'external') {
+                $created_by_pid = trim((string) ($item['createdByPID'] ?? ''));
+                $delivered_by_pid = trim((string) ($item['deliveredByPID'] ?? ''));
+
+                if ($created_by_pid !== $current_pid && $delivered_by_pid !== $current_pid) {
+                    return false;
+                }
+            }
+
             if ($selected_dh_year > 0 && (int) ($item['dh_year'] ?? 0) !== $selected_dh_year) {
                 return false;
             }
@@ -686,6 +695,7 @@ if (!function_exists('outgoing_notice_index')) {
         $attachments_map = [];
         $forwarded_recipients_map = [];
         $director_review_map = [];
+        $director_review_by_actor_map = [];
         $latest_sender_comment_map = [];
         $announcement_map = [];
         $system_route_notes = [
@@ -812,6 +822,7 @@ if (!function_exists('outgoing_notice_index')) {
                     $circular_id_key = (string) ((int) ($row['circularID'] ?? 0));
                     $from_pid = trim((string) ($row['fromPID'] ?? ''));
                     $route_note = trim((string) ($row['note'] ?? ''));
+                    $route_action = strtoupper(trim((string) ($row['action'] ?? '')));
 
                     if (
                         $circular_id_key === '0'
@@ -822,12 +833,25 @@ if (!function_exists('outgoing_notice_index')) {
                         continue;
                     }
 
+                    if ($route_action === 'RETURN') {
+                        if (!isset($director_review_by_actor_map[$circular_id_key])) {
+                            $director_review_by_actor_map[$circular_id_key] = [];
+                        }
+
+                        $director_review_by_actor_map[$circular_id_key][$from_pid] = [
+                            'comment' => $route_note,
+                            'reviewer_pid' => $from_pid,
+                            'reviewer_name' => trim((string) ($row['senderName'] ?? '')),
+                            'reviewer_position_name' => trim((string) ($row['senderPositionName'] ?? '')),
+                        ];
+                    }
+
                     if (!isset($latest_sender_comment_map[$circular_id_key])) {
                         $latest_sender_comment_map[$circular_id_key] = [];
                     }
 
                     $latest_sender_comment_map[$circular_id_key][$from_pid] = [
-                        'action' => strtoupper(trim((string) ($row['action'] ?? ''))),
+                        'action' => $route_action,
                         'comment' => $route_note,
                         'sender_pid' => $from_pid,
                         'sender_name' => trim((string) ($row['senderName'] ?? '')),
@@ -891,12 +915,12 @@ if (!function_exists('outgoing_notice_index')) {
 
             if (!empty($entity_ids)) {
                 $placeholders = implode(', ', array_fill(0, count($entity_ids), '?'));
-                $types = 's' . str_repeat('i', count($entity_ids));
-                $params = array_merge([$current_pid], array_map('intval', $entity_ids));
+                $types = 'ss' . str_repeat('i', count($entity_ids));
+                $params = array_merge([$current_pid, INBOX_TYPE_NORMAL], array_map('intval', $entity_ids));
                 $rows = db_fetch_all(
                     'SELECT circularID, pID
                      FROM dh_circular_inboxes
-                     WHERE deliveredByPID = ? AND isArchived = 0 AND circularID IN (' . $placeholders . ')
+                     WHERE deliveredByPID = ? AND inboxType = ? AND isArchived = 0 AND circularID IN (' . $placeholders . ')
                      ORDER BY inboxID ASC',
                     $types,
                     ...$params
@@ -1109,6 +1133,12 @@ if (!function_exists('outgoing_notice_index')) {
             $consider_class = $consider_class_map[$status_key] ?? 'considering';
             $files = $attachments_map[(string) $circular_id] ?? [];
             $director_review = $director_review_map[(string) $circular_id] ?? [];
+
+            if ($box_key === 'director') {
+                $director_review = $director_review_by_actor_map[(string) $circular_id][$current_pid]
+                    ?? $director_review;
+            }
+
             $delivered_by_pid = trim((string) ($item['deliveredByPID'] ?? ''));
             $delivered_by_name = trim((string) ($item['deliveredByName'] ?? ''));
             $delivered_by_position_name = trim((string) ($item['deliveredByPositionName'] ?? ''));
@@ -1179,6 +1209,16 @@ if (!function_exists('outgoing_notice_index')) {
                 $comment_display_label = $announcement_comment_label !== '' ? $announcement_comment_label : 'ความคิดเห็นของรองผู้อำนวยการ';
             }
 
+            if ($box_key === 'clerk' && $status_key === EXTERNAL_STATUS_FORWARDED) {
+                $allowed_deputy_pid_map = array_fill_keys($deputy_forward_pids, true);
+                $forwarded_recipient_pids = array_values(array_filter($forwarded_recipient_pids, static function (string $pid) use ($allowed_deputy_pid_map): bool {
+                    return isset($allowed_deputy_pid_map[$pid]);
+                }));
+            }
+
+            $show_read_stats_item = $can_deputy_distribute_item
+                || ($box_key === 'clerk' && $status_key === EXTERNAL_STATUS_FORWARDED && !empty($forwarded_recipient_pids));
+
             $deputy_comment_text = $announcement_comment_text !== '' ? $announcement_comment_text : $deputy_distribution_comment_text;
             $deputy_comment_label = $announcement_comment_text !== ''
                 ? ($announcement_comment_label !== '' ? $announcement_comment_label : 'ความคิดเห็นของรองผู้อำนวยการ')
@@ -1198,7 +1238,11 @@ if (!function_exists('outgoing_notice_index')) {
                 $detail_display_text = '';
                 $comment_display_text = '';
                 $comment_display_label = '';
-            } elseif ($box_key === 'director' && $status_key === EXTERNAL_STATUS_REVIEWED && $director_comment_text !== '') {
+            } elseif (
+                $box_key === 'director'
+                && $director_comment_text !== ''
+                && in_array($status_key, [EXTERNAL_STATUS_REVIEWED, EXTERNAL_STATUS_FORWARDED, EXTERNAL_STATUS_SUBMITTED], true)
+            ) {
                 $comment_display_text = $director_comment_text;
                 $comment_display_label = $director_comment_label;
             } elseif (
@@ -1226,7 +1270,7 @@ if (!function_exists('outgoing_notice_index')) {
             if ($circular_id > 0) {
                 $read_stats = circular_get_read_stats($circular_id);
 
-                if ($can_deputy_distribute_item) {
+                if ($show_read_stats_item) {
                     $allowed_read_stat_pids = array_fill_keys(array_map(static function ($pid): string {
                         return 'pid:' . trim((string) $pid);
                     }, $forwarded_recipient_pids), true);
@@ -1320,6 +1364,7 @@ if (!function_exists('outgoing_notice_index')) {
                 'files_json' => $files_json,
                 'forwarded_recipient_pids_json' => $forwarded_recipient_pids_json,
                 'read_stats_json' => $read_stats_json,
+                'show_read_stats' => $show_read_stats_item,
                 'ext_priority' => $priority,
                 'ext_priority_label' => $priority_label,
                 'urgency_class' => $urgency_class,

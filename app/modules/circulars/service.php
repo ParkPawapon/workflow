@@ -370,28 +370,20 @@ if (!function_exists('circular_can_manage_external_workflow')) {
             return true;
         }
 
-        return in_array($actorPID, circular_external_manager_pids(), true);
+        return rbac_user_has_role(db_connection(), $actorPID, ROLE_ADMIN);
     }
 }
 
 if (!function_exists('circular_add_registry_tracking_inboxes')) {
     /**
-     * Ensure external circular has tracking inbox rows for all registry users.
+     * Ensure external circular has a tracking inbox row for the registry actor.
      *
      * @return array<int, string> Registry PIDs that should track this circular.
      */
     function circular_add_registry_tracking_inboxes(int $circularID, string $deliveredByPID): array
     {
-        $seedPIDs = circular_registry_pids();
         $actorPID = trim($deliveredByPID);
-
-        if ($actorPID !== '' && ctype_digit($actorPID)) {
-            $seedPIDs[] = $actorPID;
-        }
-
-        $registryPIDs = array_values(array_unique(array_filter(array_map('trim', $seedPIDs), static function (string $pid): bool {
-            return $pid !== '' && ctype_digit($pid);
-        })));
+        $registryPIDs = ($actorPID !== '' && ctype_digit($actorPID)) ? [$actorPID] : [];
 
         if (empty($registryPIDs)) {
             return [];
@@ -648,7 +640,8 @@ if (!function_exists('circular_director_review')) {
 
             circular_add_route($circularID, 'RETURN', $directorPID, null, $newFID, $comment);
 
-            $registryPIDs = circular_registry_pids();
+            $creatorPID = trim((string) ($current['createdByPID'] ?? ''));
+            $registryPIDs = ($creatorPID !== '' && ctype_digit($creatorPID)) ? [$creatorPID] : [];
 
             if (!empty($registryPIDs)) {
                 circular_add_inboxes($circularID, $registryPIDs, INBOX_TYPE_SARABAN_RETURN, $directorPID);
@@ -992,7 +985,7 @@ if (!function_exists('circular_edit_and_resend_external')) {
             !$circular
             || !circular_can_manage_external_workflow($circular, $registryPID)
             || (string) ($circular['circularType'] ?? '') !== CIRCULAR_TYPE_EXTERNAL
-            || (string) ($circular['status'] ?? '') !== EXTERNAL_STATUS_SUBMITTED
+            || !in_array((string) ($circular['status'] ?? ''), [EXTERNAL_STATUS_SUBMITTED, EXTERNAL_STATUS_PENDING_REVIEW], true)
         ) {
             return false;
         }
