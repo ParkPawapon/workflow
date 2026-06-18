@@ -531,6 +531,33 @@ if (!function_exists('memo_list_sender_factions')) {
     }
 }
 
+if (!function_exists('memo_normalize_sender_fid')) {
+    function memo_normalize_sender_fid($value, array $factions): string
+    {
+        $raw = trim((string) $value);
+        $candidate = ctype_digit($raw) ? (int) $raw : 0;
+        $first_fid = '';
+
+        foreach ($factions as $faction) {
+            $fid = (int) ($faction['fID'] ?? 0);
+
+            if ($fid <= 0) {
+                continue;
+            }
+
+            if ($first_fid === '') {
+                $first_fid = (string) $fid;
+            }
+
+            if ($fid === $candidate) {
+                return (string) $fid;
+            }
+        }
+
+        return $first_fid;
+    }
+}
+
 if (!function_exists('memo_has_meaningful_content')) {
     function memo_has_meaningful_content(?string $value): bool
     {
@@ -640,9 +667,7 @@ if (!function_exists('memo_index')) {
             return in_array($position_id, $executive_position_ids, true);
         }));
 
-        if ($values['sender_fid'] === '' && !empty($factions)) {
-            $values['sender_fid'] = (string) ($factions[0]['fID'] ?? '');
-        }
+        $values['sender_fid'] = memo_normalize_sender_fid($values['sender_fid'], $factions);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $post_action = trim((string) ($_POST['action'] ?? ''));
@@ -703,10 +728,22 @@ if (!function_exists('memo_index')) {
                                 throw new RuntimeException('กรุณากรอกรายละเอียด');
                             }
 
+                            $has_submit_sender_fid = array_key_exists('sender_fid', $_POST);
+                            $raw_submit_sender_fid = $has_submit_sender_fid
+                                ? trim((string) ($_POST['sender_fid'] ?? ''))
+                                : '';
+                            $submit_sender_fid = $raw_submit_sender_fid !== ''
+                                ? memo_normalize_sender_fid($raw_submit_sender_fid, $factions)
+                                : '';
+
                             $update_data = [
                                 'subject' => $submit_subject,
                                 'detail' => $submit_detail,
                             ];
+
+                            if ($has_submit_sender_fid) {
+                                $update_data['senderFID'] = $submit_sender_fid !== '' ? (int) $submit_sender_fid : null;
+                            }
 
                             if (!$can_edit_before_head_forward && !$is_returned_resubmit) {
                                 $update_data['toType'] = 'PERSON';
@@ -765,6 +802,7 @@ if (!function_exists('memo_index')) {
                 $values['writeDate'] = trim((string) ($_POST['writeDate'] ?? '')) ?: (string) date('Y-m-d');
                 $values['to_choice'] = trim((string) ($_POST['to_choice'] ?? 'DIRECTOR')) ?: 'DIRECTOR';
                 $values['sender_fid'] = trim((string) ($_POST['sender_fid'] ?? $values['sender_fid']));
+                $values['sender_fid'] = memo_normalize_sender_fid($values['sender_fid'], $factions);
                 $values['subject'] = trim((string) ($_POST['subject'] ?? ''));
                 $values['detail'] = trim((string) ($_POST['detail'] ?? ''));
 
@@ -807,6 +845,7 @@ if (!function_exists('memo_index')) {
                             'toType' => $toType,
                             'toPID' => $toPID,
                             'flowMode' => $flow_mode,
+                            'senderFID' => $values['sender_fid'] !== '' ? (int) $values['sender_fid'] : null,
                             'createdByPID' => $current_pid,
                         ]);
 

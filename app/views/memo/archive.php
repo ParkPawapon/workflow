@@ -448,9 +448,12 @@ ob_start();
                                     $creator_name = trim((string) ($item['creatorName'] ?? ''));
                                     $creator_position = trim((string) ($item['creatorPositionName'] ?? ''));
                                     $creator_signature = trim((string) ($item['creatorSignature'] ?? ''));
+                                    $sender_label = trim((string) ($item['senderFactionName'] ?? ''));
                                     $creator_faction = trim((string) ($item['creatorFactionName'] ?? ''));
-                                    $creator_department = trim((string) ($item['creatorDepartmentName'] ?? ''));
-                                    $sender_label = $creator_faction !== '' ? $creator_faction : $creator_department;
+
+                                    if ($sender_label === '') {
+                                        $sender_label = $creator_faction;
+                                    }
                                     $memo_files = $memo_id > 0 ? memo_get_attachments($memo_id) : [];
                                     $memo_files_json = json_encode($memo_files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                                     $head_note_b64 = base64_encode((string) ($item['headNote'] ?? ''));

@@ -597,6 +597,7 @@ if (!function_exists('memo_create_draft')) {
             $memoID = memo_create_record([
                 'dh_year' => (int) $data['dh_year'],
                 'writeDate' => $data['writeDate'] ?? null,
+                'senderFID' => isset($data['senderFID']) && (int) $data['senderFID'] > 0 ? (int) $data['senderFID'] : null,
                 'subject' => (string) ($data['subject'] ?? ''),
                 'detail' => $data['detail'] ?? null,
                 'status' => MEMO_STATUS_DRAFT,
@@ -675,6 +676,11 @@ if (!function_exists('memo_update_draft')) {
 
             if (array_key_exists('writeDate', $data)) {
                 $update_payload['writeDate'] = $data['writeDate'] ?? null;
+            }
+
+            if (array_key_exists('senderFID', $data)) {
+                $sender_fid = (int) ($data['senderFID'] ?? 0);
+                $update_payload['senderFID'] = $sender_fid > 0 ? $sender_fid : null;
             }
 
             if (!$canOwnerEditBeforeHeadForward && (array_key_exists('toType', $data) || array_key_exists('toPID', $data))) {

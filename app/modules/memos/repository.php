@@ -60,6 +60,30 @@ if (!function_exists('memo_has_column')) {
     }
 }
 
+if (!function_exists('memo_sender_faction_select_sql')) {
+    function memo_sender_faction_select_sql(array $memo_columns, string $creator_faction_alias = 'cf'): string
+    {
+        $creator_faction_sql = 'COALESCE(' . $creator_faction_alias . '.fName, "")';
+
+        if (!memo_has_column($memo_columns, 'senderFID')) {
+            return $creator_faction_sql . ' AS senderFactionName';
+        }
+
+        return 'COALESCE(sf.fName, ' . $creator_faction_sql . ') AS senderFactionName';
+    }
+}
+
+if (!function_exists('memo_sender_faction_join_sql')) {
+    function memo_sender_faction_join_sql(array $memo_columns, string $memo_alias = 'm'): string
+    {
+        if (!memo_has_column($memo_columns, 'senderFID')) {
+            return '';
+        }
+
+        return 'LEFT JOIN faction AS sf ON ' . $memo_alias . '.senderFID = sf.fID';
+    }
+}
+
 if (!function_exists('memo_prepare_search')) {
     function memo_prepare_search(?string $term): array
     {
@@ -159,6 +183,10 @@ if (!function_exists('memo_create_record')) {
             'memoNo' => ['type' => 's', 'value' => $data['memoNo'] ?? null],
             'memoSeq' => ['type' => 'i', 'value' => $data['memoSeq'] ?? null],
             'writeDate' => ['type' => 's', 'value' => $data['writeDate'] ?? null],
+            'senderFID' => [
+                'type' => 'i',
+                'value' => isset($data['senderFID']) && (int) $data['senderFID'] > 0 ? (int) $data['senderFID'] : null,
+            ],
             'toType' => ['type' => 's', 'value' => $data['toType'] ?? null],
             'toPID' => ['type' => 's', 'value' => $data['toPID'] ?? null],
             'flowMode' => ['type' => 's', 'value' => $data['flowMode'] ?? 'CHAIN'],
@@ -257,6 +285,11 @@ if (!function_exists('memo_count_by_creator')) {
 if (!function_exists('memo_list_by_creator_page')) {
     function memo_list_by_creator_page(string $pID, bool $archived, ?string $status, ?string $search, int $limit, int $offset, ?string $sort = null, ?int $dh_year = null): array
     {
+        $connection = db_connection();
+        $memo_columns = memo_get_table_columns($connection);
+        $sender_fid_select = memo_has_column($memo_columns, 'senderFID') ? 'm.senderFID' : 'NULL AS senderFID';
+        $sender_faction_select = memo_sender_faction_select_sql($memo_columns);
+        $sender_faction_join = memo_sender_faction_join_sql($memo_columns);
         $archivedFlag = $archived ? 1 : 0;
         $limit = max(1, $limit);
         $offset = max(0, $offset);
@@ -301,9 +334,15 @@ if (!function_exists('memo_list_by_creator_page')) {
         $sql = 'SELECT m.memoID, m.memoNo, m.writeDate, m.subject, m.detail, m.reviewNote, m.status, m.toType, m.toPID, m.firstReadAt, m.submittedAt, m.reviewedAt, m.updatedAt, m.createdAt,
                 m.createdByPID, m.flowMode, m.flowStage,
                 m.headPID, m.deputyPID, m.directorPID, m.approvedByPID,
+                ' . $sender_fid_select . ',
+                COALESCE(cf.fName, "") AS creatorFactionName,
+                ' . $sender_faction_select . ',
                 t.fName AS approverName
             FROM dh_memos AS m
             LEFT JOIN teacher AS t ON m.toPID = t.pID
+            LEFT JOIN teacher AS c ON m.createdByPID = c.pID
+            LEFT JOIN faction AS cf ON c.fID = cf.fID
+            ' . $sender_faction_join . '
             WHERE ' . $where . '
             ORDER BY ' . $order_by . '
             LIMIT ? OFFSET ?';
@@ -464,7 +503,11 @@ if (!function_exists('memo_list_archived_for_user_page')) {
         $sort = strtolower(trim((string) $sort));
         $timeline_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
         $memo_id_direction = $sort === 'oldest' ? 'ASC' : 'DESC';
-        $creator_position = system_position_join(db_connection(), 'c', 'cp');
+        $connection = db_connection();
+        $memo_columns = memo_get_table_columns($connection);
+        $sender_faction_select = memo_sender_faction_select_sql($memo_columns);
+        $sender_faction_join = memo_sender_faction_join_sql($memo_columns);
+        $creator_position = system_position_join($connection, 'c', 'cp');
 
         $ownerTypes = 's';
         $ownerParams = [$pID];
@@ -484,6 +527,7 @@ if (!function_exists('memo_list_archived_for_user_page')) {
                 c.fName AS creatorName,
                 COALESCE(c.signature, "") AS creatorSignature,
                 COALESCE(cf.fName, "") AS creatorFactionName,
+                ' . $sender_faction_select . ',
                 COALESCE(cd.dName, "") AS creatorDepartmentName,
                 COALESCE(' . $creator_position['name'] . ', "") AS creatorPositionName,
                 t.fName AS approverName,
@@ -495,6 +539,7 @@ if (!function_exists('memo_list_archived_for_user_page')) {
                 c.fName AS creatorName,
                 COALESCE(c.signature, "") AS creatorSignature,
                 COALESCE(cf.fName, "") AS creatorFactionName,
+                ' . $sender_faction_select . ',
                 COALESCE(cd.dName, "") AS creatorDepartmentName,
                 COALESCE(' . $creator_position['name'] . ', "") AS creatorPositionName,
                 c.fName AS approverName,
@@ -509,6 +554,7 @@ if (!function_exists('memo_list_archived_for_user_page')) {
                 LEFT JOIN teacher AS c ON m.createdByPID = c.pID
                 LEFT JOIN faction AS cf ON c.fID = cf.fID
                 LEFT JOIN department AS cd ON c.dID = cd.dID
+                ' . $sender_faction_join . '
                 ' . $creator_position['join'] . '
                 WHERE ' . $ownerWhere . '
 
@@ -521,6 +567,7 @@ if (!function_exists('memo_list_archived_for_user_page')) {
                 LEFT JOIN teacher AS c ON m.createdByPID = c.pID
                 LEFT JOIN faction AS cf ON c.fID = cf.fID
                 LEFT JOIN department AS cd ON c.dID = cd.dID
+                ' . $sender_faction_join . '
                 ' . $creator_position['join'] . '
                 WHERE ' . $reviewerWhere . '
             ) AS archived_memos
@@ -588,6 +635,9 @@ if (!function_exists('memo_list_by_reviewer_page')) {
         memo_ensure_inbox_archives_table();
 
         $connection = db_connection();
+        $memo_columns = memo_get_table_columns($connection);
+        $sender_faction_select = memo_sender_faction_select_sql($memo_columns);
+        $sender_faction_join = memo_sender_faction_join_sql($memo_columns);
         $creator_position = system_position_join($connection, 'c', 'cp');
         $limit = max(1, $limit);
         $offset = max(0, $offset);
@@ -637,6 +687,7 @@ if (!function_exists('memo_list_by_reviewer_page')) {
                 c.fName AS creatorName,
                 COALESCE(c.signature, "") AS creatorSignature,
                 COALESCE(cf.fName, "") AS creatorFactionName,
+                ' . $sender_faction_select . ',
                 COALESCE(cd.dName, "") AS creatorDepartmentName,
                 COALESCE(' . $creator_position['name'] . ', "") AS creatorPositionName,
                 a.fName AS approverName
@@ -644,6 +695,7 @@ if (!function_exists('memo_list_by_reviewer_page')) {
             LEFT JOIN teacher AS c ON m.createdByPID = c.pID
             LEFT JOIN faction AS cf ON c.fID = cf.fID
             LEFT JOIN department AS cd ON c.dID = cd.dID
+            ' . $sender_faction_join . '
             ' . $creator_position['join'] . '
             LEFT JOIN teacher AS a ON m.toPID = a.pID
             WHERE ' . $where . '
@@ -686,8 +738,15 @@ if (!function_exists('memo_list_reviewer_years')) {
 if (!function_exists('memo_get')) {
     function memo_get(int $memoID): ?array
     {
+        $connection = db_connection();
+        $memo_columns = memo_get_table_columns($connection);
+        $sender_faction_select = memo_sender_faction_select_sql($memo_columns);
+        $sender_faction_join = memo_sender_faction_join_sql($memo_columns);
+
         $sql = 'SELECT m.*,
                 c.fName AS creatorName,
+                COALESCE(cf.fName, "") AS creatorFactionName,
+                ' . $sender_faction_select . ',
                 a.fName AS approverName,
                 s.fName AS signerName,
                 h.fName AS headName,
@@ -695,6 +754,8 @@ if (!function_exists('memo_get')) {
                 r.fName AS directorName
             FROM dh_memos AS m
             LEFT JOIN teacher AS c ON m.createdByPID = c.pID
+            LEFT JOIN faction AS cf ON c.fID = cf.fID
+            ' . $sender_faction_join . '
             LEFT JOIN teacher AS a ON m.toPID = a.pID
             LEFT JOIN teacher AS s ON m.approvedByPID = s.pID
             LEFT JOIN teacher AS h ON m.headPID = h.pID

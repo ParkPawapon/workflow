@@ -402,10 +402,10 @@ ob_start();
                             $detail = (string) ($item['detail'] ?? '');
                             $creator_name = trim((string) ($item['creatorName'] ?? ''));
                             $creator_signature = trim((string) ($item['creatorSignature'] ?? ''));
-                            $creator_section = trim((string) ($item['creatorFactionName'] ?? ''));
+                            $creator_section = trim((string) ($item['senderFactionName'] ?? ''));
 
                             if ($creator_section === '') {
-                                $creator_section = trim((string) ($item['creatorDepartmentName'] ?? ''));
+                                $creator_section = trim((string) ($item['creatorFactionName'] ?? ''));
                             }
 
                             $creator_position = trim((string) ($item['creatorPositionName'] ?? ''));
@@ -797,8 +797,8 @@ ob_start();
         },
         {
             key: 'should_permit',
-            label: 'เห็นควรอนุญาติ',
-            content: '<p>เห็นควรอนุญาติ</p>',
+            label: 'เห็นควรอนุญาต',
+            content: '<p>เห็นควรอนุญาต</p>',
         },
     ];
     const directorManagementActions = [{

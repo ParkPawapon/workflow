@@ -765,6 +765,20 @@ ob_start();
                         $memo_no = trim((string) ($memo['memoNo'] ?? ''));
                         $book_no_display = $memo_no !== '' ? $memo_no : ('#' . $memo_id);
                         $to_label = $memo_director_label;
+                        $sender_faction_name = trim((string) ($memo['senderFactionName'] ?? ''));
+
+                        if ($sender_faction_name === '') {
+                            $sender_faction_name = trim((string) ($memo['creatorFactionName'] ?? ''));
+                        }
+
+                        if ($sender_faction_name === '') {
+                            $sender_faction_name = $current_sender_faction_name;
+                        }
+                        $sender_fid_attr = trim((string) ($memo['senderFID'] ?? ''));
+
+                        if ($sender_fid_attr === '' || !ctype_digit($sender_fid_attr) || (int) $sender_fid_attr <= 0) {
+                            $sender_fid_attr = '';
+                        }
                         $attachment_count = $memo_id > 0 ? count(memo_get_attachments($memo_id)) : 0;
                         $memo_files = $memo_id > 0 ? memo_get_attachments($memo_id) : [];
                         $memo_files_json = json_encode($memo_files, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -804,7 +818,7 @@ ob_start();
                                     data-bookno="<?= h($book_no_display) ?>"
                                     data-issued="<?= h((string) ($memo['writeDate'] ?? '-')) ?>"
                                     data-from="<?= h($current_name !== '' ? $current_name : '-') ?>"
-                                    data-sender="<?= h($current_sender_faction_name !== '' ? $current_sender_faction_name : '-') ?>"
+                                    data-sender="<?= h($sender_faction_name !== '' ? $sender_faction_name : '-') ?>"
                                     data-to="<?= h($to_label) ?>"
                                     data-status="<?= h((string) ($status_meta['label'] ?? '-')) ?>"
                                     data-consider="considering"
@@ -838,6 +852,8 @@ ob_start();
                                         data-memo-detail="<?= h($detail !== '' ? $detail : '-') ?>"
                                         data-memo-attachments="<?= h((string) $attachment_count) ?>"
                                         data-memo-to="<?= h($to_label) ?>"
+                                        data-memo-sender-fid="<?= h($sender_fid_attr) ?>"
+                                        data-memo-sender-name="<?= h($sender_faction_name !== '' ? $sender_faction_name : '-') ?>"
                                         data-memo-owner-edit-before-head-forward="<?= !empty($memo['ownerCanEditBeforeHeadForward']) ? '1' : '0' ?>"
                                         data-memo-is-returned="<?= $status === MEMO_STATUS_RETURNED ? '1' : '0' ?>"
                                         data-memo-returned-reviewer-pid="<?= h($returned_reviewer_pid) ?>"
@@ -1126,8 +1142,8 @@ ob_start();
                                         <p>เพิ่มไฟล์</p>
                                     </button>
                                 </div>
-                                <input type="file" id="attachment" name="attachments[]" class="file-input" multiple="" accept=".pdf,image/png,image/jpeg" hidden="" data-max-size-bytes="<?= h((string) $memo_upload_max_size_bytes) ?>" data-max-size-label="<?= h($memo_upload_max_size_label) ?>">
-                                <p class="form-error hidden" id="attachmentError">รองรับเฉพาะ PDF, JPG, PNG ขนาดไม่เกิน <?= h($memo_upload_max_size_label) ?></p>
+                                <input type="file" id="attachment" name="attachments[]" class="file-input" multiple="" accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" hidden="" data-max-size-bytes="<?= h((string) $memo_upload_max_size_bytes) ?>" data-max-size-label="<?= h($memo_upload_max_size_label) ?>">
+                                <p class="form-error hidden" id="attachmentError">รองรับเฉพาะ PDF, JPG, PNG, ZIP, RAR ขนาดไม่เกิน <?= h($memo_upload_max_size_label) ?></p>
                             </div>
 
                             <div class="file-list" id="attachmentList" aria-live="polite">
@@ -1373,13 +1389,20 @@ ob_start();
         const closePreviewBtn = document.getElementById('closePreviewBtn');
 
         const maxFiles = 5;
-        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed', 'application/x-rar', 'application/vnd.rar'];
+        const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'zip', 'rar'];
         let selectedFiles = [];
         let trackSearchTimer = null;
         const trackTableBody = document.querySelector('#memoMine .memo-mine-table tbody');
         const trackDataRows = trackTableBody ? Array.from(trackTableBody.querySelectorAll('tr[data-memo-track-row="1"]')) : [];
         let trackEmptyRow = trackTableBody ? trackTableBody.querySelector('tr[data-memo-empty-row="1"]') : null;
         const memoStatusPriorityMap = <?= json_encode($status_sort_priority_map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+        const isAllowedFile = (file) => {
+            const mimeType = String(file?.type || '').toLowerCase();
+            const extension = String(file?.name || '').toLowerCase().split('.').pop() || '';
+
+            return allowedTypes.includes(mimeType) || allowedExtensions.includes(extension);
+        };
 
         const normalizeTrackFilterText = (value) => String(value || '')
             .toLowerCase()
@@ -1545,9 +1568,11 @@ ob_start();
 
                 const icon = document.createElement('div');
                 icon.className = 'file-icon';
-                icon.innerHTML = file.type === 'application/pdf' ?
+                const mimeType = String(file.type || '').toLowerCase();
+                const extension = String(file.name || '').toLowerCase().split('.').pop() || '';
+                icon.innerHTML = mimeType === 'application/pdf' || extension === 'pdf' ?
                     '<i class="fa-solid fa-file-pdf"></i>' :
-                    '<i class="fa-solid fa-image"></i>';
+                    (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png'].includes(extension) ? '<i class="fa-solid fa-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                 const text = document.createElement('div');
                 text.className = 'file-text';
@@ -1612,7 +1637,7 @@ ob_start();
             Array.from(files).forEach((file) => {
                 const key = `${file.name}-${file.size}-${file.lastModified}`;
                 if (existing.has(key)) return;
-                if (!allowedTypes.includes(file.type)) return;
+                if (!isAllowedFile(file)) return;
                 if (selectedFiles.length >= maxFiles) return;
                 selectedFiles.push(file);
                 existing.add(key);
@@ -2067,6 +2092,10 @@ ob_start();
     const suggestToChoiceInput = suggModal ? suggModal.querySelector('#memoSuggestToChoice') : null;
     const suggestMemoIdInput = suggModal ? suggModal.querySelector('#memoSuggestMemoId') : null;
     const suggestForm = document.getElementById('memoSuggestForm');
+    const suggestSenderInput = suggestForm ? suggestForm.querySelector('input[name="sender_fid"]') : null;
+    const suggestSenderWrapper = suggestSenderInput ? suggestSenderInput.closest('.custom-select-wrapper') : null;
+    const suggestSenderValue = suggestSenderWrapper ? suggestSenderWrapper.querySelector('.select-value') : null;
+    const suggestSenderOptions = suggestSenderWrapper ? Array.from(suggestSenderWrapper.querySelectorAll('.custom-option')) : [];
     const suggestAttachmentInput = suggestForm ? suggestForm.querySelector('input[name="attachments[]"]') : null;
     const suggestAttachmentList = suggestForm ? suggestForm.querySelector('#attachmentList') : null;
     const suggestRecipientRadios = suggModal ? Array.from(suggModal.querySelectorAll('.member-checkbox')) : [];
@@ -2099,6 +2128,31 @@ ob_start();
         }
 
         alert(safeMessage);
+    };
+    const setSuggestSenderFaction = (senderFid, senderName) => {
+        const fid = String(senderFid || '').trim();
+        const fallbackName = String(senderName || '').trim();
+        let selectedName = '';
+
+        if (suggestSenderInput) {
+            suggestSenderInput.value = fid;
+        }
+
+        suggestSenderOptions.forEach((option) => {
+            const isSelected = fid !== '' && String(option.getAttribute('data-value') || '').trim() === fid;
+            option.classList.toggle('selected', isSelected);
+
+            if (isSelected) {
+                selectedName = String(option.textContent || '').trim();
+            }
+        });
+
+        if (suggestSenderValue) {
+            const displayName = selectedName !== '' ? selectedName : fallbackName;
+            suggestSenderValue.textContent = displayName !== '' && displayName !== '-' ?
+                displayName :
+                'เลือกส่วนราชการ';
+        }
     };
     const confirmSuggestSubmit = () => {
         const message = 'ยืนยันการเสนอแฟ้มบันทึกข้อความใช่หรือไม่?';
@@ -2707,6 +2761,8 @@ ob_start();
             const memoSubject = String(btn.getAttribute('data-memo-subject') || '').trim();
             const memoDetail = String(btn.getAttribute('data-memo-detail') || '').trim();
             const memoAttachmentCount = Number(btn.getAttribute('data-memo-attachments') || '0');
+            const memoSenderFid = String(btn.getAttribute('data-memo-sender-fid') || '').trim();
+            const memoSenderName = String(btn.getAttribute('data-memo-sender-name') || '').trim();
             const isOwnerEditBeforeHeadForward = String(btn.getAttribute('data-memo-owner-edit-before-head-forward') || '') === '1';
             const isReturnedResubmit = String(btn.getAttribute('data-memo-is-returned') || '') === '1';
             const returnedReviewerPid = String(btn.getAttribute('data-memo-returned-reviewer-pid') || '').trim();
@@ -2738,6 +2794,7 @@ ob_start();
             if (suggestToChoiceInput) {
                 suggestToChoiceInput.value = 'DIRECTOR';
             }
+            setSuggestSenderFaction(memoSenderFid, memoSenderName);
             if (suggestForm) {
                 const normalizedAttachmentCount = memoFiles.length > 0 ?
                     memoFiles.length :

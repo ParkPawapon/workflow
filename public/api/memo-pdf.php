@@ -820,7 +820,7 @@ if (!function_exists('memo_pdf_build_mock_data')) {
             'memo_no' => 'ศธ 04320.05/มม 015',
             'dh_year_label' => (string) system_get_dh_year(),
             'school_name' => 'โรงเรียนดีบุกพังงาวิทยายน',
-            'section_name' => trim((string) ($owner['departmentName'] ?? '')) !== '' ? trim((string) ($owner['departmentName'] ?? '')) : 'กลุ่มบริหารงานทั่วไป',
+            'section_name' => trim((string) ($owner['departmentName'] ?? '')) !== '' ? trim((string) ($owner['departmentName'] ?? '')) : '-',
             'subject' => 'ขออนุมัติดำเนินกิจกรรมพัฒนาทักษะการอ่านเชิงวิเคราะห์ ภาคเรียนที่ 1',
             'to_name' => 'ผู้อำนวยการโรงเรียนดีบุกพังงาวิทยายน',
             'write_date_label' => memo_pdf_format_thai_date(date('Y-m-d')),
@@ -1008,13 +1008,23 @@ if (!function_exists('memo_pdf_build_live_data')) {
             }
         }
 
+        $section_name = trim((string) ($memo['senderFactionName'] ?? ''));
+
+        if ($section_name === '') {
+            $section_name = trim((string) ($memo['creatorFactionName'] ?? ''));
+        }
+
+        if ($section_name === '') {
+            $section_name = trim((string) ($creator['departmentName'] ?? ''));
+        }
+
         return [
             'document_title' => 'บันทึกข้อความ',
             'document_subtitle' => 'เอกสารสำหรับใช้งานในระบบบันทึกข้อความ',
             'memo_no' => trim((string) ($memo['memoNo'] ?? '')) !== '' ? trim((string) ($memo['memoNo'] ?? '')) : ('MEMO-' . $memo_id),
             'dh_year_label' => trim((string) ($memo['dh_year'] ?? '')),
             'school_name' => 'โรงเรียนดีบุกพังงาวิทยายน',
-            'section_name' => trim((string) ($creator['departmentName'] ?? '')) !== '' ? trim((string) ($creator['departmentName'] ?? '')) : '-',
+            'section_name' => $section_name !== '' ? $section_name : '-',
             'subject' => trim((string) ($memo['subject'] ?? '')),
             'to_name' => $to_name,
             'write_date_label' => memo_pdf_format_thai_date((string) ($memo['writeDate'] ?? '')),
