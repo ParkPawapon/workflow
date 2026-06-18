@@ -435,13 +435,12 @@ if (!function_exists('personnel_management_update')) {
             $data['telephone'],
             $data['picture'],
             $data['signature'] !== '' ? $data['signature'] : null,
-            $data['LineID'],
             $data['status'],
         ];
-        $types = 'siiiiisssssi';
+        $types = 'siiiiissssi';
         $sql = 'UPDATE teacher
                 SET fName = ?, fID = ?, dID = ?, lID = ?, oID = ?, positionID = ?, roleID = ?,
-                    telephone = ?, picture = ?, signature = ?, LineID = ?, status = ?';
+                    telephone = ?, picture = ?, signature = ?, status = ?';
 
         $sql .= ' WHERE pID = ?';
         $params[] = $original_pid;
