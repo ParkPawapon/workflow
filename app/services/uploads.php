@@ -53,8 +53,27 @@ if (!function_exists('upload_allowed_mimes')) {
     {
         return [
             'application/pdf' => 'pdf',
-            'image/jpeg' => 'jpg',
+            'image/jpeg' => ['jpg', 'jpeg'],
             'image/png' => 'png',
+            'application/msword' => ['doc', 'dot'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/vnd.ms-word.document.macroEnabled.12' => 'docm',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.template' => 'dotx',
+            'application/rtf' => 'rtf',
+            'text/rtf' => 'rtf',
+            'application/vnd.oasis.opendocument.text' => 'odt',
+            'application/vnd.ms-excel' => ['xls', 'xlt'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/vnd.ms-excel.sheet.macroEnabled.12' => 'xlsm',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.template' => 'xltx',
+            'text/csv' => 'csv',
+            'application/csv' => 'csv',
+            'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+            'application/zip' => 'zip',
+            'application/x-zip-compressed' => 'zip',
+            'application/x-rar-compressed' => 'rar',
+            'application/x-rar' => 'rar',
+            'application/vnd.rar' => 'rar',
         ];
     }
 }
@@ -63,7 +82,7 @@ if (!function_exists('upload_allowed_image_mimes')) {
     function upload_allowed_image_mimes(): array
     {
         return [
-            'image/jpeg' => 'jpg',
+            'image/jpeg' => ['jpg', 'jpeg'],
             'image/png' => 'png',
             'image/webp' => 'webp',
             'image/gif' => 'gif',
@@ -139,42 +158,23 @@ if (!function_exists('upload_mime_for_extension')) {
 
 if (!function_exists('upload_detect_mime_type')) {
     /**
+     * Safe restore mode:
+     * - Avoids finfo_file() and mime_content_type() because some shared hosting
+     *   can hang while sniffing uploaded files.
+     * - Resolves MIME from a strict extension whitelist only.
+     *
      * @param array<string, mixed> $file
      * @param array<string, mixed> $allowedMimes
      */
     function upload_detect_mime_type(array $file, string $tmpPath, array $allowedMimes): string
     {
-        if (defined('FILEINFO_MIME_TYPE') && function_exists('finfo_open') && function_exists('finfo_file')) {
-            $finfo = @finfo_open(FILEINFO_MIME_TYPE);
-
-            if ($finfo !== false) {
-                $detected = @finfo_file($finfo, $tmpPath);
-
-                if (function_exists('finfo_close')) {
-                    @finfo_close($finfo);
-                }
-
-                if (is_string($detected) && isset($allowedMimes[$detected])) {
-                    return $detected;
-                }
-            }
-        }
-
-        if (function_exists('mime_content_type')) {
-            $detected = @mime_content_type($tmpPath);
-
-            if (is_string($detected) && isset($allowedMimes[$detected])) {
-                return $detected;
-            }
-        }
+        $extension = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
 
         $clientMime = strtolower(trim((string) ($file['type'] ?? '')));
 
-        if ($clientMime !== '' && isset($allowedMimes[$clientMime])) {
+        if ($clientMime !== '' && isset($allowedMimes[$clientMime]) && upload_extension_matches($allowedMimes[$clientMime], $extension)) {
             return $clientMime;
         }
-
-        $extension = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
 
         foreach ($allowedMimes as $mime => $allowedExtensions) {
             if (upload_extension_matches($allowedExtensions, $extension)) {
@@ -345,6 +345,8 @@ if (!function_exists('upload_store_files')) {
         string $uploaderPID,
         array $options = []
     ): array {
+        @set_time_limit(30);
+
         $module = trim($module);
         $entityName = trim($entityName);
         $entityId = trim($entityId);
@@ -386,6 +388,10 @@ if (!function_exists('upload_store_files')) {
             $tmp = (string) $file['tmp_name'];
             $size = (int) $file['size'];
 
+            if ($tmp === '' || !is_uploaded_file($tmp)) {
+                throw new RuntimeException('ไฟล์อัปโหลดไม่ถูกต้อง');
+            }
+
             if ($size <= 0 || $size > $max_size) {
                 throw new RuntimeException('ขนาดไฟล์ต้องไม่เกิน ' . upload_format_bytes_label($max_size));
             }
@@ -413,7 +419,8 @@ if (!function_exists('upload_store_files')) {
             }
 
             $extension = $original_extension !== '' ? $original_extension : upload_first_allowed_extension($allowed[$mime]);
-            $hash = hash_file('sha256', $tmp);
+            // Hotfix: avoid hashing uploaded files during restore mode because it can hang on some hosting.
+            $hash = '';
             $filename = bin2hex(random_bytes(16)) . '.' . $extension;
 
             $date_path = date('Y/m');

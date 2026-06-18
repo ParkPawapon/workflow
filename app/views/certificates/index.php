@@ -556,7 +556,7 @@ ob_start();
                         </div>
                         <section class="upload-layout">
                             <input type="file" id="modalCertificateEditFileInput" name="attachments[]"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/vnd.rar"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar"
                                 style="display: none;">
                             <div class="row form-group" id="modalCertificateEditUploadActions">
                                 <button class="btn btn-upload-small" type="button" id="modalCertificateEditAddFileBtn">

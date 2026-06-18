@@ -47,7 +47,7 @@ ob_start();
                 'field_class' => 'full',
                 'attrs' => [
                     'multiple' => true,
-                    'accept' => '.pdf,.jpg,.jpeg,.png',
+                    'accept' => '.pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar',
                 ],
             ]); ?>
             <div class="c-field form-group full">

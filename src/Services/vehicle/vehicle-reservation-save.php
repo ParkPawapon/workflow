@@ -277,9 +277,14 @@ $attachments = $_FILES['attachments'] ?? null;
 $max_attachments = 5;
 $max_file_size = 10 * 1024 * 1024;
 $allowed_mime = [
-    'application/pdf' => 'pdf',
-    'image/jpeg' => 'jpg',
-    'image/png' => 'png',
+    'application/pdf' => ['pdf'],
+    'image/jpeg' => ['jpg', 'jpeg'],
+    'image/png' => ['png'],
+    'application/zip' => ['zip'],
+    'application/x-zip-compressed' => ['zip'],
+    'application/x-rar-compressed' => ['rar'],
+    'application/x-rar' => ['rar'],
+    'application/vnd.rar' => ['rar'],
 ];
 $cleanup_uploads = static function (array $files): void {
     foreach ($files as $file) {
@@ -357,14 +362,20 @@ if (is_array($attachments) && isset($attachments['name']) && is_array($attachmen
             $file_mime = (string) ($attachments['type'][$i] ?? '');
         }
 
-        if (!isset($allowed_mime[$file_mime])) {
+        $original_extension = strtolower(pathinfo((string) ($attachments['name'][$i] ?? ''), PATHINFO_EXTENSION));
+
+        if ($file_mime === 'application/octet-stream' && in_array($original_extension, ['zip', 'rar'], true)) {
+            $file_mime = $original_extension === 'zip' ? 'application/zip' : 'application/vnd.rar';
+        }
+
+        if (!isset($allowed_mime[$file_mime]) || !in_array($original_extension, $allowed_mime[$file_mime], true)) {
             $cleanup_uploads($uploaded_files);
-            $abort('warning', 'รูปแบบไฟล์ไม่ถูกต้อง', 'รองรับเฉพาะไฟล์ .pdf, .jpg, .png', 'mime_not_allowed', [
+            $abort('warning', 'รูปแบบไฟล์ไม่ถูกต้อง', 'รองรับเฉพาะไฟล์ .pdf, .jpg, .png, .zip, .rar', 'mime_not_allowed', [
                 'mimeType' => $file_mime,
             ]);
         }
 
-        $extension = $allowed_mime[$file_mime];
+        $extension = $original_extension;
         $filename = 'vehicle_booking_' . date('Ymd_His') . '_' . bin2hex(random_bytes(6)) . '.' . $extension;
         $target_path = $upload_dir . '/' . $filename;
 

@@ -91,6 +91,7 @@ if (!function_exists('certificate_allowed_upload_mimes')) {
             'application/zip' => 'zip',
             'application/x-zip-compressed' => 'zip',
             'application/x-rar-compressed' => 'rar',
+            'application/x-rar' => 'rar',
             'application/vnd.rar' => 'rar',
         ];
     }

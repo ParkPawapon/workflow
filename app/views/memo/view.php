@@ -344,9 +344,9 @@ ob_start();
             'type' => 'file',
             'attrs' => [
                 'multiple' => true,
-                'accept' => 'application/pdf,image/png,image/jpeg',
+                'accept' => '.pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar',
             ],
-            'help' => 'รองรับ PDF / PNG / JPG',
+            'help' => 'รองรับ PDF / PNG / JPG / ZIP / RAR',
         ]); ?>
 
                 <div class="booking-actions">
@@ -611,11 +611,11 @@ ob_start();
             ]); ?>
                     <?php component_render('input', [
                 'name' => 'signed_attachment',
-                'label' => 'แนบไฟล์ฉบับลงนามแล้ว (PDF/PNG/JPG)',
+                'label' => 'แนบไฟล์ฉบับลงนามแล้ว (PDF/PNG/JPG/ZIP/RAR)',
                 'type' => 'file',
                 'required' => true,
                 'attrs' => [
-                    'accept' => 'application/pdf,image/png,image/jpeg',
+                    'accept' => '.pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar',
                 ],
             ]); ?>
                     <div class="booking-actions">

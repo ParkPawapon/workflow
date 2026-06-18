@@ -703,7 +703,7 @@ if (!function_exists('repairs_handle_mode')) {
                         if (!empty($_FILES['attachments']) && repair_has_uploads((array) $_FILES['attachments'])) {
                             upload_store_files($_FILES['attachments'], REPAIR_MODULE_NAME, REPAIR_ENTITY_NAME, (string) $repair_id, $current_pid, [
                                 'max_files' => 0,
-                                'allowed_mimes' => upload_allowed_image_mimes(),
+                                'allowed_mimes' => upload_allowed_mimes(),
                             ]);
                             repairs_controller_audit_log($mode, 'ATTACH', 'SUCCESS', $repair_id, null, $post_audit_payload);
                         }

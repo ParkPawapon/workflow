@@ -12,7 +12,7 @@ $extra_class = (string) ($params['class'] ?? '');
         <?php endif; ?>
         <input type="hidden" name="action" value="attach">
         <input type="hidden" name="outgoing_id" value="<?= h((string) $outgoing_id) ?>">
-        <input type="file" name="attachments[]" class="form-input" multiple required accept="application/pdf,image/png,image/jpeg">
+        <input type="file" name="attachments[]" class="form-input" multiple required accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar">
         <button
             type="submit"
             class="c-button c-button--sm btn-outline"

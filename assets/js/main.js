@@ -1629,8 +1629,39 @@ const attachmentList = document.getElementById("attachmentList");
 const attachmentError = document.getElementById("attachmentError");
 const MAX_ATTACHMENTS = 5;
 const DEFAULT_MAX_ATTACHMENT_SIZE = 100 * 1024 * 1024;
-const ALLOWED_ATTACHMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+const ALLOWED_ATTACHMENT_TYPES = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/x-rar-compressed",
+    "application/x-rar",
+    "application/vnd.rar",
+];
+const ALLOWED_ATTACHMENT_EXTENSIONS = [
+    "pdf",
+    "jpg",
+    "jpeg",
+    "png",
+    "zip",
+    "rar",
+];
 let selectedAttachments = [];
+
+function getFileExtension(file) {
+    return String(file?.name || "").toLowerCase().split(".").pop() || "";
+}
+
+function isAllowedAttachmentFile(file) {
+    const type = String(file?.type || "").toLowerCase();
+    const extension = getFileExtension(file);
+
+    return (
+        ALLOWED_ATTACHMENT_TYPES.includes(type) ||
+        ALLOWED_ATTACHMENT_EXTENSIONS.includes(extension)
+    );
+}
 
 function getAttachmentMaxSize() {
     const datasetValue = Number(fileInput?.dataset.maxSizeBytes || "");
@@ -1831,8 +1862,13 @@ function renderAttachmentList() {
         iconWrap.className = "file-icon";
 
         const icon = document.createElement("i");
-        const isPdf = file.type === "application/pdf";
-        const isImage = file.type === "image/jpeg" || file.type === "image/png";
+        const fileType = String(file.type || "").toLowerCase();
+        const extension = getFileExtension(file);
+        const isPdf = fileType === "application/pdf" || extension === "pdf";
+        const isImage =
+            fileType === "image/jpeg" ||
+            fileType === "image/png" ||
+            ["jpg", "jpeg", "png"].includes(extension);
         icon.className = isPdf
             ? "fa-solid fa-file-pdf"
             : isImage
@@ -1904,7 +1940,7 @@ function addAttachments(files) {
             return;
         }
 
-        if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+        if (!isAllowedAttachmentFile(file)) {
             hasInvalidType = true;
             return;
         }
@@ -1930,12 +1966,12 @@ function addAttachments(files) {
         setAttachmentError(`แนบได้สูงสุด ${MAX_ATTACHMENTS} ไฟล์`);
     } else if (hasInvalidType && hasOversize) {
         setAttachmentError(
-            `รองรับเฉพาะ PDF, JPG, PNG และไฟล์ต้องมีขนาดไม่เกิน ${maxAttachmentSizeLabel}`,
+            `รองรับเฉพาะ PDF, JPG, PNG, ZIP, RAR และไฟล์ต้องมีขนาดไม่เกิน ${maxAttachmentSizeLabel}`,
         );
     } else if (hasOversize) {
         setAttachmentError(`ไฟล์ต้องมีขนาดไม่เกิน ${maxAttachmentSizeLabel}`);
     } else if (hasInvalidType) {
-        setAttachmentError("รองรับเฉพาะ PDF, JPG, PNG");
+        setAttachmentError("รองรับเฉพาะ PDF, JPG, PNG, ZIP, RAR");
     } else {
         setAttachmentError("");
     }

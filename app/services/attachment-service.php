@@ -12,6 +12,11 @@ if (!function_exists('attachment_allowed_types')) {
             'application/pdf' => ['pdf'],
             'image/jpeg' => ['jpg', 'jpeg'],
             'image/png' => ['png'],
+            'application/zip' => ['zip'],
+            'application/x-zip-compressed' => ['zip'],
+            'application/x-rar-compressed' => ['rar'],
+            'application/x-rar' => ['rar'],
+            'application/vnd.rar' => ['rar'],
         ];
     }
 }
@@ -32,12 +37,15 @@ if (!function_exists('attachment_store')) {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->file($file['tmp_name']);
         $allowed = attachment_allowed_types();
+        $ext = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+
+        if ($mime === 'application/octet-stream' && in_array($ext, ['zip', 'rar'], true)) {
+            $mime = $ext === 'zip' ? 'application/zip' : 'application/vnd.rar';
+        }
 
         if (!isset($allowed[$mime])) {
             return [false, null, 'ประเภทไฟล์ไม่ถูกอนุญาต'];
         }
-
-        $ext = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
 
         if (!in_array($ext, $allowed[$mime], true)) {
             return [false, null, 'นามสกุลไฟล์ไม่ตรงกับประเภทที่อนุญาต'];

@@ -502,7 +502,7 @@ if (!function_exists('repair_create_request')) {
             if (repair_has_uploads($files)) {
                 upload_store_files($files, REPAIR_MODULE_NAME, REPAIR_ENTITY_NAME, (string) $repair_id, $actor_pid, [
                     'max_files' => 0,
-                    'allowed_mimes' => upload_allowed_image_mimes(),
+                    'allowed_mimes' => upload_allowed_mimes(),
                 ]);
             }
 

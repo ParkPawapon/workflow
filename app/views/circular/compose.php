@@ -764,7 +764,7 @@ ob_start();
     <div class="form-group">
         <label>อัปโหลดไฟล์เอกสาร</label>
         <section class="upload-layout">
-            <input type="file" id="fileInput" name="attachments[]" multiple accept="application/pdf,image/png,image/jpeg" style="display: none;" />
+            <input type="file" id="fileInput" name="attachments[]" multiple accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" style="display: none;" />
 
             <div class="upload-box" id="dropzone">
                 <i class="fa-solid fa-upload"></i>
@@ -780,7 +780,7 @@ ob_start();
             <p>เพิ่มไฟล์</p>
         </button>
         <div class="file-hint">
-            <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) *</p>
+            <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PDF, PNG, JPG, ZIP, RAR) *</p>
         </div>
     </div>
 
@@ -1511,7 +1511,7 @@ ob_start();
                     <div class="form-group">
                         <label><b>อัปโหลดไฟล์เอกสารใหม่</b></label>
                         <section class="upload-layout">
-                            <input type="file" id="edit_fileInput" name="attachments[]" multiple accept="application/pdf,image/png,image/jpeg" style="display: none;" />
+                            <input type="file" id="edit_fileInput" name="attachments[]" multiple accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" style="display: none;" />
                             <div class="upload-box" id="edit_dropzone">
                                 <i class="fa-solid fa-upload"></i>
                                 <p>ลากไฟล์มาวางที่นี่</p>
@@ -1525,7 +1525,7 @@ ob_start();
                             <p>เพิ่มไฟล์</p>
                         </button>
                         <div class="file-hint">
-                            <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) *</p>
+                            <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PDF, PNG, JPG, ZIP, RAR) *</p>
                         </div>
                     </div>
 
@@ -1892,7 +1892,8 @@ ob_start();
             const removedFilesContainer = form.querySelector('[data-remove-file-inputs]') || document.createElement('div');
 
             const maxFiles = 5;
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed', 'application/x-rar', 'application/vnd.rar'];
+            const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'zip', 'rar'];
             let selectedFiles = [];
             let existingFiles = [];
             let existingEntityId = '';
@@ -1917,7 +1918,14 @@ ob_start();
 
             const buildFileIconMarkup = (mimeType) => {
                 const normalizedMime = String(mimeType || '').toLowerCase();
-                return normalizedMime.includes('pdf') ? '<i class="fa-solid fa-file-pdf"></i>' : '<i class="fa-solid fa-image"></i>';
+                return normalizedMime.includes('pdf') ? '<i class="fa-solid fa-file-pdf"></i>' : normalizedMime.includes('image') ? '<i class="fa-solid fa-image"></i>' : '<i class="fa-solid fa-file"></i>';
+            };
+
+            const isAllowedFile = (file) => {
+                const mimeType = String(file?.type || '').toLowerCase();
+                const extension = String(file?.name || '').toLowerCase().split('.').pop() || '';
+
+                return allowedTypes.includes(mimeType) || allowedExtensions.includes(extension);
             };
 
             const buildExistingFileUrl = (file) => {
@@ -2064,7 +2072,7 @@ ob_start();
                 const existing = new Set(selectedFiles.map((f) => `${f.name}-${f.size}-${f.lastModified}`));
                 Array.from(files).forEach((file) => {
                     const key = `${file.name}-${file.size}-${file.lastModified}`;
-                    if (!existing.has(key) && allowedTypes.includes(file.type) && (existingFiles.length + selectedFiles.length) < maxFiles) {
+                    if (!existing.has(key) && isAllowedFile(file) && (existingFiles.length + selectedFiles.length) < maxFiles) {
                         selectedFiles.push(file);
                         existing.add(key);
                     }
