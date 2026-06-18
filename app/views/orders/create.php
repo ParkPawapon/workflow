@@ -442,7 +442,7 @@ ob_start();
         flex: 1;
     }
 
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-topic-sec input {
+    /* .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-topic-sec input {
         width: 100%;
         height: 50px;
         border: none;
@@ -481,7 +481,7 @@ ob_start();
         font-weight: 600;
         cursor: not-allowed;
         border: 1px solid var(--color-secondary);
-    }
+    } */
 
     .circular-track-modal-host #modalOrderEditOverlay .content-modal>.content-topic-sec:first-of-type {
         border-bottom: none;
@@ -489,7 +489,7 @@ ob_start();
         margin-bottom: 20px;
     }
 
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-topic-sec .custom-select-wrapper {
+    /* .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-topic-sec .custom-select-wrapper {
         position: relative;
         width: 100%;
         -webkit-user-select: none;
@@ -572,9 +572,9 @@ ob_start();
     .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-topic-sec .custom-option.selected {
         font-weight: bold;
         background-color: rgba(var(--rgb-primary-dark), 0.1);
-    }
+    } */
 
-    .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec {
+    /* .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec {
         margin: 20px 0 0;
         border-bottom: none !important;
         padding-bottom: 0;
@@ -712,7 +712,7 @@ ob_start();
 
     .circular-track-modal-host #modalOrderEditOverlay .content-modal .content-file-sec .delete-btn:hover {
         transform: scale(1.2);
-    }
+    } */
 
     .circular-track-modal-host #modalOrderSendOverlay .content-modal {
         max-height: 72vh;
@@ -727,7 +727,7 @@ ob_start();
         flex: 1;
     }
 
-    .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
+    /* .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
         width: 100%;
         height: 50px;
         border-radius: 8px;
@@ -845,11 +845,28 @@ ob_start();
 
     .circular-track-modal-host #modalOrderViewOverlay .orders-send-track-empty {
         text-align: center;
+    } */
+
+
+    .custom-table th:nth-child(2) {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
     }
 
+    .custom-table th:nth-child(3) {
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
+    }
 
+    .custom-table th:nth-child(4) {
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
+    }
 
-    @media screen and (max-width: 1023px) {
+    @media screen and (max-width: 1024px) {
 
         .content-order .form-group input.order-no-display[disabled],
         .content-order .form-group input:disabled,
@@ -873,12 +890,42 @@ ob_start();
         .content-order .form-group {
             gap: 20px;
         }
+
+        .custom-table th:nth-child(2) {
+            width: 180px;
+            min-width: 180px;
+            max-width: 180px;
+        }
+
+        .custom-table th:nth-child(3) {
+            width: 120px;
+            min-width: 120px;
+            max-width: 120px;
+        }
+
+        .custom-table th:nth-child(4) {
+            width: 120px;
+            min-width: 120px;
+            max-width: 120px;
+        }
+
+        .custom-table tr td {
+            padding: 5px 10px;
+        }
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-section {
+            padding: 0;
+        }
     }
 
     @media screen and (max-width: 768px) {
         .circular-track-modal-host #modalOrderSendOverlay .content-topic-sec input {
             font-size: var(--font-size-desc-3);
             padding: 0 10px;
+        }
+
+        .custom-table tr td {
+            padding: 5px;
         }
 
         .content-order .form-group {
@@ -892,112 +939,27 @@ ob_start();
         #modalOrderTrackSection .custom-table tr td {
             padding: 0 5px;
         }
-    }
 
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .table-circular-notice-index table tbody td:nth-child(1),
-    .table-circular-notice-index table thead th:nth-child(3),
-    .table-circular-notice-index table tbody td:nth-child(3),
-    .table-responsive.circular-my-table-wrap.order-create .circular-my-table th:nth-child(3),
-    .table-responsive.circular-my-table-wrap.order-create .circular-my-table td:nth-child(3) {
-        text-align: center !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .table-circular-notice-index table tbody td:nth-child(2),
-    .table-circular-notice-index table thead th:nth-child(4),
-    .table-circular-notice-index table tbody td:nth-child(4) {
-        text-align: start !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .booking-table td:nth-child(1) {
-        width: 80px !important;
-        min-width: 80px !important;
-        max-width: 80px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .booking-table td:nth-child(2) {
-        width: 650px !important;
-        min-width: 650px !important;
-        max-width: 650px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(3),
-    .booking-table td:nth-child(3) {
-        width: 190px !important;
-        min-width: 190px !important;
-        max-width: 190px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(4),
-    .booking-table td:nth-child(4) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(5),
-    .booking-table td:nth-child(5) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-    }
-
-    @media screen and (max-width: 1024px) {
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .table-circular-notice-index table tbody td:nth-child(1),
-        .table-circular-notice-index table thead th:nth-child(3),
-        .table-circular-notice-index table tbody td:nth-child(3),
-        .table-responsive.circular-my-table-wrap.order-create .circular-my-table th:nth-child(3),
-        .table-responsive.circular-my-table-wrap.order-create .circular-my-table td:nth-child(3) {
-            text-align: center !important;
+        .custom-table th:nth-child(2) {
+            width: 180px;
+            min-width: 180px;
+            max-width: 180px;
         }
 
-        .table-circular-notice-index table thead th:nth-child(2),
-        .table-circular-notice-index table tbody td:nth-child(2),
-        .table-circular-notice-index table thead th:nth-child(4),
-        .table-circular-notice-index table tbody td:nth-child(4) {
-            text-align: start !important;
+        .custom-table th:nth-child(3) {
+            width: 120px;
+            min-width: 120px;
+            max-width: 120px;
         }
 
-        .table-circular-notice-index table thead th:nth-child(1),
-        .booking-table td:nth-child(1) {
-            width: 60px !important;
-            min-width: 60px !important;
-            max-width: 60px !important;
+        .custom-table th:nth-child(4) {
+            width: 120px;
+            min-width: 120px;
+            max-width: 120px;
         }
 
-        .table-circular-notice-index table thead th:nth-child(2),
-        .booking-table td:nth-child(2) {
-            width: 500px !important;
-            min-width: 500px !important;
-            max-width: 500px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(3),
-        .booking-table td:nth-child(3) {
-            width: 170px !important;
-            min-width: 170px !important;
-            max-width: 170px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(4),
-        .booking-table td:nth-child(4) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(5),
-        .booking-table td:nth-child(5) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
-
+        .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-section {
+            padding: 0;
         }
     }
 </style>
@@ -1010,7 +972,8 @@ ob_start();
     <div class="button-container vehicle">
         <button class="tab-btn <?= $is_track_active ? '' : 'active' ?>"
             onclick="openTab('orderReceive', event)">ออกเลขคำสั่ง</button>
-        <button class="tab-btn <?= $is_track_active ? 'active' : '' ?>" onclick="openTab('orderMine', event)">เลขคำสั่งของฉัน</button>
+        <button class="tab-btn <?= $is_track_active ? 'active' : '' ?>"
+            onclick="openTab('orderMine', event)">เลขคำสั่งของฉัน</button>
     </div>
 </div>
 
@@ -1024,32 +987,20 @@ ob_start();
         <div class="form-group row">
             <div class="input-group order-create-subject-group">
                 <p><strong>เรื่อง</strong></p>
-                <input
-                    type="text"
-                    name="subject"
-                    value="<?= h((string) ($values['subject'] ?? '')) ?>"
-                    placeholder="ระบุหัวข้อคำสั่ง"
-                    maxlength="300"
-                    required>
+                <input type="text" name="subject" value="<?= h((string) ($values['subject'] ?? '')) ?>"
+                    placeholder="ระบุหัวข้อคำสั่ง" maxlength="300" required>
             </div>
         </div>
 
         <div class="form-group row">
             <div class="input-group">
                 <p><strong>ทั้งนี้ตั้งแต่วันที่</strong></p>
-                <input
-                    type="date"
-                    name="effective_date"
-                    value="<?= h((string) ($values['effective_date'] ?? '')) ?>"
+                <input type="date" name="effective_date" value="<?= h((string) ($values['effective_date'] ?? '')) ?>"
                     required>
             </div>
             <div class="input-group">
                 <p><strong>สั่ง ณ วันที่</strong></p>
-                <input
-                    type="date"
-                    name="order_date"
-                    value="<?= h((string) ($values['order_date'] ?? '')) ?>"
-                    required>
+                <input type="date" name="order_date" value="<?= h((string) ($values['order_date'] ?? '')) ?>" required>
             </div>
         </div>
 
@@ -1062,14 +1013,16 @@ ob_start();
                 <p><strong>กลุ่ม</strong></p>
                 <div class="custom-select-wrapper">
                     <div class="custom-select-trigger">
-                        <p class="select-value"><?= h($selected_group_name !== '' ? $selected_group_name : 'เลือกกลุ่ม') ?></p>
+                        <p class="select-value">
+                            <?= h($selected_group_name !== '' ? $selected_group_name : 'เลือกกลุ่ม') ?></p>
                         <i class="fa-solid fa-chevron-down"></i>
                     </div>
 
                     <div class="custom-options">
                         <?php foreach ($faction_options as $fid => $name): ?>
                             <?php $group_fid_value = (string) $fid; ?>
-                            <div class="custom-option<?= $group_fid_value === $selected_group_fid ? ' selected' : '' ?>" data-value="<?= h($group_fid_value) ?>">
+                            <div class="custom-option<?= $group_fid_value === $selected_group_fid ? ' selected' : '' ?>"
+                                data-value="<?= h($group_fid_value) ?>">
                                 <?= h((string) $name) ?>
                             </div>
                         <?php endforeach; ?>
@@ -1082,13 +1035,10 @@ ob_start();
 
         <div class="form-group button">
             <div class="input-group">
-                <button
-                    class="submit"
-                    type="submit"
+                <button class="submit" type="submit"
                     data-confirm="<?= h($is_edit_mode ? 'ยืนยันการบันทึกการแก้ไขคำสั่งราชการนี้ใช่หรือไม่?' : 'ยืนยันการบันทึกออกเลขคำสั่งราชการนี้ใช่หรือไม่?') ?>"
                     data-confirm-title="<?= h($is_edit_mode ? 'ยืนยันการบันทึกการแก้ไข' : 'ยืนยันการบันทึกออกเลข') ?>"
-                    data-confirm-ok="ยืนยัน"
-                    data-confirm-cancel="ยกเลิก">
+                    data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
                     <p><?= h($submit_label) ?></p>
                 </button>
             </div>
@@ -1137,7 +1087,8 @@ ob_start();
                     <select class="form-input" name="status">
                         <option value="all" <?= $filter_status === 'all' ? 'selected' : '' ?>>ทั้งหมด</option>
                         <option value="waiting_attachment" <?= $filter_status === 'waiting_attachment' ? 'selected' : '' ?>>รอการแนบไฟล์</option>
-                        <option value="complete" <?= $filter_status === 'complete' ? 'selected' : '' ?>>แนบไฟล์สำเร็จ</option>
+                        <option value="complete" <?= $filter_status === 'complete' ? 'selected' : '' ?>>แนบไฟล์สำเร็จ
+                        </option>
                     </select>
                 </div>
             </div>
@@ -1168,26 +1119,26 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-responsive table-circular-notice-index circular-my-table-wrap order-create">
+    <div class="table-responsive circular-my-table-wrap order-create">
         <script type="application/json" class="js-order-send-map">
             <?= (string) json_encode($send_modal_payload_map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
         </script>
         <table class="custom-table circular-my-table">
             <thead>
                 <tr>
-                    <th>จัดการ</th>
                     <th>เรื่อง</th>
                     <th>สถานะ</th>
                     <th>วันที่ดำเนินการ</th>
+                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($sent_items)) : ?>
+                <?php if (empty($sent_items)): ?>
                     <tr>
                         <td colspan="4" class="enterprise-empty">ไม่พบรายการคำสั่งราชการของฉัน</td>
                     </tr>
-                <?php else : ?>
-                    <?php foreach ($sent_items as $item) : ?>
+                <?php else: ?>
+                    <?php foreach ($sent_items as $item): ?>
                         <?php
                         $order_id = (int) ($item['orderID'] ?? 0);
                         $order_no = trim((string) ($item['orderNo'] ?? ''));
@@ -1240,42 +1191,54 @@ ob_start();
                         ?>
                         <tr>
                             <td>
+                                <?php if ($order_no !== ''): ?>
+                                    <div class="circular-my-subject">คำสั่งที่ <?= h($order_no) ?></div>
+                                    <div class="circular-my-meta"><?= h((string) ($item['subject'] ?? '-')) ?></div>
+                                <?php else: ?>
+                                    <div class="circular-my-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span
+                                    class="status-pill <?= h((string) ($status_meta['pill'] ?? 'pending')) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span>
+                                <?php if ($show_recipients_action): ?>
+                                    <p class="viewer">อ่านแล้ว <?= h((string) $read_done_for_row) ?> จาก
+                                        <?= h((string) $read_total_for_row) ?> คน</p>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="order-create-datetime">
+                                    <span class="order-create-datetime-date"><?= h($date_display_date) ?></span>
+                                    <span class="order-create-datetime-time"><?= h($date_display_time) ?></span>
+                                </div>
+                            </td>
+                            <td>
                                 <div class="circular-my-actions booking-action-group">
-                                    <?php if ($show_share_action) : ?>
-                                        <?php if ($share_url !== '') : ?>
-                                            <button
-                                                class="booking-action-btn secondary"
-                                                type="button"
-                                                data-order-share-copy="<?= h($share_url) ?>"
-                                                title="คัดลอกลิงก์"
+                                    <?php if ($show_share_action): ?>
+                                        <?php if ($share_url !== ''): ?>
+                                            <button class="booking-action-btn secondary" type="button"
+                                                data-order-share-copy="<?= h($share_url) ?>" title="คัดลอกลิงก์"
                                                 aria-label="คัดลอกลิงก์">
                                                 <i class="fa-solid fa-copy"></i>
                                                 <span class="tooltip">คัดลอกลิงก์</span>
                                             </button>
-                                        <?php else : ?>
+                                        <?php else: ?>
                                             <form method="POST">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="order_action" value="share">
                                                 <input type="hidden" name="send_order_id" value="<?= h((string) $order_id) ?>">
-                                                <button
-                                                    class="booking-action-btn secondary"
-                                                    type="submit"
+                                                <button class="booking-action-btn secondary" type="submit"
                                                     data-confirm="ยืนยันการสร้างลิงก์สาธารณะสำหรับแชร์คำสั่งราชการนี้ใช่หรือไม่?"
-                                                    data-confirm-title="ยืนยันการสร้างลิงก์"
-                                                    data-confirm-ok="ยืนยัน"
-                                                    data-confirm-cancel="ยกเลิก"
-                                                    title="สร้างลิงก์"
-                                                    aria-label="สร้างลิงก์">
+                                                    data-confirm-title="ยืนยันการสร้างลิงก์" data-confirm-ok="ยืนยัน"
+                                                    data-confirm-cancel="ยกเลิก" title="สร้างลิงก์" aria-label="สร้างลิงก์">
                                                     <i class="fa-solid fa-link"></i>
                                                     <span class="tooltip">สร้างลิงก์</span>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
                                     <?php endif; ?>
-                                    <?php if ($show_attach_action) : ?>
-                                        <button
-                                            class="booking-action-btn secondary js-open-order-edit-modal"
-                                            type="button"
+                                    <?php if ($show_attach_action): ?>
+                                        <button class="booking-action-btn secondary js-open-order-edit-modal" type="button"
                                             data-order-id="<?= h((string) $order_id) ?>"
                                             data-order-no="<?= h($order_no !== '' ? $order_no : '-') ?>"
                                             data-order-subject="<?= h((string) ($item['subject'] ?? '-')) ?>"
@@ -1289,51 +1252,26 @@ ob_start();
                                             data-order-effective-date-raw="<?= h($effective_date_raw) ?>"
                                             data-order-group="<?= h($group_name !== '' ? $group_name : '-') ?>"
                                             data-order-group-fid="<?= h($group_fid_for_modal) ?>"
-                                            data-order-files="<?= h($order_existing_files_json) ?>"
-                                            title="ดู/แนบไฟล์"
+                                            data-order-files="<?= h($order_existing_files_json) ?>" title="ดู/แนบไฟล์"
                                             aria-label="ดู/แนบไฟล์">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                             <span class="tooltip">ดู/แนบไฟล์</span>
                                         </button>
                                     <?php endif; ?>
-                                    <?php if ($show_send_action) : ?>
-                                        <button
-                                            class="booking-action-btn secondary js-open-order-send-modal"
-                                            type="button"
+                                    <?php if ($show_send_action): ?>
+                                        <button class="booking-action-btn secondary js-open-order-send-modal" type="button"
                                             data-order-id="<?= h((string) $order_id) ?>">
                                             <i class="fa-solid fa-paper-plane"></i>
                                             <span class="tooltip">ส่งคำสั่งต่อ</span>
                                         </button>
                                     <?php endif; ?>
-                                    <?php if ($show_recipients_action) : ?>
-                                        <button
-                                            class="booking-action-btn secondary js-open-order-send-modal"
-                                            type="button"
+                                    <?php if ($show_recipients_action): ?>
+                                        <button class="booking-action-btn secondary js-open-order-send-modal" type="button"
                                             data-order-id="<?= h((string) $order_id) ?>">
                                             <i class="fa-solid fa-eye"></i>
                                             <span class="tooltip">ผู้รับเอกสาร</span>
                                         </button>
                                     <?php endif; ?>
-                                </div>
-                            </td>
-                            <td>
-                                <?php if ($order_no !== '') : ?>
-                                    <div class="circular-my-subject">คำสั่งที่ <?= h($order_no) ?></div>
-                                    <div class="circular-my-meta"><?= h((string) ($item['subject'] ?? '-')) ?></div>
-                                <?php else : ?>
-                                    <div class="circular-my-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <span class="status-pill <?= h((string) ($status_meta['pill'] ?? 'pending')) ?>"><?= h((string) ($status_meta['label'] ?? '-')) ?></span>
-                                <?php if ($show_recipients_action) : ?>
-                                    <p class="viewer">อ่านแล้ว <?= h((string) $read_done_for_row) ?> จาก <?= h((string) $read_total_for_row) ?> คน</p>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="order-create-datetime">
-                                    <span class="order-create-datetime-date"><?= h($date_display_date) ?></span>
-                                    <span class="order-create-datetime-time"><?= h($date_display_time) ?></span>
                                 </div>
                             </td>
                         </tr>
@@ -1407,7 +1345,8 @@ ob_start();
 
                 <div class="orders-send-modal-shell orders-send-card">
                     <div id="modalOrderSendFormSection">
-                        <form method="POST" action="orders-create.php" class="orders-send-form" id="modalOrderSendMainForm">
+                        <form method="POST" action="orders-create.php" class="orders-send-form"
+                            id="modalOrderSendMainForm">
                             <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
                             <input type="hidden" name="order_action" value="send">
                             <input type="hidden" name="send_order_id" id="modalOrderSendMainOrderId" value="">
@@ -1416,7 +1355,8 @@ ob_start();
                                 <label>ส่งถึง :</label>
                                 <div class="dropdown-container">
                                     <div class="search-input-wrapper" id="orderSendRecipientToggle">
-                                        <input type="text" id="orderSendMainInput" class="search-input" placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
+                                        <input type="text" id="orderSendMainInput" class="search-input"
+                                            placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
                                         <i class="fa-solid fa-chevron-down"></i>
                                     </div>
 
@@ -1428,13 +1368,13 @@ ob_start();
                                         </div>
 
                                         <div class="dropdown-list">
-                                            <?php if (!empty($send_faction_groups)) : ?>
+                                            <?php if (!empty($send_faction_groups)): ?>
                                                 <div class="category-group">
                                                     <div class="category-title">
                                                         <span>หน่วยงาน</span>
                                                     </div>
                                                     <div class="category-items">
-                                                        <?php foreach ($send_faction_groups as $faction_group) : ?>
+                                                        <?php foreach ($send_faction_groups as $faction_group): ?>
                                                             <?php
                                                             $faction_id = (string) ($faction_group['id'] ?? '');
                                                             $faction_name = trim((string) ($faction_group['name'] ?? ''));
@@ -1460,36 +1400,40 @@ ob_start();
                                                             $group_checked = $send_is_selected($faction_id, $selected_send_faction_ids);
                                                             $expanded_by_default = $group_checked || $has_selected_member;
                                                             ?>
-                                                            <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>" data-faction-id="<?= h($faction_id) ?>">
+                                                            <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>"
+                                                                data-faction-id="<?= h($faction_id) ?>">
                                                                 <div class="group-header">
                                                                     <label class="item-main">
-                                                                        <input
-                                                                            type="checkbox"
+                                                                        <input type="checkbox"
                                                                             class="item-checkbox group-item-checkbox faction-item-checkbox"
                                                                             data-group="faction"
                                                                             data-group-key="faction-<?= h($faction_id) ?>"
                                                                             data-group-label="<?= h($faction_name) ?>"
                                                                             data-members="<?= h($faction_members_json) ?>"
                                                                             data-member-pids="<?= h($faction_member_pids_attr) ?>"
-                                                                            data-recipient-option="faction"
-                                                                            name="faction_ids[]"
-                                                                            value="<?= h($faction_id) ?>"
-                                                                            <?= $group_checked ? 'checked' : '' ?>>
+                                                                            data-recipient-option="faction" name="faction_ids[]"
+                                                                            value="<?= h($faction_id) ?>" <?= $group_checked ? 'checked' : '' ?>>
                                                                         <span class="item-title"><?= h($faction_name) ?></span>
-                                                                        <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) count($faction_members)) ?> คน</small>
+                                                                        <small class="item-subtext">สมาชิกทั้งหมด
+                                                                            <?= h((string) count($faction_members)) ?>
+                                                                            คน</small>
                                                                     </label>
-                                                                    <button type="button" class="group-toggle" aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
-                                                                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                                                    <button type="button" class="group-toggle"
+                                                                        aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>"
+                                                                        title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                        <i class="fa-solid fa-chevron-down"
+                                                                            aria-hidden="true"></i>
                                                                     </button>
                                                                 </div>
 
                                                                 <ol class="member-sublist">
-                                                                    <?php if (empty($faction_members)) : ?>
+                                                                    <?php if (empty($faction_members)): ?>
                                                                         <li>
-                                                                            <span class="item-subtext">ไม่มีสมาชิกในหน่วยงานนี้</span>
+                                                                            <span
+                                                                                class="item-subtext">ไม่มีสมาชิกในหน่วยงานนี้</span>
                                                                         </li>
-                                                                    <?php else : ?>
-                                                                        <?php foreach ($faction_members as $faction_member) : ?>
+                                                                    <?php else: ?>
+                                                                        <?php foreach ($faction_members as $faction_member): ?>
                                                                             <?php
                                                                             $member_pid = trim((string) ($faction_member['pID'] ?? ''));
                                                                             $member_name = trim((string) ($faction_member['name'] ?? ''));
@@ -1505,9 +1449,7 @@ ob_start();
                                                                             ?>
                                                                             <li>
                                                                                 <label class="item member-item">
-                                                                                    <input
-                                                                                        type="checkbox"
-                                                                                        class="member-checkbox"
+                                                                                    <input type="checkbox" class="member-checkbox"
                                                                                         data-member-group-key="faction-<?= h($faction_id) ?>"
                                                                                         data-member-name="<?= h($member_name) ?>"
                                                                                         data-group-label="<?= h($faction_name) ?>"
@@ -1518,7 +1460,8 @@ ob_start();
                                                                                         name="person_ids[]"
                                                                                         value="<?= h($member_pid) ?>"
                                                                                         <?= $send_is_selected($member_pid, $selected_send_person_ids) ? 'checked' : '' ?>>
-                                                                                    <span class="member-name"><?= h($member_name) ?></span>
+                                                                                    <span
+                                                                                        class="member-name"><?= h($member_name) ?></span>
                                                                                 </label>
                                                                             </li>
                                                                         <?php endforeach; ?>
@@ -1530,13 +1473,13 @@ ob_start();
                                                 </div>
                                             <?php endif; ?>
 
-                                            <?php if (!empty($send_department_groups)) : ?>
+                                            <?php if (!empty($send_department_groups)): ?>
                                                 <div class="category-group">
                                                     <div class="category-title">
                                                         <span>กลุ่มสาระ</span>
                                                     </div>
                                                     <div class="category-items">
-                                                        <?php foreach ($send_department_groups as $department_group) : ?>
+                                                        <?php foreach ($send_department_groups as $department_group): ?>
                                                             <?php
                                                             $department_id = (int) ($department_group['id'] ?? 0);
                                                             $department_name = trim((string) ($department_group['name'] ?? ''));
@@ -1561,11 +1504,11 @@ ob_start();
 
                                                             $department_group_key = 'department-' . $department_id;
                                                             ?>
-                                                            <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
+                                                            <div
+                                                                class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
                                                                 <div class="group-header">
                                                                     <label class="item-main">
-                                                                        <input
-                                                                            type="checkbox"
+                                                                        <input type="checkbox"
                                                                             class="item-checkbox group-item-checkbox department-item-checkbox"
                                                                             data-group="department"
                                                                             data-group-key="<?= h($department_group_key) ?>"
@@ -1575,16 +1518,22 @@ ob_start();
                                                                             data-recipient-option="department"
                                                                             value="<?= h($department_group_key) ?>"
                                                                             <?= $has_selected_member ? 'checked' : '' ?>>
-                                                                        <span class="item-title"><?= h($department_name) ?></span>
-                                                                        <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) count($department_members)) ?> คน</small>
+                                                                        <span
+                                                                            class="item-title"><?= h($department_name) ?></span>
+                                                                        <small class="item-subtext">สมาชิกทั้งหมด
+                                                                            <?= h((string) count($department_members)) ?>
+                                                                            คน</small>
                                                                     </label>
-                                                                    <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
-                                                                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                                                    <button type="button" class="group-toggle"
+                                                                        aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>"
+                                                                        title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                        <i class="fa-solid fa-chevron-down"
+                                                                            aria-hidden="true"></i>
                                                                     </button>
                                                                 </div>
 
                                                                 <ol class="member-sublist">
-                                                                    <?php foreach ($department_members as $department_member) : ?>
+                                                                    <?php foreach ($department_members as $department_member): ?>
                                                                         <?php
                                                                         $member_pid = trim((string) ($department_member['pID'] ?? ''));
                                                                         $member_name = trim((string) ($department_member['name'] ?? ''));
@@ -1600,9 +1549,7 @@ ob_start();
                                                                         ?>
                                                                         <li>
                                                                             <label class="item member-item">
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    class="member-checkbox"
+                                                                                <input type="checkbox" class="member-checkbox"
                                                                                     data-member-group-key="<?= h($department_group_key) ?>"
                                                                                     data-member-name="<?= h($member_name) ?>"
                                                                                     data-group-label="<?= h($department_name) ?>"
@@ -1613,7 +1560,8 @@ ob_start();
                                                                                     name="person_ids[]"
                                                                                     value="<?= h($member_pid) ?>"
                                                                                     <?= $send_is_selected($member_pid, $selected_send_person_ids) ? 'checked' : '' ?>>
-                                                                                <span class="member-name"><?= h($member_name) ?></span>
+                                                                                <span
+                                                                                    class="member-name"><?= h($member_name) ?></span>
                                                                             </label>
                                                                         </li>
                                                                     <?php endforeach; ?>
@@ -1624,13 +1572,13 @@ ob_start();
                                                 </div>
                                             <?php endif; ?>
 
-                                            <?php if (!empty($send_special_groups)) : ?>
+                                            <?php if (!empty($send_special_groups)): ?>
                                                 <div class="category-group">
                                                     <div class="category-title">
                                                         <span>อื่นๆ</span>
                                                     </div>
                                                     <div class="category-items">
-                                                        <?php foreach ($send_special_groups as $special_group) : ?>
+                                                        <?php foreach ($send_special_groups as $special_group): ?>
                                                             <?php
                                                             $special_group_key = trim((string) ($special_group['key'] ?? ''));
                                                             $special_group_name = trim((string) ($special_group['name'] ?? ''));
@@ -1653,11 +1601,11 @@ ob_start();
                                                                 }
                                                             }
                                                             ?>
-                                                            <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
+                                                            <div
+                                                                class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
                                                                 <div class="group-header">
                                                                     <label class="item-main">
-                                                                        <input
-                                                                            type="checkbox"
+                                                                        <input type="checkbox"
                                                                             class="item-checkbox group-item-checkbox"
                                                                             data-group="special"
                                                                             data-group-key="<?= h($special_group_key) ?>"
@@ -1667,16 +1615,22 @@ ob_start();
                                                                             data-recipient-option="special"
                                                                             value="<?= h($special_group_key) ?>"
                                                                             <?= $has_selected_member ? 'checked' : '' ?>>
-                                                                        <span class="item-title"><?= h($special_group_name) ?></span>
-                                                                        <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) count($special_members)) ?> คน</small>
+                                                                        <span
+                                                                            class="item-title"><?= h($special_group_name) ?></span>
+                                                                        <small class="item-subtext">สมาชิกทั้งหมด
+                                                                            <?= h((string) count($special_members)) ?>
+                                                                            คน</small>
                                                                     </label>
-                                                                    <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
-                                                                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                                                    <button type="button" class="group-toggle"
+                                                                        aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>"
+                                                                        title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                        <i class="fa-solid fa-chevron-down"
+                                                                            aria-hidden="true"></i>
                                                                     </button>
                                                                 </div>
 
                                                                 <ol class="member-sublist">
-                                                                    <?php foreach ($special_members as $special_member) : ?>
+                                                                    <?php foreach ($special_members as $special_member): ?>
                                                                         <?php
                                                                         $member_pid = trim((string) ($special_member['pID'] ?? ''));
                                                                         $member_name = trim((string) ($special_member['name'] ?? ''));
@@ -1689,9 +1643,7 @@ ob_start();
                                                                         ?>
                                                                         <li>
                                                                             <label class="item member-item">
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    class="member-checkbox"
+                                                                                <input type="checkbox" class="member-checkbox"
                                                                                     data-member-group-key="<?= h($special_group_key) ?>"
                                                                                     data-member-name="<?= h($member_name) ?>"
                                                                                     data-group-label="<?= h($special_group_name) ?>"
@@ -1702,7 +1654,8 @@ ob_start();
                                                                                     name="person_ids[]"
                                                                                     value="<?= h($member_pid) ?>"
                                                                                     <?= $send_is_selected($member_pid, $selected_send_person_ids) ? 'checked' : '' ?>>
-                                                                                <span class="member-name"><?= h($member_name) ?></span>
+                                                                                <span
+                                                                                    class="member-name"><?= h($member_name) ?></span>
                                                                             </label>
                                                                         </li>
                                                                     <?php endforeach; ?>
@@ -1747,13 +1700,9 @@ ob_start();
             </div>
 
             <div class="footer-modal">
-                <button
-                    type="submit"
-                    form="modalOrderSendMainForm"
-                    id="modalOrderSendSubmitBtn"
+                <button type="submit" form="modalOrderSendMainForm" id="modalOrderSendSubmitBtn"
                     data-confirm="ยืนยันการส่งคำสั่งราชการต่อตามรายชื่อผู้รับที่เลือกใช่หรือไม่?"
-                    data-confirm-title="ยืนยันการส่งคำสั่งราชการต่อ"
-                    data-confirm-ok="ยืนยัน"
+                    data-confirm-title="ยืนยันการส่งคำสั่งราชการต่อ" data-confirm-ok="ยืนยัน"
                     data-confirm-cancel="ยกเลิก">
                     <p>ส่งคำสั่งต่อ</p>
                 </button>
@@ -1905,7 +1854,8 @@ ob_start();
                         </div>
                         <div class="more-details">
                             <p><strong>เรื่อง</strong></p>
-                            <input type="text" id="modalOrderSubject" name="subject" placeholder="ระบุหัวข้อคำสั่ง" maxlength="300" required>
+                            <input type="text" id="modalOrderSubject" name="subject" placeholder="ระบุหัวข้อคำสั่ง"
+                                maxlength="300" required>
                         </div>
                     </div>
 
@@ -1929,20 +1879,23 @@ ob_start();
                             <p><strong>กลุ่ม</strong></p>
                             <div class="custom-select-wrapper" id="modalOrderGroupWrapper">
                                 <div class="custom-select-trigger">
-                                    <p class="select-value"><?= h($selected_group_name !== '' ? $selected_group_name : 'เลือกกลุ่ม') ?></p>
+                                    <p class="select-value">
+                                        <?= h($selected_group_name !== '' ? $selected_group_name : 'เลือกกลุ่ม') ?></p>
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </div>
 
                                 <div class="custom-options">
                                     <?php foreach ($faction_options as $fid => $name): ?>
                                         <?php $modal_group_fid = (string) $fid; ?>
-                                        <div class="custom-option<?= $modal_group_fid === $selected_group_fid ? ' selected' : '' ?>" data-value="<?= h($modal_group_fid) ?>">
+                                        <div class="custom-option<?= $modal_group_fid === $selected_group_fid ? ' selected' : '' ?>"
+                                            data-value="<?= h($modal_group_fid) ?>">
                                             <?= h((string) $name) ?>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
 
-                                <input type="hidden" id="modalOrderGroupFid" name="group_fid" value="<?= h($selected_group_fid) ?>">
+                                <input type="hidden" id="modalOrderGroupFid" name="group_fid"
+                                    value="<?= h($selected_group_fid) ?>">
                             </div>
                         </div>
                     </div>
@@ -1952,13 +1905,8 @@ ob_start();
 
                         <label>อัปโหลดไฟล์เอกสาร</label>
                         <section class="upload-layout">
-                            <input
-                                type="file"
-                                id="fileInput_modal"
-                                name="attachments[]"
-                                multiple
-                                accept="application/pdf,image/png,image/jpeg"
-                                style="display: none;">
+                            <input type="file" id="fileInput_modal" name="attachments[]" multiple
+                                accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" style="display: none;">
 
                             <div class="upload-box" id="dropzone_modal">
                                 <i class="fa-solid fa-upload"></i>
@@ -1979,7 +1927,7 @@ ob_start();
                                 <p>เพิ่มไฟล์</p>
                             </button>
                             <div class="file-hint">
-                                <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) *</p>
+                                <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PDF, PNG, JPG, ZIP, RAR) *</p>
                             </div>
                         </div>
 
@@ -1989,9 +1937,7 @@ ob_start();
 
 
             <div class="footer-modal">
-                <button
-                    type="submit"
-                    form="modalOrderEditForm">
+                <button type="submit" form="modalOrderEditForm">
                     <p>บันทึกการแก้ไข</p>
                 </button>
             </div>
@@ -2016,10 +1962,18 @@ ob_start();
             const previewImage = document.getElementById("previewImage");
             const previewCaption = document.getElementById("previewCaption");
             const closePreviewBtn = document.getElementById("closePreviewBtn");
-            const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+            const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "application/zip", "application/x-zip-compressed", "application/x-rar-compressed", "application/x-rar", "application/vnd.rar"];
+            const allowedExtensions = ["pdf", "jpg", "jpeg", "png", "zip", "rar"];
             let selectedFiles = [];
 
             if (!fileInput) return null;
+
+            const isAllowedFile = (file) => {
+                const mimeType = String(file?.type || "").toLowerCase();
+                const extension = String(file?.name || "").toLowerCase().split(".").pop() || "";
+
+                return allowedTypes.includes(mimeType) || allowedExtensions.includes(extension);
+            };
 
             const renderFiles = () => {
                 if (!fileList) return;
@@ -2067,9 +2021,11 @@ ob_start();
 
                     const icon = document.createElement("div");
                     icon.className = "file-icon";
-                    icon.innerHTML = file.type === "application/pdf" ?
+                    const mimeType = String(file.type || "").toLowerCase();
+                    const extension = String(file.name || "").toLowerCase().split(".").pop() || "";
+                    icon.innerHTML = mimeType === "application/pdf" || extension === "pdf" ?
                         '<i class="fa-solid fa-file-pdf"></i>' :
-                        '<i class="fa-solid fa-file-image"></i>';
+                        (mimeType.startsWith("image/") || ["jpg", "jpeg", "png"].includes(extension) ? '<i class="fa-solid fa-file-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                     const text = document.createElement("div");
                     text.className = "file-text";
@@ -2161,7 +2117,7 @@ ob_start();
 
                     const key = `${file.name}-${file.size}-${file.lastModified}`;
                     if (existing.has(key)) return;
-                    if (!allowedTypes.includes(file.type)) return;
+                    if (!isAllowedFile(file)) return;
 
                     selectedFiles.push(file);
                     existing.add(key);
@@ -2629,9 +2585,10 @@ ob_start();
                 const fileName = escapeHtml(String(file?.fileName || '-'));
                 const mimeType = escapeHtml(String(file?.mimeType || 'ไฟล์แนบ'));
                 const viewHref = `public/api/file-download.php?module=orders&entity_id=${safeOrderId}&file_id=${fileId}`;
-                const iconHtml = String(file?.mimeType || '').toLowerCase() === 'application/pdf' ?
+                const mimeLower = String(file?.mimeType || '').toLowerCase();
+                const iconHtml = mimeLower === 'application/pdf' ?
                     '<i class="fa-solid fa-file-pdf"></i>' :
-                    '<i class="fa-solid fa-image"></i>';
+                    (mimeLower.startsWith('image/') ? '<i class="fa-solid fa-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                 return `<div class="file-banner">
                     <div class="file-info">
@@ -2676,9 +2633,10 @@ ob_start();
                 const fileName = escapeHtml(String(file.fileName || '-'));
                 const mimeType = escapeHtml(String(file.mimeType || 'ไฟล์แนบ'));
                 const viewHref = `public/api/file-download.php?module=orders&entity_id=${safeOrderId}&file_id=${fileId}`;
-                const iconHtml = String(file.mimeType || '').toLowerCase() === 'application/pdf' ?
+                const mimeLower = String(file.mimeType || '').toLowerCase();
+                const iconHtml = mimeLower === 'application/pdf' ?
                     '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                    '<i class="fa-solid fa-file-image" aria-hidden="true"></i>';
+                    (mimeLower.startsWith('image/') ? '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' : '<i class="fa-solid fa-file" aria-hidden="true"></i>');
 
                 return `<div class="file-item-wrapper" id="existing-file-${fileId}">
                     <button type="button" class="delete-btn js-delete-existing" data-file-id="${fileId}" title="ลบไฟล์">
@@ -3437,44 +3395,6 @@ ob_start();
                 }, 0);
             }
         }, true);
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.querySelector('.table-circular-notice-index');
-
-        if (!slider) return;
-
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true;
-            slider.classList.add('is-dragging');
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        });
-
-        slider.addEventListener('mouseleave', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mouseup', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-
-            e.preventDefault();
-
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.5;
-
-            slider.scrollLeft = scrollLeft - walk;
-        });
     });
 </script>
 

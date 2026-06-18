@@ -124,6 +124,72 @@ $created_at = trim((string) ($item['createdAt'] ?? ''));
 <html lang="th">
 <?php require __DIR__ . '/../../../public/components/x-head.php'; ?>
 
+<style>
+    .booking-table thead th:first-child {
+        text-align: start;
+        width: 500px;
+        min-width: 500px;
+        max-width: 500px;
+    }
+
+    .booking-table thead th:last-child {
+        width: 180px;
+        min-width: 180px;
+        max-width: 180px;
+    }
+
+    .booking-table {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        cursor: grab;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-secondary-light) transparent;
+        border-radius: 12px;
+        border: 0.5px solid var(--color-neutral-dark);
+    }
+
+    .table-responsive.is-dragging {
+        cursor: grabbing;
+    }
+
+    .table-responsive.is-dragging table {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    @media screen and (max-width: 1024px) {
+        .booking-table thead th:first-child {
+            width: 100%;
+            min-width: 400px;
+        }
+
+        .booking-table thead th:last-child {
+            width: 160px;
+            min-width: 160px;
+            max-width: 160px;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .booking-table thead th:first-child {
+            width: 100%;
+            min-width: 400px;
+        }
+
+        .booking-table thead th:last-child {
+            width: 140px;
+            min-width: 140px;
+            max-width: 140px;
+        }
+    }
+</style>
+
 <body class="orders-sharing-public">
     <main class="orders-sharing-shell">
         <div class="content-header">
@@ -213,5 +279,45 @@ $created_at = trim((string) ($item['createdAt'] ?? ''));
         </main>
     </main>
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.querySelector('.table-responsive');
+
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('is-dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    });
+</script>
 
 </html>

@@ -49,7 +49,7 @@ ob_start();
     }
 
     .sec-header {
-        display: flex;
+        display:flex;
         align-items: center;
         gap: 20px;
     }
@@ -58,105 +58,6 @@ ob_start();
         text-align: start;
         max-width: 450px;
         text-wrap: inherit;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .table-circular-notice-index table tbody td:nth-child(1),
-    .table-circular-notice-index table tbody td:nth-child(3) {
-        text-align: center !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .table-circular-notice-index table tbody td:nth-child(2),
-    .table-circular-notice-index table thead th:nth-child(5),
-    .table-circular-notice-index table tbody td:nth-child(5) {
-        text-align: start !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .booking-table td:nth-child(1) {
-        width: 140px !important;
-        min-width: 140px !important;
-        max-width: 140px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .booking-table td:nth-child(2) {
-        width: 200px !important;
-        min-width: 200px !important;
-        max-width: 200px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(3),
-    .booking-table td:nth-child(3) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(4),
-    .booking-table td:nth-child(4) {
-        width: 500px !important;
-        min-width: 500px !important;
-        max-width: 500px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(5),
-    .booking-table td:nth-child(5) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-    }
-
-    @media screen and (max-width: 1024px) {
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .table-circular-notice-index table tbody td:nth-child(1),
-        .table-circular-notice-index table tbody td:nth-child(3) {
-            text-align: center !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .table-circular-notice-index table tbody td:nth-child(2),
-        .table-circular-notice-index table thead th:nth-child(5),
-        .table-circular-notice-index table tbody td:nth-child(5) {
-            text-align: start !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .booking-table td:nth-child(1) {
-            width: 120px !important;
-            min-width: 120px !important;
-            max-width: 120px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .booking-table td:nth-child(2) {
-            width: 180px !important;
-            min-width: 180px !important;
-            max-width: 180px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(3),
-        .booking-table td:nth-child(3) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(4),
-        .booking-table td:nth-child(4) {
-            width: 500px !important;
-            min-width: 500px !important;
-            max-width: 500px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(5),
-        .booking-table td:nth-child(5) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
-        }
     }
 </style>
 
@@ -381,7 +282,7 @@ ob_start();
                     </button>
                 </div>
                 <input type="file" id="attachment" name="attachments[]" class="file-input" multiple
-                    accept=".pdf,image/png,image/jpeg" hidden>
+                    accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" hidden>
                 <p class="form-error hidden" id="attachmentError">แนบได้สูงสุด 5 ไฟล์</p>
             </div>
 
@@ -400,15 +301,15 @@ ob_start();
     </form>
 
     <div class="vehicle-history tab-content" id="vehicleHistory">
-        <div class="table-responsive table-circular-notice-index">
+        <div class="table-responsive">
             <table class="custom-table booking-table vehicle-booking-history-table">
                 <thead>
                     <tr>
-                        <th>จัดการ</th>
                         <th>ช่วงเวลาใช้งาน</th>
                         <th>สถานะ</th>
                         <th>วัตถุประสงค์</th>
                         <th>อัปเดตล่าสุด</th>
+                        <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -474,6 +375,20 @@ ob_start();
                             ?>
                             <tr>
                                 <td>
+                                    <?= htmlspecialchars($date_range, ENT_QUOTES, 'UTF-8') ?><br>
+                                    <span class="detail-subtext"><?= htmlspecialchars($time_range, ENT_QUOTES, 'UTF-8') ?></span>
+                                </td>
+                                <td>
+                                    <span class="status-pill <?= htmlspecialchars($status_class, ENT_QUOTES, 'UTF-8') ?>">
+                                        <?= htmlspecialchars($status_label, ENT_QUOTES, 'UTF-8') ?>
+                                    </span>
+                                </td>
+                                <td><?= htmlspecialchars($purpose_text, ENT_QUOTES, 'UTF-8') ?></td>
+                                <td>
+                                    <?= htmlspecialchars($updated_date_label, ENT_QUOTES, 'UTF-8') ?><br>
+                                    <span class="detail-subtext"><?= htmlspecialchars($updated_time_label, ENT_QUOTES, 'UTF-8') ?></span>
+                                </td>
+                                <td>
                                     <button type="button" class="booking-action-btn secondary" data-vehicle-approval-action="detail"
                                         data-vehicle-booking-action="detail"
                                         data-vehicle-booking-id="<?= htmlspecialchars((string) ($booking['bookingID'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -488,20 +403,6 @@ ob_start();
                                             <span class="tooltip">ดูเอกสาร PDF</span>
                                         </a>
                                     <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?= htmlspecialchars($date_range, ENT_QUOTES, 'UTF-8') ?><br>
-                                    <span class="detail-subtext"><?= htmlspecialchars($time_range, ENT_QUOTES, 'UTF-8') ?></span>
-                                </td>
-                                <td>
-                                    <span class="status-pill <?= htmlspecialchars($status_class, ENT_QUOTES, 'UTF-8') ?>">
-                                        <?= htmlspecialchars($status_label, ENT_QUOTES, 'UTF-8') ?>
-                                    </span>
-                                </td>
-                                <td><?= htmlspecialchars($purpose_text, ENT_QUOTES, 'UTF-8') ?></td>
-                                <td>
-                                    <?= htmlspecialchars($updated_date_label, ENT_QUOTES, 'UTF-8') ?><br>
-                                    <span class="detail-subtext"><?= htmlspecialchars($updated_time_label, ENT_QUOTES, 'UTF-8') ?></span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -1187,44 +1088,6 @@ ob_start();
                 }
             });
         }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.querySelector('.table-circular-notice-index');
-
-        if (!slider) return;
-
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true;
-            slider.classList.add('is-dragging');
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        });
-
-        slider.addEventListener('mouseleave', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mouseup', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-
-            e.preventDefault();
-
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.5;
-
-            slider.scrollLeft = scrollLeft - walk;
-        });
     });
 </script>
 

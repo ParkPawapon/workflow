@@ -4,6 +4,7 @@ require_once __DIR__ . '/src/Services/auth/auth-guard.php';
 <!DOCTYPE html>
 <html lang="th">
 <?php require_once __DIR__ . '/public/components/x-head.php'; ?>
+
 <body>
     <?php require_once __DIR__ . '/public/components/layout/preloader.php'; ?>
     <?php require_once __DIR__ . '/public/components/partials/x-sidebar.php'; ?>
@@ -30,4 +31,5 @@ require_once __DIR__ . '/src/Services/auth/auth-guard.php';
 
     <?php require_once __DIR__ . '/public/components/x-scripts.php'; ?>
 </body>
+
 </html>

@@ -160,19 +160,9 @@ ob_start();
     .orders-send-modal-shell {
         display: none;
     }
+
     .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec {
         border-bottom: none
-    }
-    .table-circular-notice-keep table thead th:nth-child(1) {
-        min-width: 150px;
-    }
-
-    .table-circular-notice-keep table thead th:nth-child(2) {
-        min-width: 160px;
-    }
-
-    .table-circular-notice-keep table thead th:nth-child(3) {
-        min-width: 120px;
     }
 
     .circular-track-modal-host {
@@ -184,96 +174,116 @@ ob_start();
         background: transparent;
     }
 
-    .table-circular-notice-keep table thead th:nth-child(1),
-    .table-circular-notice-keep table tbody td:nth-child(1) {
-        text-align: center !important;
+
+    .table-circular-notice-keep table thead th:nth-child(1) {
+        min-width: 500px !important;
+        max-width: 500px !important;
     }
 
-    .table-circular-notice-keep table thead th:nth-child(4),
-    .table-circular-notice-keep table tbody td:nth-child(4) {
-        text-align: start !important;
+    .table-circular-notice-keep table thead th:nth-child(2) {
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(1),
-    .booking-table td:nth-child(1) {
-        width: 80px !important;
-        min-width: 80px !important;
-        max-width: 80px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .booking-table td:nth-child(2) {
-        width: 650px !important;
-        min-width: 650px !important;
-        max-width: 650px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(3),
-    .booking-table td:nth-child(3) {
-        width: 190px !important;
-        min-width: 190px !important;
-        max-width: 190px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(4),
-    .booking-table td:nth-child(4) {
+    .table-circular-notice-keep table thead th:nth-child(3) {
         width: 160px !important;
         min-width: 160px !important;
         max-width: 160px !important;
     }
 
-    .table-circular-notice-index table thead th:nth-child(5),
-    .booking-table td:nth-child(5) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
+    .table-circular-notice-keep table thead th:nth-child(4) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-height: 140px !important;
     }
 
-    @media screen and (max-width: 1024px) {
+    .table-circular-notice-keep table thead th:nth-child(5) {
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
+    }
 
-        .table-circular-notice-keep table thead th:nth-child(1),
-        .table-circular-notice-keep table tbody td:nth-child(1) {
-            text-align: center !important;
+    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-topic-sec:nth-child(2),
+    .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-topic-sec:nth-child(3) {
+        border-bottom: none !important;
+    }
+
+    @media screen and (min-width: 769px) and (max-width: 1023px) {
+        .table-circular-notice-keep table thead th:nth-child(1) {
+            min-width: 500px !important;
+            max-width: 500px !important;
         }
 
-        .table-circular-notice-keep table thead th:nth-child(4),
-        .table-circular-notice-keep table tbody td:nth-child(4) {
-            text-align: start !important;
+        .table-circular-notice-keep table thead th:nth-child(2) {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(1),
-        .booking-table td:nth-child(1) {
-            width: 60px !important;
-            min-width: 60px !important;
-            max-width: 60px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .booking-table td:nth-child(2) {
-            width: 600px !important;
-            min-width: 600px !important;
-            max-width: 600px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(3),
-        .booking-table td:nth-child(3) {
+        .table-circular-notice-keep table thead th:nth-child(3) {
             width: 160px !important;
             min-width: 160px !important;
             max-width: 160px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(4),
-        .booking-table td:nth-child(4) {
+        .table-circular-notice-keep table thead th:nth-child(4) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+
+        .table-circular-notice-keep table thead th:nth-child(5) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-section {
+            padding: 0;
+        }
+
+        .circular-track-modal-host #modalOrderViewOverlay .content-topic-sec {
+            padding: 0;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .table-circular-notice-keep table thead th:nth-child(1) {
+            min-width: 500px !important;
+            max-width: 500px !important;
+        }
+
+        .table-circular-notice-keep table thead th:nth-child(2) {
+            width: 200px !important;
+            min-width: 200px !important;
+            max-width: 200px !important;
+        }
+
+        .table-circular-notice-keep table thead th:nth-child(3) {
             width: 140px !important;
             min-width: 140px !important;
             max-width: 140px !important;
         }
 
-        .table-circular-notice-index table thead th:nth-child(5),
-        .booking-table td:nth-child(5) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
+        .table-circular-notice-keep table thead th:nth-child(4) {
+            width: 100px !important;
+            min-width: 100px !important;
+            max-height: 100px !important;
+        }
+
+        .table-circular-notice-keep table thead th:nth-child(5) {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+        }
+
+        .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content .content-modal .content-file-sec .file-section {
+            padding: 0;
+        }
+
+        .circular-track-modal-host #modalOrderViewOverlay .content-topic-sec {
+            padding: 0;
         }
     }
 </style>
@@ -299,11 +309,13 @@ ob_start();
                 </div>
 
                 <div class="custom-options">
-                    <?php foreach ($dh_year_options as $year_option) : ?>
-                        <div class="custom-option<?= $selected_dh_year === (int) $year_option ? ' selected' : '' ?>" data-value="<?= h((string) $year_option) ?>"><?= h((string) $year_option) ?></div>
+                    <?php foreach ($dh_year_options as $year_option): ?>
+                        <div class="custom-option<?= $selected_dh_year === (int) $year_option ? ' selected' : '' ?>"
+                            data-value="<?= h((string) $year_option) ?>"><?= h((string) $year_option) ?></div>
                     <?php endforeach; ?>
                 </div>
-                <input type="hidden" name="dh_year" id="orderArchiveYearInput" value="<?= h((string) $selected_dh_year) ?>" form="orderArchiveFilterForm">
+                <input type="hidden" name="dh_year" id="orderArchiveYearInput"
+                    value="<?= h((string) $selected_dh_year) ?>" form="orderArchiveFilterForm">
             </div>
         </div>
 
@@ -317,11 +329,13 @@ ob_start();
                 </div>
 
                 <div class="custom-options">
-                    <?php foreach ($status_options as $option_value => $option_label) : ?>
-                        <div class="custom-option<?= $status_filter === $option_value ? ' selected' : '' ?>" data-value="<?= h($option_value) ?>"><?= h($option_label) ?></div>
+                    <?php foreach ($status_options as $option_value => $option_label): ?>
+                        <div class="custom-option<?= $status_filter === $option_value ? ' selected' : '' ?>"
+                            data-value="<?= h($option_value) ?>"><?= h($option_label) ?></div>
                     <?php endforeach; ?>
                 </div>
-                <input type="hidden" name="status" id="orderArchiveStatusInput" value="<?= h($status_filter) ?>" form="orderArchiveFilterForm">
+                <input type="hidden" name="status" id="orderArchiveStatusInput" value="<?= h($status_filter) ?>"
+                    form="orderArchiveFilterForm">
             </div>
         </div>
 
@@ -335,11 +349,13 @@ ob_start();
                 </div>
 
                 <div class="custom-options">
-                    <?php foreach ($sort_options as $option_value => $option_label) : ?>
-                        <div class="custom-option<?= $sort === $option_value ? ' selected' : '' ?>" data-value="<?= h($option_value) ?>"><?= h($option_label) ?></div>
+                    <?php foreach ($sort_options as $option_value => $option_label): ?>
+                        <div class="custom-option<?= $sort === $option_value ? ' selected' : '' ?>"
+                            data-value="<?= h($option_value) ?>"><?= h($option_label) ?></div>
                     <?php endforeach; ?>
                 </div>
-                <input type="hidden" name="sort" id="orderArchiveSortInput" value="<?= h($sort) ?>" form="orderArchiveFilterForm">
+                <input type="hidden" name="sort" id="orderArchiveSortInput" value="<?= h($sort) ?>"
+                    form="orderArchiveFilterForm">
             </div>
         </div>
     </div>
@@ -349,34 +365,29 @@ ob_start();
     <div class="search-bar">
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input
-                type="text"
-                id="orderArchiveSearchInput"
-                name="q"
-                form="orderArchiveFilterForm"
-                value="<?= h($search) ?>"
-                placeholder="ค้นหาเลขที่คำสั่ง หรือ เรื่อง...">
+            <input type="text" id="orderArchiveSearchInput" name="q" form="orderArchiveFilterForm"
+                value="<?= h($search) ?>" placeholder="ค้นหาเลขที่คำสั่ง หรือ เรื่อง...">
         </div>
     </div>
 
-    <div class="table-circular-notice-keep table-circular-notice-index">
+    <div class="table-circular-notice-keep">
         <table>
             <thead>
                 <tr>
-                    <th>จัดการ</th>
                     <th>เรื่อง / เลขที่คำสั่ง</th>
                     <th>ผู้ส่งคำสั่ง</th>
                     <th>วันที่รับ</th>
                     <th>สถานะ</th>
+                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($items)) : ?>
+                <?php if (empty($items)): ?>
                     <tr>
                         <td colspan="5" class="enterprise-empty">ไม่พบรายการคำสั่งราชการที่จัดเก็บ</td>
                     </tr>
-                <?php else : ?>
-                    <?php foreach ($items as $item) : ?>
+                <?php else: ?>
+                    <?php foreach ($items as $item): ?>
                         <?php
                         $order_id = (int) ($item['orderID'] ?? 0);
                         $order_no = trim((string) ($item['orderNo'] ?? ''));
@@ -394,10 +405,25 @@ ob_start();
                         }
                         ?>
                         <tr>
+                            <td class="orders-inbox-topic-cell">
+                                <p class="orders-inbox-subject"><?= h($subject !== '' ? $subject : '-') ?></p>
+                                <p class="orders-inbox-order-no">เลขที่คำสั่ง
+                                    <?= h($order_no !== '' ? $order_no : ('#' . $order_id)) ?>
+                                </p>
+                            </td>
+                            <td><?= h($sender_name !== '' ? $sender_name : '-') ?></td>
+                            <td class="orders-inbox-date-cell">
+                                <p class="orders-inbox-date"><?= h($received_display['date']) ?></p>
+                                <?php if ($received_display['time'] !== ''): ?>
+                                    <p class="orders-inbox-time"><?= h($received_display['time']) ?></p>
+                                <?php endif; ?>
+                            </td>
                             <td>
-                                <button
-                                    class="booking-action-btn secondary js-open-order-view-modal"
-                                    type="button"
+                                <span
+                                    class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span>
+                            </td>
+                            <td>
+                                <button class="booking-action-btn secondary js-open-order-view-modal" type="button"
                                     data-order-id="<?= h((string) $order_id) ?>"
                                     data-order-no="<?= h($order_no !== '' ? $order_no : ('#' . $order_id)) ?>"
                                     data-order-subject="<?= h($subject !== '' ? $subject : '-') ?>"
@@ -409,20 +435,6 @@ ob_start();
                                     <i class="fa-solid fa-eye" aria-hidden="true"></i>
                                     <span class="tooltip">รายละเอียด</span>
                                 </button>
-                            </td>
-                            <td class="orders-inbox-topic-cell">
-                                <p class="orders-inbox-subject"><?= h($subject !== '' ? $subject : '-') ?></p>
-                                <p class="orders-inbox-order-no">เลขที่คำสั่ง <?= h($order_no !== '' ? $order_no : ('#' . $order_id)) ?></p>
-                            </td>
-                            <td><?= h($sender_name !== '' ? $sender_name : '-') ?></td>
-                            <td class="orders-inbox-date-cell">
-                                <p class="orders-inbox-date"><?= h($received_display['date']) ?></p>
-                                <?php if ($received_display['time'] !== '') : ?>
-                                    <p class="orders-inbox-time"><?= h($received_display['time']) ?></p>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <span class="status-badge <?= h($is_read ? 'read' : 'unread') ?>"><?= h($is_read ? 'อ่านแล้ว' : 'ยังไม่อ่าน') ?></span>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -445,33 +457,43 @@ ob_start();
                 </div>
                 <!-- <div class="content-modal">
                     <div class="content-topic-sec">
-                        <div class="more-details">
+                        <div class="more-details row-format">
                             <p><strong>คำสั่งที่</strong></p>
                             <input type="text" id="modalOrderViewNo" class="order-no-display" value="-" disabled>
                         </div>
-                        <div class="more-details">
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details row-format">
                             <p><strong>เรื่อง</strong></p>
                             <input type="text" id="modalOrderViewSubject" class="order-no-display" value="-" disabled>
                         </div>
                     </div>
 
                     <div class="content-topic-sec">
-                        <div class="more-details">
+                        <div class="more-details row-format">
                             <p><strong>ทั้งนี้ตั้งแต่วันที่</strong></p>
-                            <input type="date" id="modalOrderViewEffectiveDate" class="order-no-display" value="" disabled>
+                            <input type="date" id="modalOrderViewEffectiveDate" class="order-no-display" value=""
+                                disabled>
                         </div>
-                        <div class="more-details">
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details row-format">
                             <p><strong>สั่ง ณ วันที่</strong></p>
                             <input type="date" id="modalOrderViewDate" class="order-no-display" value="" disabled>
                         </div>
                     </div>
 
                     <div class="content-topic-sec">
-                        <div class="more-details">
+                        <div class="more-details row-format">
                             <p><strong>ผู้สร้างเลขคำสั่ง</strong></p>
                             <input type="text" id="modalOrderViewIssuer" class="order-no-display" value="-" disabled>
                         </div>
-                        <div class="more-details">
+                    </div>
+
+                    <div class="content-topic-sec">
+                        <div class="more-details row-format">
                             <p><strong>กลุ่ม</strong></p>
                             <input type="text" id="modalOrderViewGroup" class="order-no-display" value="-" disabled>
                         </div>
@@ -479,7 +501,8 @@ ob_start();
 
                     <div class="orders-send-modal-shell orders-send-card">
                         <div id="modalOrderViewFormSection">
-                            <form method="POST" action="orders-create.php" class="orders-send-form" id="modalOrderViewForm">
+                            <form method="POST" action="orders-create.php" class="orders-send-form"
+                                id="modalOrderViewForm">
                                 <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
                                 <input type="hidden" name="order_action" value="send">
                                 <input type="hidden" name="send_order_id" id="modalOrderViewOrderId" value="">
@@ -547,12 +570,60 @@ ob_start();
         </div>
     </div>
 
+    <!-- <div class="modal-overlay-circular-notice-keep" id="orderArchiveModalOverlay" style="display: none;">
+        <div class="modal-content">
+            <div class="header-modal">
+                <p>แสดงข้อความรายละเอียดคำสั่งราชการ</p>
+                <i class="fa-solid fa-xmark" id="orderArchiveModalClose"></i>
+            </div>
+
+            <div class="content-modal">
+                <div class="content-topic-sec">
+                    <p><strong>เลขที่คำสั่ง :</strong></p>
+                    <p id="orderArchiveModalOrderNo">-</p>
+                </div>
+                <div class="content-topic-sec">
+                    <p><strong>เรื่อง :</strong></p>
+                    <p id="orderArchiveModalSubject">-</p>
+                </div>
+                <div class="content-topic-sec">
+                    <p><strong>ผู้สร้างเลขคำสั่ง :</strong></p>
+                    <p id="orderArchiveModalSender">-</p>
+                </div>
+                <div class="content-topic-sec">
+                    <p><strong>วันที่รับ :</strong></p>
+                    <p id="orderArchiveModalDate">-</p>
+                </div>
+
+                <div class="content-details-sec">
+                    <p><strong>รายละเอียดเพิ่มเติม</strong></p>
+                    <p id="orderArchiveModalDetail">-</p>
+                </div>
+
+                <div class="content-file-sec">
+                    <p>ไฟล์เอกสารแนบจากระบบ</p>
+                    <div class="file-section" id="orderArchiveModalFileSection"></div>
+                </div>
+            </div>
+
+            <div class="footer-modal">
+                <form method="POST" id="orderArchiveUnarchiveForm" action="<?= h($post_action_url) ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="inbox_id" id="orderArchiveModalInboxId" value="">
+                    <input type="hidden" name="action" value="unarchive">
+                    <button type="submit">
+                        <p>ย้ายกลับ</p>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div> -->
 </section>
 
 <div class="button-circular-notice-keep"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const filterForm = document.getElementById('orderArchiveFilterForm');
         const pageInput = document.getElementById('orderArchivePageInput');
         const sectionSelector = 'section[data-orders-archive]';
@@ -591,7 +662,7 @@ ob_start();
         const applyFilter = async (options = {}) => {
             const {
                 resetPage = false,
-                    requestUrl = '',
+                requestUrl = '',
             } = options;
 
             if (!filterForm) {
@@ -865,7 +936,7 @@ ob_start();
         });
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const orderViewModal = document.getElementById('modalOrderViewOverlay');
         const closeIconOrderView = document.getElementById('closeModalOrderView');
         const orderViewFileSection = document.getElementById('modalOrderViewFileSection');
@@ -988,45 +1059,45 @@ ob_start();
                 }
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const slider = document.querySelector('.table-circular-notice-keep');
+
+            if (!slider) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.classList.add('is-dragging');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.classList.remove('is-dragging');
+            });
+
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.classList.remove('is-dragging');
+            });
+
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+
+                e.preventDefault();
+
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.5;
+
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        });
     })
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.querySelector('.table-circular-notice-index');
-
-        if (!slider) return;
-
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true;
-            slider.classList.add('is-dragging');
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        });
-
-        slider.addEventListener('mouseleave', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mouseup', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-
-            e.preventDefault();
-
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.5;
-
-            slider.scrollLeft = scrollLeft - walk;
-        });
-    });
 </script>
 
 <?php

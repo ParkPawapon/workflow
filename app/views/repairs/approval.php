@@ -352,6 +352,12 @@ ob_start();
         color: var(--color-danger);
     }
 
+    .circular-my-table td:nth-child(3),
+    .circular-my-table td:nth-child(4),
+    .circular-my-table td:nth-child(5) {
+        vertical-align: middle;
+        text-align: center;
+    }
 
     .circular-my-actions {
         display: flex;
@@ -384,109 +390,6 @@ ob_start();
 
         .content-circular-notice-index .modal-overlay-circular-notice-index .sender-row .form-group {
             margin-bottom: 10px;
-        }
-    }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .table-circular-notice-index table tbody td:nth-child(1),
-    .table-circular-notice-index table thead th:nth-child(5),
-    .table-circular-notice-index table tbody td:nth-child(5) {
-        text-align: center !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .table-circular-notice-index table thead th:nth-child(3),
-    .table-circular-notice-index table thead th:nth-child(4),
-    .table-circular-notice-index table tbody td:nth-child(2),
-    .circular-my-table td:nth-child(3) {
-        text-align: start !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .booking-table td:nth-child(1) {
-        width: 80px !important;
-        min-width: 80px !important;
-        max-width: 80px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .booking-table td:nth-child(2) {
-        width: 300px !important;
-        min-width: 300px !important;
-        max-width: 300px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(3),
-    .booking-table td:nth-child(3) {
-        width: 500px !important;
-        min-width: 500px !important;
-        max-width: 500px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(4),
-    .booking-table td:nth-child(4) {
-        width: 180px !important;
-        min-width: 180px !important;
-        max-width: 180px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(5),
-    .booking-table td:nth-child(5) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-    }
-
-    @media screen and (max-width: 1024px) {
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .table-circular-notice-index table tbody td:nth-child(1),
-        .table-circular-notice-index table thead th:nth-child(5),
-        .table-circular-notice-index table tbody td:nth-child(5) {
-            text-align: center !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .table-circular-notice-index table thead th:nth-child(3),
-        .table-circular-notice-index table thead th:nth-child(4),
-        .table-circular-notice-index table tbody td:nth-child(2),
-        .circular-my-table td:nth-child(3) {
-            text-align: start !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .booking-table td:nth-child(1) {
-            width: 60px !important;
-            min-width: 60px !important;
-            max-width: 60px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .booking-table td:nth-child(2) {
-            width: 250px !important;
-            min-width: 250px !important;
-            max-width: 250px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(3),
-        .booking-table td:nth-child(3) {
-            width: 450px !important;
-            min-width: 450px !important;
-            max-width: 450px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(4),
-        .booking-table td:nth-child(4) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(5),
-        .booking-table td:nth-child(5) {
-            width: 160px !important;
-            min-width: 160px !important;
-            max-width: 160px !important;
         }
     }
 </style>
@@ -582,15 +485,15 @@ ob_start();
             </div>
         </div>
 
-        <div class="table-responsive table-circular-notice-index">
+        <div class="table-responsive">
             <table class="custom-table booking-table approval-table">
                 <thead>
                     <tr>
-                        <th>จัดการ</th>
                         <th>หัวข้อ</th>
                         <th>รายละเอียด</th>
                         <th>วันที่แจ้ง</th>
                         <th>สถานะ</th>
+                        <th>จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -645,6 +548,19 @@ ob_start();
                             }
                             ?>
                             <tr class="approval-row <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
+                                <td><?= h((string) ($req['subject'] ?? '-')) ?></td>
+                                <td><?= h($detail_preview) ?></td>
+                                <td>
+                                    <span class="approval-date-time">
+                                        <?= h($created_date_line) ?>
+                                        <span class="detail-subtext"><?= h($created_time_line) ?></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-pill <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
+                                        <?= h((string) ($row_status['label'] ?? '-')) ?>
+                                    </span>
+                                </td>
                                 <td class="booking-action-cell">
                                     <div class="booking-action-group">
                                         <button
@@ -670,19 +586,6 @@ ob_start();
                                             <span class="tooltip">ดูรายละเอียด</span>
                                         </button>
                                     </div>
-                                </td>
-                                <td><?= h((string) ($req['subject'] ?? '-')) ?></td>
-                                <td><?= h($detail_preview) ?></td>
-                                <td>
-                                    <span class="approval-date-time">
-                                        <?= h($created_date_line) ?>
-                                        <span class="detail-subtext"><?= h($created_time_line) ?></span>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="status-pill <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
-                                        <?= h((string) ($row_status['label'] ?? '-')) ?>
-                                    </span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -756,15 +659,15 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-responsive table-circular-notice-index">
+    <div class="table-responsive circular-my-table-wrap">
         <table class="custom-table circular-my-table">
             <thead>
                 <tr>
-                    <th>จัดการ</th>
                     <th>หัวข้อ</th>
                     <th>รายละเอียด</th>
                     <th>วันที่แจ้ง</th>
                     <th>สถานะ</th>
+                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -829,6 +732,27 @@ ob_start();
                         ?>
                         <tr>
                             <td>
+                                <div class="circular-my-subject"><?= h((string) ($req['subject'] ?? '-')) ?></div>
+                            </td>
+
+                            <td>
+                                <div class="repair-detail-preview"><?= h($detail_preview) ?></div>
+                            </td>
+
+                            <td>
+                                <div class="repair-date-stack">
+                                    <div><?= h($created_date_line) ?></div>
+                                    <div class="time"><?= h($created_time_line) ?></div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="status-pill <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
+                                    <?= h((string) ($row_status['label'] ?? '-')) ?>
+                                </span>
+                            </td>
+
+                            <td>
                                 <div class="circular-my-actions">
                                     <button
                                         class="booking-action-btn secondary js-open-repair-detail-modal"
@@ -853,27 +777,6 @@ ob_start();
                                     </button>
                                 </div>
                             </td>
-                            <td>
-                                <div class="circular-my-subject"><?= h((string) ($req['subject'] ?? '-')) ?></div>
-                            </td>
-
-                            <td>
-                                <div class="repair-detail-preview"><?= h($detail_preview) ?></div>
-                            </td>
-
-                            <td>
-                                <div class="repair-date-stack">
-                                    <div><?= h($created_date_line) ?></div>
-                                    <div class="time"><?= h($created_time_line) ?></div>
-                                </div>
-                            </td>
-
-                            <td>
-                                <span class="status-pill <?= h((string) ($row_status['variant'] ?? 'pending')) ?>">
-                                    <?= h((string) ($row_status['label'] ?? '-')) ?>
-                                </span>
-                            </td>
-
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -1437,7 +1340,7 @@ ob_start();
                                 </button>
                             </div>
                             <input type="file" id="attachment" name="attachments[]" class="file-input" multiple
-                                accept=".pdf,image/png,image/jpeg,.jpg,.jpeg" form="repairApprovalTransitionForm" hidden>
+                                accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" form="repairApprovalTransitionForm" hidden>
                             <p class="form-error hidden" id="attachmentError">แนบได้สูงสุด 5 ไฟล์</p>
                         </div>
 
@@ -1525,7 +1428,8 @@ ob_start();
         let activeRepairStatus = pendingStatus;
         let transitionConfirmApproved = false;
         const maxApprovalAttachments = 5;
-        const approvalAllowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+        const approvalAllowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed', 'application/x-rar', 'application/vnd.rar'];
+        const approvalAllowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'zip', 'rar'];
         let existingOfficialApprovalFiles = [];
         let existingApprovalRepairId = '';
         let selectedApprovalFiles = [];
@@ -1541,6 +1445,13 @@ ob_start();
             }
 
             return `${(bytes / 1024).toFixed(1)} KB`;
+        };
+        const getApprovalFileExtension = (file) => String(file?.name || file?.fileName || '').toLowerCase().split('.').pop() || '';
+        const isAllowedApprovalFile = (file) => {
+            const mimeType = String(file?.type || '').toLowerCase();
+            const extension = getApprovalFileExtension(file);
+
+            return approvalAllowedTypes.includes(mimeType) || approvalAllowedExtensions.includes(extension);
         };
 
         const revokeApprovalPreviewUrls = () => {
@@ -1609,9 +1520,10 @@ ob_start();
                 const iconWrap = document.createElement('div');
                 iconWrap.className = 'file-icon';
                 const mime = String(file.type || '').toLowerCase();
-                iconWrap.innerHTML = mime.includes('pdf') ?
+                const extension = getApprovalFileExtension(file);
+                iconWrap.innerHTML = mime.includes('pdf') || extension === 'pdf' ?
                     '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                    mime.includes('image') ?
+                    (mime.includes('image') || ['jpg', 'jpeg', 'png'].includes(extension)) ?
                     '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' :
                     '<i class="fa-solid fa-file" aria-hidden="true"></i>';
 
@@ -1697,7 +1609,7 @@ ob_start();
                     return;
                 }
 
-                if (!approvalAllowedTypes.includes(String(file.type || '').toLowerCase())) {
+                if (!isAllowedApprovalFile(file)) {
                     hasInvalidType = true;
                     return;
                 }
@@ -1722,7 +1634,7 @@ ob_start();
             }
 
             if (hasInvalidType) {
-                setAttachmentError('แนบได้เฉพาะไฟล์ PDF, PNG, JPG หรือ JPEG');
+                setAttachmentError('แนบได้เฉพาะไฟล์ PDF, PNG, JPG, JPEG, ZIP หรือ RAR');
             } else if (hitMaxFiles || (selectedApprovalFiles.length >= maxApprovalAttachments && Array.from(fileListInput).length > maxApprovalAttachments)) {
                 setAttachmentError('แนบได้สูงสุด 5 ไฟล์');
             } else {
@@ -1743,9 +1655,10 @@ ob_start();
             const iconWrap = document.createElement('div');
             iconWrap.className = 'file-icon';
             const mime = String(file?.mimeType || '').toLowerCase();
-            iconWrap.innerHTML = mime.includes('pdf') ?
+            const extension = getApprovalFileExtension(file);
+            iconWrap.innerHTML = mime.includes('pdf') || extension === 'pdf' ?
                 '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                mime.includes('image') ?
+                (mime.includes('image') || ['jpg', 'jpeg', 'png'].includes(extension)) ?
                 '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' :
                 '<i class="fa-solid fa-file" aria-hidden="true"></i>';
 
@@ -2174,44 +2087,6 @@ ob_start();
         if (autoOpenTrigger) {
             openModal(autoOpenTrigger);
         }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const sliders = document.querySelectorAll('.table-circular-notice-index');
-
-        sliders.forEach((slider) => {
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-
-            slider.addEventListener('mousedown', (e) => {
-                isDown = true;
-                slider.classList.add('is-dragging');
-                startX = e.pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
-            });
-
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-                slider.classList.remove('is-dragging');
-            });
-
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-                slider.classList.remove('is-dragging');
-            });
-
-            slider.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-
-                e.preventDefault();
-
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 1.5;
-
-                slider.scrollLeft = scrollLeft - walk;
-            });
-        });
     });
 </script>
 <? //php endif; 

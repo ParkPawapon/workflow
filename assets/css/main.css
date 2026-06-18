@@ -1230,6 +1230,9 @@ select {
 .container-notification-section .news-bar .details-news-bar li p {
   margin: 10px 0 0;
   cursor: pointer;
+  text-wrap-mode: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .container-notification-section .news-bar .details-news-bar li::after {
@@ -4790,7 +4793,7 @@ select {
 .booking-table td:nth-child(6),
 .booking-table td:nth-child(7) {
   text-align: center;
-  /* white-space: nowrap; */
+  white-space: nowrap;
 }
 
 .status-pill {
@@ -5867,7 +5870,7 @@ select {
 .room-admin-member-table th:nth-child(5),
 .room-admin-member-table td:nth-child(5) {
   text-align: center;
-  /* white-space: nowrap; */
+  white-space: nowrap;
 }
 
 .room-admin-member-table td {
@@ -18776,7 +18779,7 @@ label {
   .booking-table td:nth-child(6),
   .booking-table td:nth-child(7) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .booking-table th:last-child,
@@ -19653,7 +19656,7 @@ label {
   .room-admin-table th:nth-child(4),
   .room-admin-table td:nth-child(4) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .room-admin-member-summary {
@@ -19711,7 +19714,7 @@ label {
   .room-admin-member-table th:nth-child(5),
   .room-admin-member-table td:nth-child(5) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .room-admin-member-table td {
@@ -29100,7 +29103,7 @@ label {
   .room-admin-table th:nth-child(4),
   .room-admin-table td:nth-child(4) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .room-admin-member-summary {
@@ -29158,7 +29161,7 @@ label {
   .room-admin-member-table th:nth-child(5),
   .room-admin-member-table td:nth-child(5) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .room-admin-member-table td {
@@ -35290,7 +35293,7 @@ label {
   .vehicle-admin-table th:nth-child(3),
   .vehicle-admin-table td:nth-child(3) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .vehicle-admin-table td:nth-child(1),
@@ -35315,7 +35318,7 @@ label {
   #bookingListModal .booking-table thead th:nth-child(2),
   #bookingListModal .booking-table thead th:nth-child(3) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .booking-page[data-room-booking] .booking-table tbody td:nth-child(2),
@@ -35331,7 +35334,7 @@ label {
   #bookingListModal .booking-table th:nth-child(4),
   #bookingListModal .booking-table td:nth-child(4) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
     width: 96px;
     min-width: 96px;
     max-width: 96px;
@@ -35353,7 +35356,7 @@ label {
   .booking-page[data-room-booking-approval] .booking-table th:nth-child(5),
   .booking-page[data-room-booking-approval] .booking-table td:nth-child(5) {
     text-align: center;
-    /* white-space: nowrap; */
+    white-space: nowrap;
     width: 96px;
     min-width: 96px;
     max-width: 96px;
@@ -35717,7 +35720,7 @@ label {
 
   .memo-archive-table table tbody td:nth-child(3) p {
     margin: 0;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .memo-inbox-table table {
@@ -35756,7 +35759,7 @@ label {
 
   .memo-inbox-table table tbody td:nth-child(4) p {
     margin: 0;
-    /* white-space: nowrap; */
+    white-space: nowrap;
   }
 
   .repair-management-card .room-admin-member-subtext {
