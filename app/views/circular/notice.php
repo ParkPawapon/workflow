@@ -258,6 +258,36 @@ ob_start();
         cursor: not-allowed;
     }
 
+    .row-format,
+    .column-format {
+        margin: 0 0 25px;
+        gap: 10px;
+    }
+
+    .container-circular-notice-sending .form-group label,
+    .container-circular-notice-sending .form-group input[type="text"],
+    .container-circular-notice-sending .form-group textarea {
+        margin: 0;
+    }
+
+    .column-format input {
+        padding: 0 48px !important;
+    }
+
+    @media screen and (max-width: 1024px) {
+
+        .row-format,
+        .column-format {
+            margin: 0 0 10px;
+            gap: 0;
+        }
+
+        .column-format input {
+            padding: 0 24px !important;
+        }
+
+    }
+
     @media screen and (max-width: 768px) {
         .container-circular-notice-sending .form-group {
             gap: 0px;
@@ -282,6 +312,16 @@ ob_start();
 
         .content-circular-notice-index .modal-overlay-circular-notice-index .modal-content .content-modal .content-file-sec .file-section {
             padding: 0 0 20px;
+        }
+
+        .row-format,
+        .column-format {
+            margin: 0 0 10px;
+            gap: 0px;
+        }
+
+        .column-format input {
+            padding: 0 12px !important;
         }
     }
 
@@ -396,7 +436,7 @@ ob_start();
 
 <form id="circularFilterForm" method="GET">
     <input type="hidden" name="box" value="<?= h($box_key) ?>">
-    <?php if ($archived) : ?>
+    <?php if ($archived): ?>
         <input type="hidden" name="archived" value="1">
     <?php endif; ?>
     <input type="hidden" name="dh_year" id="filterYearInput" value="<?= h((string) $selected_dh_year) ?>">
@@ -408,20 +448,25 @@ ob_start();
 
 <header class="header-circular-notice-index<?= h($is_outside_view ? ' outside-person' : '') ?>">
     <div class="circular-notice-index-control">
-        <?php if ($show_type_filter) : ?>
+        <?php if ($show_type_filter): ?>
             <div class="page-selector">
                 <p>แสดงตามประเภทหนังสือ</p>
 
                 <div class="custom-select-wrapper" data-target="filterTypeInput">
                     <div class="custom-select-trigger">
-                        <p class="select-value"><?= h($filter_type === 'internal' ? 'ภายใน' : ($filter_type === 'external' ? 'ภายนอก' : 'ทั้งหมด')) ?></p>
+                        <p class="select-value">
+                            <?= h($filter_type === 'internal' ? 'ภายใน' : ($filter_type === 'external' ? 'ภายนอก' : 'ทั้งหมด')) ?>
+                        </p>
                         <i class="fa-solid fa-chevron-down"></i>
                     </div>
 
                     <div class="custom-options">
-                        <div class="custom-option<?= h($filter_type === 'external' ? ' selected' : '') ?>" data-value="external">ภายนอก</div>
-                        <div class="custom-option<?= h($filter_type === 'internal' ? ' selected' : '') ?>" data-value="internal">ภายใน</div>
-                        <div class="custom-option<?= h($filter_type === 'all' ? ' selected' : '') ?>" data-value="all">ทั้งหมด</div>
+                        <div class="custom-option<?= h($filter_type === 'external' ? ' selected' : '') ?>"
+                            data-value="external">ภายนอก</div>
+                        <div class="custom-option<?= h($filter_type === 'internal' ? ' selected' : '') ?>"
+                            data-value="internal">ภายใน</div>
+                        <div class="custom-option<?= h($filter_type === 'all' ? ' selected' : '') ?>" data-value="all">
+                            ทั้งหมด</div>
                     </div>
                 </div>
             </div>
@@ -436,9 +481,11 @@ ob_start();
                 </div>
 
                 <div class="custom-options">
-                    <div class="custom-option<?= $selected_dh_year <= 0 ? ' selected' : '' ?>" data-value="0">ทั้งหมด</div>
-                    <?php foreach ($dh_year_options as $year_option) : ?>
-                        <div class="custom-option<?= $selected_dh_year === (int) $year_option ? ' selected' : '' ?>" data-value="<?= h((string) $year_option) ?>"><?= h((string) $year_option) ?></div>
+                    <div class="custom-option<?= $selected_dh_year <= 0 ? ' selected' : '' ?>" data-value="0">ทั้งหมด
+                    </div>
+                    <?php foreach ($dh_year_options as $year_option): ?>
+                        <div class="custom-option<?= $selected_dh_year === (int) $year_option ? ' selected' : '' ?>"
+                            data-value="<?= h((string) $year_option) ?>"><?= h((string) $year_option) ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -454,19 +501,23 @@ ob_start();
                 </div>
 
                 <div class="custom-options">
-                    <div class="custom-option<?= h($filter_sort === 'newest' ? ' selected' : '') ?>" data-value="newest">ใหม่ไปเก่า</div>
-                    <div class="custom-option<?= h($filter_sort === 'oldest' ? ' selected' : '') ?>" data-value="oldest">เก่าไปใหม่</div>
+                    <div class="custom-option<?= h($filter_sort === 'newest' ? ' selected' : '') ?>"
+                        data-value="newest">ใหม่ไปเก่า</div>
+                    <div class="custom-option<?= h($filter_sort === 'oldest' ? ' selected' : '') ?>"
+                        data-value="oldest">เก่าไปใหม่</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php if ($is_outside_view) : ?>
+    <?php if ($is_outside_view): ?>
         <div class="table-change">
             <p>ตาราง</p>
             <div class="button-table">
-                <button class="<?= h($filter_view === 'table1' ? 'active' : '') ?>" type="button" data-view="table1">ตาราง 1</button>
-                <button class="<?= h($filter_view === 'table2' ? 'active' : '') ?>" type="button" data-view="table2">ตาราง 2</button>
+                <button class="<?= h($filter_view === 'table1' ? 'active' : '') ?>" type="button" data-view="table1">ตาราง
+                    1</button>
+                <button class="<?= h($filter_view === 'table2' ? 'active' : '') ?>" type="button" data-view="table2">ตาราง
+                    2</button>
             </div>
         </div>
     <?php endif; ?>
@@ -476,14 +527,14 @@ ob_start();
     <div class="search-bar">
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="search-input" name="q" form="circularFilterForm" value="<?= h($filter_search) ?>" placeholder="ค้นหาข้อความด้วย..." data-auto-submit="true" data-auto-submit-delay="450" autocomplete="off">
+            <input type="text" id="search-input" name="q" form="circularFilterForm" value="<?= h($filter_search) ?>"
+                placeholder="ค้นหาข้อความด้วย..." data-auto-submit="true" data-auto-submit-delay="450"
+                autocomplete="off">
         </div>
     </div>
 
-    <?php if (!$is_outside_view) : ?>
-        <form
-            id="bulkActionForm"
-            method="POST">
+    <?php if (!$is_outside_view): ?>
+        <form id="bulkActionForm" method="POST">
             <?= csrf_field() ?>
             <input type="hidden" name="action" value="<?= h($archived ? 'unarchive_selected' : 'archive_selected') ?>">
             <div class="table-circular-notice-index">
@@ -493,7 +544,7 @@ ob_start();
                             <th>
                                 <input type="checkbox" class="check-table checkall" id="checkAllCircular">
                             </th>
-                            <?php if ($show_book_type_column) : ?>
+                            <?php if ($show_book_type_column): ?>
                                 <th>ประเภทหนังสือ</th>
                             <?php endif; ?>
                             <th>จัดการ</th>
@@ -504,12 +555,13 @@ ob_start();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($items)) : ?>
+                        <?php if (empty($items)): ?>
                             <tr>
-                                <td colspan="<?= h($show_book_type_column ? '7' : '6') ?>" class="enterprise-empty">ไม่มีรายการ</td>
+                                <td colspan="<?= h($show_book_type_column ? '7' : '6') ?>" class="enterprise-empty">ไม่มีรายการ
+                                </td>
                             </tr>
-                        <?php else : ?>
-                            <?php foreach ($items as $item) : ?>
+                        <?php else: ?>
+                            <?php foreach ($items as $item): ?>
                                 <?php
                                 $is_read = (bool) ($item['is_read'] ?? false);
                                 $file_json = (string) ($item['files_json'] ?? '[]');
@@ -522,13 +574,15 @@ ob_start();
                                 ?>
                                 <tr>
                                     <td>
-                                        <input type="checkbox" class="check-table" name="selected_ids[]" value="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">
+                                        <input type="checkbox" class="check-table" name="selected_ids[]"
+                                            value="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">
                                     </td>
+                                    <?php if ($show_book_type_column): ?>
+                                        <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
+                                    <?php endif; ?>
                                     <td>
                                         <div class="circular-action-stack">
-                                            <button
-                                                class="booking-action-btn secondary js-open-circular-modal"
-                                                type="button"
+                                            <button class="booking-action-btn secondary js-open-circular-modal" type="button"
                                                 data-circular-id="<?= h((string) (int) ($item['circular_id'] ?? 0)) ?>"
                                                 data-inbox-id="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>"
                                                 data-subject="<?= h((string) ($item['subject'] ?? '')) ?>"
@@ -543,9 +597,7 @@ ob_start();
                                                 <i class="fa-solid fa-eye"></i>
                                                 <span class="tooltip">ดูรายละเอียด</span>
                                             </button>
-                                            <button
-                                                class="booking-action-btn secondary js-open-circular-send-modal"
-                                                type="button"
+                                            <button class="booking-action-btn secondary js-open-circular-send-modal" type="button"
                                                 data-circular-id="<?= h((string) (int) ($item['circular_id'] ?? 0)) ?>"
                                                 data-inbox-id="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>"
                                                 data-subject="<?= h((string) ($item['subject'] ?? '')) ?>"
@@ -562,9 +614,6 @@ ob_start();
                                             </button>
                                         </div>
                                     </td>
-                                    <?php if ($show_book_type_column) : ?>
-                                        <td><?= h((string) ($item['type_label'] ?? '')) ?></td>
-                                    <?php endif; ?>
                                     <td><?= h((string) ($item['subject'] ?? '')) ?></td>
                                     <td>
                                         <div class="circular-sender-stack">
@@ -583,7 +632,7 @@ ob_start();
                 </table>
             </div>
         </form>
-    <?php else : ?>
+    <?php else: ?>
         <div class="table-circular-notice-index outside-person">
             <table>
                 <thead>
@@ -596,12 +645,12 @@ ob_start();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($items)) : ?>
+                    <?php if (empty($items)): ?>
                         <tr>
                             <td colspan="5" class="enterprise-empty">ไม่มีรายการ</td>
                         </tr>
-                    <?php else : ?>
-                        <?php foreach ($items as $item) : ?>
+                    <?php else: ?>
+                        <?php foreach ($items as $item): ?>
                             <?php
                             $file_json = (string) ($item['files_json'] ?? '[]');
                             $priority_label = (string) ($item['ext_priority_label'] ?? 'ปกติ');
@@ -609,9 +658,7 @@ ob_start();
                             <tr>
                                 <td>
                                     <div class="circular-action-stack">
-                                        <button
-                                            class="button-more-details js-open-circular-modal"
-                                            type="button"
+                                        <button class="button-more-details js-open-circular-modal" type="button"
                                             data-circular-id="<?= h((string) (int) ($item['circular_id'] ?? 0)) ?>"
                                             data-inbox-id="<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>"
                                             data-urgency="<?= h($priority_label) ?>"
@@ -631,7 +678,8 @@ ob_start();
                                             data-received-time="<?= h((string) ($item['delivered_time'] ?? '-')) ?>">
                                             <p>รายละเอียด</p>
                                         </button>
-                                        <a class="button-open-workflow" href="<?= h($detail_workflow_page) ?>?inbox_id=<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">อ่าน/ดำเนินการ</a>
+                                        <a class="button-open-workflow"
+                                            href="<?= h($detail_workflow_page) ?>?inbox_id=<?= h((string) (int) ($item['inbox_id'] ?? 0)) ?>">อ่าน/ดำเนินการ</a>
                                     </div>
                                 </td>
                                 <td>
@@ -654,7 +702,7 @@ ob_start();
         </div>
     <?php endif; ?>
 
-    <?php if (!$is_outside_view) : ?>
+    <?php if (!$is_outside_view): ?>
         <div class="modal-overlay-circular-notice-index keep-sending" id="modalNoticeKeepOverlay">
             <div class="modal-content">
                 <div class="header-modal">
@@ -663,18 +711,20 @@ ob_start();
                 </div>
 
                 <div class="content-modal">
-                    <form method="" enctype="" data-validate class="container-circular-notice-sending" id="" style="box-shadow:none; padding: 0;">
+                    <form method="" enctype="" data-validate class="container-circular-notice-sending" id=""
+                        style="box-shadow:none; padding: 0;">
                         <?= csrf_field() ?>
                         <input type="hidden" name="edit_circular_id" id="editTargetCircularId" value="">
 
-                        <div class="form-group">
-                            <label for="edit_subject"><b>หัวเรื่อง</b></label>
+                        <div class="form-group row-format">
+                            <label for="edit_subject"><b>หัวเรื่อง :</b></label>
                             <input type="text" name="subject" id="edit_subject" placeholder="กรุณากรอกหัวเรื่อง" disabled>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group column-format">
                             <label for="edit_detail"><b>รายละเอียด</b></label>
-                            <textarea name="detail" id="edit_detail" rows="4" placeholder="กรุณากรอกรายละเอียด" disabled></textarea>
+                            <p name="detail" id="edit_detail"></p>
+                            <!-- <textarea name="detail" id="edit_detail" rows="4" placeholder="กรุณากรอกรายละเอียด" disabled></textarea> -->
                         </div>
 
                         <div class="content-file-sec">
@@ -682,21 +732,21 @@ ob_start();
                             <div class="file-section" id="modalFileSection"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="edit_linkURL"><b>แนบลิ้งก์</b></label>
-                            <input type="text" id="edit_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง" disabled />
+                        <div class="form-group column-format">
+                            <label for="edit_linkURL"><b>ลิ้งก์แนบจากระบบ</b></label>
+                            <input type="text" id="edit_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง"
+                                disabled />
                         </div>
 
-                        <div class="sender-row">
-                            <div class="form-group sender-field">
-                                <label for="edit_senderDisplay"><b>ผู้ส่ง</b></label>
-                                <input id="edit_senderDisplay" type="text" value="<?= h($sender_name) ?>" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_fromFIDDisplay"><b>ในนามของ</b></label>
-                                <input id="edit_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
-                                <input type="hidden" name="fromFID" value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
-                            </div>
+                        <div class="form-group row-format">
+                            <label for="edit_senderDisplay"><b>ผู้ส่ง :</b></label>
+                            <input id="edit_senderDisplay" type="text" value="<?= h($sender_name) ?>" disabled>
+                        </div>
+                        <div class="form-group row-format">
+                            <label for="edit_fromFIDDisplay"><b>ในนามของ :</b></label>
+                            <input id="edit_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
+                            <input type="hidden" name="fromFID"
+                                value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
                         </div>
 
                     </form>
@@ -707,12 +757,10 @@ ob_start();
                         <?= csrf_field() ?>
                         <input type="hidden" name="inbox_id" id="modalInboxId" value="">
                         <input type="hidden" name="action" value="<?= h($archived ? 'unarchive' : 'archive') ?>">
-                        <button
-                            type="submit"
+                        <button type="submit"
                             data-confirm="<?= h($archived ? 'ต้องการย้ายหนังสือเวียนนี้กลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนนี้หรือไม่') ?>"
                             data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>"
-                            data-confirm-ok="ยืนยัน"
-                            data-confirm-cancel="ยกเลิก">
+                            data-confirm-ok="ยืนยัน" data-confirm-cancel="ยกเลิก">
                             <p><?= h($archived ? 'ย้ายกลับ' : 'จัดเก็บ') ?></p>
                         </button>
                     </form>
@@ -720,7 +768,7 @@ ob_start();
 
             </div>
         </div>
-    <?php else : ?>
+    <?php else: ?>
 
         <div class="modal-overlay-circular-notice-index outside-person" id="modalNoticeKeepOverlay">
             <div class="modal-content">
@@ -735,7 +783,9 @@ ob_start();
                 </div>
 
                 <div class="content-modal">
-                    <form method="POST" enctype="multipart/form-data" data-validate class="container-circular-notice-sending" id="circularEditForm" style="box-shadow:none; padding: 0;">
+                    <form method="POST" enctype="multipart/form-data" data-validate
+                        class="container-circular-notice-sending" id="circularEditForm"
+                        style="box-shadow:none; padding: 0;">
                         <?= csrf_field() ?>
                         <input type="hidden" name="inbox_id" data-send-inbox-id value="">
                         <input type="hidden" name="circular_id" data-send-circular-id value="">
@@ -755,7 +805,8 @@ ob_start();
                         <div class="form-group">
                             <label><b>อัปโหลดไฟล์เอกสารใหม่</b></label>
                             <section class="upload-layout">
-                                <input type="file" id="edit_fileInput" name="attachments[]" multiple accept="application/pdf,image/png,image/jpeg" style="display: none;" />
+                                <input type="file" id="edit_fileInput" name="attachments[]" multiple
+                                    accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" style="display: none;" />
                                 <div class="upload-box" id="edit_dropzone">
                                     <i class="fa-solid fa-upload"></i>
                                     <p>ลากไฟล์มาวางที่นี่</p>
@@ -769,7 +820,7 @@ ob_start();
                                 <p>เพิ่มไฟล์</p>
                             </button>
                             <div class="file-hint">
-                                <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) *</p>
+                                <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PDF, PNG, JPG, ZIP, RAR) *</p>
                             </div>
                         </div>
 
@@ -785,8 +836,10 @@ ob_start();
                             </div>
                             <div class="form-group">
                                 <label for="edit_fromFIDDisplay"><b>ในนามของ</b></label>
-                                <input id="edit_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
-                                <input type="hidden" name="fromFID" value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
+                                <input id="edit_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>"
+                                    disabled>
+                                <input type="hidden" name="fromFID"
+                                    value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
                             </div>
                         </div>
 
@@ -794,7 +847,8 @@ ob_start();
                             <label><b>ส่งถึง :</b></label>
                             <div class="dropdown-container">
                                 <div class="search-input-wrapper" id="edit_recipientToggle">
-                                    <input type="text" id="edit_mainInput" class="search-input" placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
+                                    <input type="text" id="edit_mainInput" class="search-input"
+                                        placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </div>
 
@@ -806,21 +860,23 @@ ob_start();
                                     </div>
 
                                     <div class="dropdown-list">
-                                        <?php if (!empty($factions)) : ?>
+                                        <?php if (!empty($factions)): ?>
                                             <div class="category-group">
                                                 <div class="category-title">
                                                     <span>หน่วยงาน</span>
                                                 </div>
                                                 <div class="category-items">
-                                                    <?php foreach ($factions as $faction) : ?>
+                                                    <?php foreach ($factions as $faction): ?>
                                                         <?php
                                                         $fid = (int) ($faction['fID'] ?? 0);
-                                                        if ($fid <= 0) continue;
+                                                        if ($fid <= 0)
+                                                            continue;
 
                                                         $fid_value = (string) $fid;
                                                         $faction_name = trim((string) ($faction['fName'] ?? ''));
 
-                                                        if ($faction_name === '') continue;
+                                                        if ($faction_name === '')
+                                                            continue;
 
                                                         $members = $faction_members[$fid] ?? [];
                                                         $member_payload = [];
@@ -848,39 +904,53 @@ ob_start();
                                                         // สร้าง key พิเศษสำหรับ edit
                                                         $edit_group_key = 'edit-faction-' . $fid_value;
                                                         ?>
-                                                        <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>" data-faction-id="<?= h($fid_value) ?>">
+                                                        <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>"
+                                                            data-faction-id="<?= h($fid_value) ?>">
                                                             <div class="group-header">
-                                                                <label class="item-main" for="edit_group_faction_<?= h($fid_value) ?>">
-                                                                    <input type="checkbox" id="edit_group_faction_<?= h($fid_value) ?>" class="item-checkbox group-item-checkbox faction-item-checkbox" data-group="faction"
+                                                                <label class="item-main"
+                                                                    for="edit_group_faction_<?= h($fid_value) ?>">
+                                                                    <input type="checkbox"
+                                                                        id="edit_group_faction_<?= h($fid_value) ?>"
+                                                                        class="item-checkbox group-item-checkbox faction-item-checkbox"
+                                                                        data-group="faction"
                                                                         data-group-key="<?= h($edit_group_key) ?>"
                                                                         data-group-label="<?= h($faction_name) ?>"
                                                                         data-members="<?= h($member_payload_json) ?>"
-                                                                        name="faction_ids[]" value="<?= h($fid_value) ?>" <?= h($is_selected($fid_value, $selected_factions) ? 'checked' : '') ?>>
+                                                                        name="faction_ids[]" value="<?= h($fid_value) ?>"
+                                                                        <?= h($is_selected($fid_value, $selected_factions) ? 'checked' : '') ?>>
                                                                     <span class="item-title"><?= h($faction_name) ?></span>
-                                                                    <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                                    <small class="item-subtext">สมาชิกทั้งหมด
+                                                                        <?= h((string) $member_total) ?> คน</small>
                                                                 </label>
-                                                                <button type="button" class="group-toggle" aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                <button type="button" class="group-toggle"
+                                                                    aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>"
+                                                                    title="แสดง/ซ่อนรายชื่อสมาชิก">
                                                                     <i class="fa-solid fa-chevron-down"></i>
                                                                 </button>
                                                             </div>
 
                                                             <ol class="member-sublist">
-                                                                <?php if ($member_total === 0) : ?>
+                                                                <?php if ($member_total === 0): ?>
                                                                     <li><span class="item-subtext">ไม่มีสมาชิกในฝ่ายนี้</span></li>
-                                                                <?php else : ?>
-                                                                    <?php foreach ($members as $member) : ?>
+                                                                <?php else: ?>
+                                                                    <?php foreach ($members as $member): ?>
                                                                         <?php
                                                                         $member_pid = (string) ($member['pID'] ?? '');
                                                                         $member_name = (string) ($member['name'] ?? '');
-                                                                        if ($member_pid === '' || $member_name === '') continue;
+                                                                        if ($member_pid === '' || $member_name === '')
+                                                                            continue;
                                                                         ?>
                                                                         <li>
-                                                                            <label class="item member-item" for="edit_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>">
-                                                                                <input type="checkbox" id="edit_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>" class="member-checkbox"
+                                                                            <label class="item member-item"
+                                                                                for="edit_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>">
+                                                                                <input type="checkbox"
+                                                                                    id="edit_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>"
+                                                                                    class="member-checkbox"
                                                                                     data-member-group-key="<?= h($edit_group_key) ?>"
                                                                                     data-member-name="<?= h($member_name) ?>"
                                                                                     data-group-label="<?= h($faction_name) ?>"
-                                                                                    name="person_ids[]" value="<?= h($member_pid) ?>" <?= h($is_selected($member_pid, $selected_people) ? 'checked' : '') ?>>
+                                                                                    name="person_ids[]" value="<?= h($member_pid) ?>"
+                                                                                    <?= h($is_selected($member_pid, $selected_people) ? 'checked' : '') ?>>
                                                                                 <span class="member-name"><?= h($member_name) ?></span>
                                                                             </label>
                                                                         </li>
@@ -893,19 +963,20 @@ ob_start();
                                             </div>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($department_groups)) : ?>
+                                        <?php if (!empty($department_groups)): ?>
                                             <div class="category-group">
                                                 <div class="category-title">
                                                     <span>กลุ่มสาระ</span>
                                                 </div>
                                                 <div class="category-items">
-                                                    <?php foreach ($department_groups as $department_group) : ?>
+                                                    <?php foreach ($department_groups as $department_group): ?>
                                                         <?php
                                                         $did = (int) ($department_group['dID'] ?? 0);
                                                         $department_name = trim((string) ($department_group['name'] ?? ''));
                                                         $members = (array) ($department_group['members'] ?? []);
 
-                                                        if ($did <= 0 || $department_name === '' || empty($members)) continue;
+                                                        if ($did <= 0 || $department_name === '' || empty($members))
+                                                            continue;
 
                                                         $member_payload = [];
                                                         $has_selected_member = false;
@@ -913,7 +984,8 @@ ob_start();
                                                         foreach ($members as $member) {
                                                             $member_pid = (string) ($member['pID'] ?? '');
                                                             $member_name = (string) ($member['name'] ?? '');
-                                                            if ($member_pid === '' || $member_name === '') continue;
+                                                            if ($member_pid === '' || $member_name === '')
+                                                                continue;
 
                                                             if ($is_selected($member_pid, $selected_people)) {
                                                                 $has_selected_member = true;
@@ -925,7 +997,8 @@ ob_start();
                                                             ];
                                                         }
 
-                                                        if (empty($member_payload)) continue;
+                                                        if (empty($member_payload))
+                                                            continue;
 
                                                         $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
                                                         $member_total = count($member_payload);
@@ -934,32 +1007,44 @@ ob_start();
                                                         // สร้าง key พิเศษสำหรับ edit
                                                         $edit_group_key = 'edit-department-' . $did;
                                                         ?>
-                                                        <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
+                                                        <div
+                                                            class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
                                                             <div class="group-header">
                                                                 <label class="item-main" for="edit_group_dept_<?= h($did) ?>">
-                                                                    <input type="checkbox" id="edit_group_dept_<?= h($did) ?>" class="item-checkbox group-item-checkbox department-item-checkbox" data-group="department"
+                                                                    <input type="checkbox" id="edit_group_dept_<?= h($did) ?>"
+                                                                        class="item-checkbox group-item-checkbox department-item-checkbox"
+                                                                        data-group="department"
                                                                         data-group-key="<?= h($edit_group_key) ?>"
                                                                         data-group-label="<?= h($department_name) ?>"
                                                                         data-members="<?= h($member_payload_json) ?>"
                                                                         value="<?= h($group_key) ?>">
                                                                     <span class="item-title"><?= h($department_name) ?></span>
-                                                                    <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                                    <small class="item-subtext">สมาชิกทั้งหมด
+                                                                        <?= h((string) $member_total) ?> คน</small>
                                                                 </label>
-                                                                <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                <button type="button" class="group-toggle"
+                                                                    aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>"
+                                                                    title="แสดง/ซ่อนรายชื่อสมาชิก">
                                                                     <i class="fa-solid fa-chevron-down"></i>
                                                                 </button>
                                                             </div>
 
                                                             <ol class="member-sublist">
-                                                                <?php foreach ($member_payload as $member) : ?>
+                                                                <?php foreach ($member_payload as $member): ?>
                                                                     <li>
-                                                                        <label class="item member-item" for="edit_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
-                                                                            <input type="checkbox" id="edit_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
+                                                                        <label class="item member-item"
+                                                                            for="edit_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
+                                                                            <input type="checkbox"
+                                                                                id="edit_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                                class="member-checkbox"
                                                                                 data-member-group-key="<?= h($edit_group_key) ?>"
                                                                                 data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
                                                                                 data-group-label="<?= h($department_name) ?>"
-                                                                                name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
-                                                                            <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
+                                                                                name="person_ids[]"
+                                                                                value="<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                                <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
+                                                                            <span
+                                                                                class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
                                                                         </label>
                                                                     </li>
                                                                 <?php endforeach; ?>
@@ -970,19 +1055,20 @@ ob_start();
                                             </div>
                                         <?php endif; ?>
 
-                                        <?php if (!empty($special_groups)) : ?>
+                                        <?php if (!empty($special_groups)): ?>
                                             <div class="category-group">
                                                 <div class="category-title">
                                                     <span>อื่นๆ</span>
                                                 </div>
                                                 <div class="category-items">
-                                                    <?php foreach ($special_groups as $special_group) : ?>
+                                                    <?php foreach ($special_groups as $special_group): ?>
                                                         <?php
                                                         $group_key = trim((string) ($special_group['key'] ?? ''));
                                                         $group_name = trim((string) ($special_group['name'] ?? ''));
                                                         $members = (array) ($special_group['members'] ?? []);
 
-                                                        if ($group_key === '' || $group_name === '' || empty($members)) continue;
+                                                        if ($group_key === '' || $group_name === '' || empty($members))
+                                                            continue;
 
                                                         $member_payload = [];
                                                         $has_selected_member = false;
@@ -990,7 +1076,8 @@ ob_start();
                                                         foreach ($members as $member) {
                                                             $member_pid = (string) ($member['pID'] ?? '');
                                                             $member_name = (string) ($member['name'] ?? '');
-                                                            if ($member_pid === '' || $member_name === '') continue;
+                                                            if ($member_pid === '' || $member_name === '')
+                                                                continue;
 
                                                             if ($is_selected($member_pid, $selected_people)) {
                                                                 $has_selected_member = true;
@@ -1002,7 +1089,8 @@ ob_start();
                                                             ];
                                                         }
 
-                                                        if (empty($member_payload)) continue;
+                                                        if (empty($member_payload))
+                                                            continue;
 
                                                         $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
                                                         $member_total = count($member_payload);
@@ -1010,32 +1098,46 @@ ob_start();
                                                         // สร้าง key พิเศษสำหรับ edit
                                                         $edit_group_key = 'edit-special-' . $group_key;
                                                         ?>
-                                                        <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
+                                                        <div
+                                                            class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
                                                             <div class="group-header">
-                                                                <label class="item-main" for="edit_group_special_<?= h($group_key) ?>">
-                                                                    <input type="checkbox" id="edit_group_special_<?= h($group_key) ?>" class="item-checkbox group-item-checkbox" data-group="special"
+                                                                <label class="item-main"
+                                                                    for="edit_group_special_<?= h($group_key) ?>">
+                                                                    <input type="checkbox"
+                                                                        id="edit_group_special_<?= h($group_key) ?>"
+                                                                        class="item-checkbox group-item-checkbox"
+                                                                        data-group="special"
                                                                         data-group-key="<?= h($edit_group_key) ?>"
                                                                         data-group-label="<?= h($group_name) ?>"
                                                                         data-members="<?= h($member_payload_json) ?>"
                                                                         value="<?= h($group_key) ?>">
                                                                     <span class="item-title"><?= h($group_name) ?></span>
-                                                                    <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                                    <small class="item-subtext">สมาชิกทั้งหมด
+                                                                        <?= h((string) $member_total) ?> คน</small>
                                                                 </label>
-                                                                <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                                <button type="button" class="group-toggle"
+                                                                    aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>"
+                                                                    title="แสดง/ซ่อนรายชื่อสมาชิก">
                                                                     <i class="fa-solid fa-chevron-down"></i>
                                                                 </button>
                                                             </div>
 
                                                             <ol class="member-sublist">
-                                                                <?php foreach ($member_payload as $member) : ?>
+                                                                <?php foreach ($member_payload as $member): ?>
                                                                     <li>
-                                                                        <label class="item member-item" for="edit_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
-                                                                            <input type="checkbox" id="edit_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
+                                                                        <label class="item member-item"
+                                                                            for="edit_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
+                                                                            <input type="checkbox"
+                                                                                id="edit_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                                class="member-checkbox"
                                                                                 data-member-group-key="<?= h($edit_group_key) ?>"
                                                                                 data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
                                                                                 data-group-label="<?= h($group_name) ?>"
-                                                                                name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
-                                                                            <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
+                                                                                name="person_ids[]"
+                                                                                value="<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                                <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
+                                                                            <span
+                                                                                class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
                                                                         </label>
                                                                     </li>
                                                                 <?php endforeach; ?>
@@ -1079,7 +1181,8 @@ ob_start();
                                     <div class="modal-title">
                                         <i class="fa-solid fa-users"></i><span>รายชื่อผู้รับหนังสือเวียน</span>
                                     </div>
-                                    <button class="modal-close" id="edit_closeModalBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+                                    <button class="modal-close" id="edit_closeModalBtn" type="button"><i
+                                            class="fa-solid fa-xmark"></i></button>
                                 </div>
                                 <div class="modal-body">
                                     <table class="recipient-table">
@@ -1111,7 +1214,9 @@ ob_start();
             </div>
 
             <div class="content-modal">
-                <form method="POST" enctype="multipart/form-data" data-validate class="container-circular-notice-sending" id="circularForwardForm" style="box-shadow:none; padding: 0;">
+                <form method="POST" enctype="multipart/form-data" data-validate
+                    class="container-circular-notice-sending" id="circularForwardForm"
+                    style="box-shadow:none; padding: 0;">
                     <?= csrf_field() ?>
                     <input type="hidden" name="inbox_id" data-send-inbox-id value="">
                     <input type="hidden" name="circular_id" data-send-circular-id value="">
@@ -1120,12 +1225,14 @@ ob_start();
 
                     <div class="form-group">
                         <label for="forward_subject"><b>หัวเรื่อง</b></label>
-                        <input type="text" name="subject" id="forward_subject" placeholder="กรุณากรอกหัวเรื่อง" disabled>
+                        <input type="text" name="subject" id="forward_subject" placeholder="กรุณากรอกหัวเรื่อง"
+                            disabled>
                     </div>
 
                     <div class="form-group">
                         <label for="forward_detail"><b>รายละเอียด</b></label>
-                        <textarea name="detail" id="forward_detail" rows="4" placeholder="กรุณากรอกรายละเอียด" disabled></textarea>
+                        <textarea name="detail" id="forward_detail" rows="4" placeholder="กรุณากรอกรายละเอียด"
+                            disabled></textarea>
                     </div>
 
                     <div class="content-file-sec">
@@ -1135,7 +1242,8 @@ ob_start();
 
                     <div class="form-group">
                         <label for="forward_linkURL"><b>แนบลิ้งก์</b></label>
-                        <input type="text" id="forward_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง" disabled />
+                        <input type="text" id="forward_linkURL" name="linkURL" placeholder="กรุณาแนบลิ้งก์ที่เกี่ยวข้อง"
+                            disabled />
                     </div>
 
                     <div class="sender-row">
@@ -1145,8 +1253,10 @@ ob_start();
                         </div>
                         <div class="form-group">
                             <label for="forward_fromFIDDisplay"><b>ในนามของ</b></label>
-                            <input id="forward_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>" disabled>
-                            <input type="hidden" name="fromFID" value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
+                            <input id="forward_fromFIDDisplay" type="text" value="<?= h($sender_faction_display) ?>"
+                                disabled>
+                            <input type="hidden" name="fromFID"
+                                value="<?= h($sender_from_fid > 0 ? (string) $sender_from_fid : '') ?>">
                         </div>
                     </div>
 
@@ -1154,7 +1264,8 @@ ob_start();
                         <label><b>ส่งถึง :</b></label>
                         <div class="dropdown-container">
                             <div class="search-input-wrapper" id="forward_recipientToggle">
-                                <input type="text" id="forward_mainInput" class="search-input" placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
+                                <input type="text" id="forward_mainInput" class="search-input"
+                                    placeholder="ค้นหา หรือ เลือกข้อมูล..." autocomplete="off">
                                 <i class="fa-solid fa-chevron-down"></i>
                             </div>
 
@@ -1166,21 +1277,23 @@ ob_start();
                                 </div>
 
                                 <div class="dropdown-list">
-                                    <?php if (!empty($factions)) : ?>
+                                    <?php if (!empty($factions)): ?>
                                         <div class="category-group">
                                             <div class="category-title">
                                                 <span>หน่วยงาน</span>
                                             </div>
                                             <div class="category-items">
-                                                <?php foreach ($factions as $faction) : ?>
+                                                <?php foreach ($factions as $faction): ?>
                                                     <?php
                                                     $fid = (int) ($faction['fID'] ?? 0);
-                                                    if ($fid <= 0) continue;
+                                                    if ($fid <= 0)
+                                                        continue;
 
                                                     $fid_value = (string) $fid;
                                                     $faction_name = trim((string) ($faction['fName'] ?? ''));
 
-                                                    if ($faction_name === '') continue;
+                                                    if ($faction_name === '')
+                                                        continue;
 
                                                     $members = $faction_members[$fid] ?? [];
                                                     $member_payload = [];
@@ -1208,39 +1321,53 @@ ob_start();
                                                     // สร้าง key พิเศษสำหรับ edit
                                                     $forward_group_key = 'forward-faction-' . $fid_value;
                                                     ?>
-                                                    <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>" data-faction-id="<?= h($fid_value) ?>">
+                                                    <div class="item item-group<?= $expanded_by_default ? '' : ' is-collapsed' ?>"
+                                                        data-faction-id="<?= h($fid_value) ?>">
                                                         <div class="group-header">
-                                                            <label class="item-main" for="forward_group_faction_<?= h($fid_value) ?>">
-                                                                <input type="checkbox" id="forward_group_faction_<?= h($fid_value) ?>" class="item-checkbox group-item-checkbox faction-item-checkbox" data-group="faction"
+                                                            <label class="item-main"
+                                                                for="forward_group_faction_<?= h($fid_value) ?>">
+                                                                <input type="checkbox"
+                                                                    id="forward_group_faction_<?= h($fid_value) ?>"
+                                                                    class="item-checkbox group-item-checkbox faction-item-checkbox"
+                                                                    data-group="faction"
                                                                     data-group-key="<?= h($forward_group_key) ?>"
                                                                     data-group-label="<?= h($faction_name) ?>"
                                                                     data-members="<?= h($member_payload_json) ?>"
-                                                                    name="faction_ids[]" value="<?= h($fid_value) ?>" <?= h($is_selected($fid_value, $selected_factions) ? 'checked' : '') ?>>
+                                                                    name="faction_ids[]" value="<?= h($fid_value) ?>"
+                                                                    <?= h($is_selected($fid_value, $selected_factions) ? 'checked' : '') ?>>
                                                                 <span class="item-title"><?= h($faction_name) ?></span>
-                                                                <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                                <small class="item-subtext">สมาชิกทั้งหมด
+                                                                    <?= h((string) $member_total) ?> คน</small>
                                                             </label>
-                                                            <button type="button" class="group-toggle" aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                            <button type="button" class="group-toggle"
+                                                                aria-expanded="<?= $expanded_by_default ? 'true' : 'false' ?>"
+                                                                title="แสดง/ซ่อนรายชื่อสมาชิก">
                                                                 <i class="fa-solid fa-chevron-down"></i>
                                                             </button>
                                                         </div>
 
                                                         <ol class="member-sublist">
-                                                            <?php if ($member_total === 0) : ?>
+                                                            <?php if ($member_total === 0): ?>
                                                                 <li><span class="item-subtext">ไม่มีสมาชิกในฝ่ายนี้</span></li>
-                                                            <?php else : ?>
-                                                                <?php foreach ($members as $member) : ?>
+                                                            <?php else: ?>
+                                                                <?php foreach ($members as $member): ?>
                                                                     <?php
                                                                     $member_pid = (string) ($member['pID'] ?? '');
                                                                     $member_name = (string) ($member['name'] ?? '');
-                                                                    if ($member_pid === '' || $member_name === '') continue;
+                                                                    if ($member_pid === '' || $member_name === '')
+                                                                        continue;
                                                                     ?>
                                                                     <li>
-                                                                        <label class="item member-item" for="forward_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>">
-                                                                            <input type="checkbox" id="forward_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>" class="member-checkbox"
+                                                                        <label class="item member-item"
+                                                                            for="forward_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>">
+                                                                            <input type="checkbox"
+                                                                                id="forward_member_faction_<?= h($fid_value) ?>_<?= h($member_pid) ?>"
+                                                                                class="member-checkbox"
                                                                                 data-member-group-key="<?= h($forward_group_key) ?>"
                                                                                 data-member-name="<?= h($member_name) ?>"
                                                                                 data-group-label="<?= h($faction_name) ?>"
-                                                                                name="person_ids[]" value="<?= h($member_pid) ?>" <?= h($is_selected($member_pid, $selected_people) ? 'checked' : '') ?>>
+                                                                                name="person_ids[]" value="<?= h($member_pid) ?>"
+                                                                                <?= h($is_selected($member_pid, $selected_people) ? 'checked' : '') ?>>
                                                                             <span class="member-name"><?= h($member_name) ?></span>
                                                                         </label>
                                                                     </li>
@@ -1253,19 +1380,20 @@ ob_start();
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($department_groups)) : ?>
+                                    <?php if (!empty($department_groups)): ?>
                                         <div class="category-group">
                                             <div class="category-title">
                                                 <span>กลุ่มสาระ</span>
                                             </div>
                                             <div class="category-items">
-                                                <?php foreach ($department_groups as $department_group) : ?>
+                                                <?php foreach ($department_groups as $department_group): ?>
                                                     <?php
                                                     $did = (int) ($department_group['dID'] ?? 0);
                                                     $department_name = trim((string) ($department_group['name'] ?? ''));
                                                     $members = (array) ($department_group['members'] ?? []);
 
-                                                    if ($did <= 0 || $department_name === '' || empty($members)) continue;
+                                                    if ($did <= 0 || $department_name === '' || empty($members))
+                                                        continue;
 
                                                     $member_payload = [];
                                                     $has_selected_member = false;
@@ -1273,7 +1401,8 @@ ob_start();
                                                     foreach ($members as $member) {
                                                         $member_pid = (string) ($member['pID'] ?? '');
                                                         $member_name = (string) ($member['name'] ?? '');
-                                                        if ($member_pid === '' || $member_name === '') continue;
+                                                        if ($member_pid === '' || $member_name === '')
+                                                            continue;
 
                                                         if ($is_selected($member_pid, $selected_people)) {
                                                             $has_selected_member = true;
@@ -1285,7 +1414,8 @@ ob_start();
                                                         ];
                                                     }
 
-                                                    if (empty($member_payload)) continue;
+                                                    if (empty($member_payload))
+                                                        continue;
 
                                                     $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
                                                     $member_total = count($member_payload);
@@ -1294,32 +1424,44 @@ ob_start();
                                                     // สร้าง key พิเศษสำหรับ edit
                                                     $forward_group_key = 'forward-department-' . $did;
                                                     ?>
-                                                    <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
+                                                    <div
+                                                        class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
                                                         <div class="group-header">
                                                             <label class="item-main" for="forward_group_dept_<?= h($did) ?>">
-                                                                <input type="checkbox" id="forward_group_dept_<?= h($did) ?>" class="item-checkbox group-item-checkbox department-item-checkbox" data-group="department"
+                                                                <input type="checkbox" id="forward_group_dept_<?= h($did) ?>"
+                                                                    class="item-checkbox group-item-checkbox department-item-checkbox"
+                                                                    data-group="department"
                                                                     data-group-key="<?= h($forward_group_key) ?>"
                                                                     data-group-label="<?= h($department_name) ?>"
                                                                     data-members="<?= h($member_payload_json) ?>"
                                                                     value="<?= h($group_key) ?>">
                                                                 <span class="item-title"><?= h($department_name) ?></span>
-                                                                <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                                <small class="item-subtext">สมาชิกทั้งหมด
+                                                                    <?= h((string) $member_total) ?> คน</small>
                                                             </label>
-                                                            <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                            <button type="button" class="group-toggle"
+                                                                aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>"
+                                                                title="แสดง/ซ่อนรายชื่อสมาชิก">
                                                                 <i class="fa-solid fa-chevron-down"></i>
                                                             </button>
                                                         </div>
 
                                                         <ol class="member-sublist">
-                                                            <?php foreach ($member_payload as $member) : ?>
+                                                            <?php foreach ($member_payload as $member): ?>
                                                                 <li>
-                                                                    <label class="item member-item" for="forward_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
-                                                                        <input type="checkbox" id="forward_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
+                                                                    <label class="item member-item"
+                                                                        for="forward_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
+                                                                        <input type="checkbox"
+                                                                            id="forward_member_dept_<?= h($did) ?>_<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                            class="member-checkbox"
                                                                             data-member-group-key="<?= h($forward_group_key) ?>"
                                                                             data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
                                                                             data-group-label="<?= h($department_name) ?>"
-                                                                            name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
-                                                                        <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
+                                                                            name="person_ids[]"
+                                                                            value="<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                            <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
+                                                                        <span
+                                                                            class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
                                                                     </label>
                                                                 </li>
                                                             <?php endforeach; ?>
@@ -1330,19 +1472,20 @@ ob_start();
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($special_groups)) : ?>
+                                    <?php if (!empty($special_groups)): ?>
                                         <div class="category-group">
                                             <div class="category-title">
                                                 <span>อื่นๆ</span>
                                             </div>
                                             <div class="category-items">
-                                                <?php foreach ($special_groups as $special_group) : ?>
+                                                <?php foreach ($special_groups as $special_group): ?>
                                                     <?php
                                                     $group_key = trim((string) ($special_group['key'] ?? ''));
                                                     $group_name = trim((string) ($special_group['name'] ?? ''));
                                                     $members = (array) ($special_group['members'] ?? []);
 
-                                                    if ($group_key === '' || $group_name === '' || empty($members)) continue;
+                                                    if ($group_key === '' || $group_name === '' || empty($members))
+                                                        continue;
 
                                                     $member_payload = [];
                                                     $has_selected_member = false;
@@ -1350,7 +1493,8 @@ ob_start();
                                                     foreach ($members as $member) {
                                                         $member_pid = (string) ($member['pID'] ?? '');
                                                         $member_name = (string) ($member['name'] ?? '');
-                                                        if ($member_pid === '' || $member_name === '') continue;
+                                                        if ($member_pid === '' || $member_name === '')
+                                                            continue;
 
                                                         if ($is_selected($member_pid, $selected_people)) {
                                                             $has_selected_member = true;
@@ -1362,7 +1506,8 @@ ob_start();
                                                         ];
                                                     }
 
-                                                    if (empty($member_payload)) continue;
+                                                    if (empty($member_payload))
+                                                        continue;
 
                                                     $member_payload_json = json_encode($member_payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
                                                     $member_total = count($member_payload);
@@ -1370,32 +1515,46 @@ ob_start();
                                                     // สร้าง key พิเศษสำหรับ edit
                                                     $forward_group_key = 'forward-special-' . $group_key;
                                                     ?>
-                                                    <div class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
+                                                    <div
+                                                        class="item item-group<?= $has_selected_member ? '' : ' is-collapsed' ?>">
                                                         <div class="group-header">
-                                                            <label class="item-main" for="forward_group_special_<?= h($group_key) ?>">
-                                                                <input type="checkbox" id="forward_group_special_<?= h($group_key) ?>" class="item-checkbox group-item-checkbox" data-group="special"
+                                                            <label class="item-main"
+                                                                for="forward_group_special_<?= h($group_key) ?>">
+                                                                <input type="checkbox"
+                                                                    id="forward_group_special_<?= h($group_key) ?>"
+                                                                    class="item-checkbox group-item-checkbox"
+                                                                    data-group="special"
                                                                     data-group-key="<?= h($forward_group_key) ?>"
                                                                     data-group-label="<?= h($group_name) ?>"
                                                                     data-members="<?= h($member_payload_json) ?>"
                                                                     value="<?= h($group_key) ?>">
                                                                 <span class="item-title"><?= h($group_name) ?></span>
-                                                                <small class="item-subtext">สมาชิกทั้งหมด <?= h((string) $member_total) ?> คน</small>
+                                                                <small class="item-subtext">สมาชิกทั้งหมด
+                                                                    <?= h((string) $member_total) ?> คน</small>
                                                             </label>
-                                                            <button type="button" class="group-toggle" aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>" title="แสดง/ซ่อนรายชื่อสมาชิก">
+                                                            <button type="button" class="group-toggle"
+                                                                aria-expanded="<?= $has_selected_member ? 'true' : 'false' ?>"
+                                                                title="แสดง/ซ่อนรายชื่อสมาชิก">
                                                                 <i class="fa-solid fa-chevron-down"></i>
                                                             </button>
                                                         </div>
 
                                                         <ol class="member-sublist">
-                                                            <?php foreach ($member_payload as $member) : ?>
+                                                            <?php foreach ($member_payload as $member): ?>
                                                                 <li>
-                                                                    <label class="item member-item" for="forward_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
-                                                                        <input type="checkbox" id="forward_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>" class="member-checkbox"
+                                                                    <label class="item member-item"
+                                                                        for="forward_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>">
+                                                                        <input type="checkbox"
+                                                                            id="forward_member_special_<?= h($group_key) ?>_<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                            class="member-checkbox"
                                                                             data-member-group-key="<?= h($forward_group_key) ?>"
                                                                             data-member-name="<?= h((string) ($member['name'] ?? '')) ?>"
                                                                             data-group-label="<?= h($group_name) ?>"
-                                                                            name="person_ids[]" value="<?= h((string) ($member['pID'] ?? '')) ?>" <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
-                                                                        <span class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
+                                                                            name="person_ids[]"
+                                                                            value="<?= h((string) ($member['pID'] ?? '')) ?>"
+                                                                            <?= h($is_selected((string) ($member['pID'] ?? ''), $selected_people) ? 'checked' : '') ?>>
+                                                                        <span
+                                                                            class="member-name"><?= h((string) ($member['name'] ?? '')) ?></span>
                                                                     </label>
                                                                 </li>
                                                             <?php endforeach; ?>
@@ -1459,7 +1618,8 @@ ob_start();
                                 <div class="modal-title">
                                     <i class="fa-solid fa-users"></i><span>รายชื่อผู้รับหนังสือเวียน</span>
                                 </div>
-                                <button class="modal-close" id="forward_closeModalBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+                                <button class="modal-close" id="forward_closeModalBtn" type="button"><i
+                                        class="fa-solid fa-xmark"></i></button>
                             </div>
                             <div class="modal-body">
                                 <table class="recipient-table">
@@ -1480,7 +1640,8 @@ ob_start();
 
             <div class="footer-modal">
                 <form id="modalSendForwardForm">
-                    <button type="button" id="forward_btnSendNotice" form="circularForwardForm" data-confirm-title="ยืนยันการส่งหนังสือต่อ">
+                    <button type="button" id="forward_btnSendNotice" form="circularForwardForm"
+                        data-confirm-title="ยืนยันการส่งหนังสือต่อ">
                         <p>ส่งหนังสือต่อ</p>
                     </button>
                 </form>
@@ -1490,21 +1651,17 @@ ob_start();
 
 </section>
 
-<?php if (!$is_outside_view) : ?>
+<?php if (!$is_outside_view): ?>
     <div class="button-circular-notice-index">
-        <button
-            class="button-keep"
-            type="submit"
-            form="bulkActionForm"
+        <button class="button-keep" type="submit" form="bulkActionForm"
             data-confirm="<?= h($archived ? 'ต้องการย้ายหนังสือเวียนที่เลือกกลับไปยังกล่องข้อความหรือไม่' : 'ต้องการจัดเก็บหนังสือเวียนที่เลือกหรือไม่') ?>"
-            data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>"
-            data-confirm-ok="ยืนยัน"
+            data-confirm-title="<?= h($archived ? 'ยืนยันการย้ายกลับ' : 'ยืนยันการจัดเก็บ') ?>" data-confirm-ok="ยืนยัน"
             data-confirm-cancel="ยกเลิก">
             <i class="fa-solid fa-file-import"></i>
             <p><?= h($archived ? 'ย้ายกลับ' : 'จัดเก็บ') ?></p>
         </button>
     </div>
-<?php else : ?>
+<?php else: ?>
     <div class="button-circular-notice-index"></div>
 <?php endif; ?>
 
@@ -1537,7 +1694,7 @@ ob_start();
         },
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const forwardOpenInboxId = <?= json_encode($forward_open_inbox_id, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
         function setupCircularForm(prefix, formId) {
@@ -1554,8 +1711,15 @@ ob_start();
             const closePreviewBtn = document.getElementById('closePreviewBtn');
 
             const maxFiles = 5;
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed', 'application/x-rar', 'application/vnd.rar'];
+            const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'zip', 'rar'];
             let selectedFiles = [];
+            const isAllowedFile = (file) => {
+                const mimeType = String(file?.type || '').toLowerCase();
+                const extension = String(file?.name || '').toLowerCase().split('.').pop() || '';
+
+                return allowedTypes.includes(mimeType) || allowedExtensions.includes(extension);
+            };
 
             const renderFiles = () => {
                 if (!fileList) return;
@@ -1584,7 +1748,11 @@ ob_start();
 
                     const icon = document.createElement('div');
                     icon.className = 'file-icon';
-                    icon.innerHTML = file.type === 'application/pdf' ? '<i class="fa-solid fa-file-pdf"></i>' : '<i class="fa-solid fa-image"></i>';
+                    const mimeType = String(file.type || '').toLowerCase();
+                    const extension = String(file.name || '').toLowerCase().split('.').pop() || '';
+                    icon.innerHTML = mimeType === 'application/pdf' || extension === 'pdf' ?
+                        '<i class="fa-solid fa-file-pdf"></i>' :
+                        (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png'].includes(extension) ? '<i class="fa-solid fa-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                     const text = document.createElement('div');
                     text.className = 'file-text';
@@ -1637,7 +1805,7 @@ ob_start();
                 const existing = new Set(selectedFiles.map((f) => `${f.name}-${f.size}-${f.lastModified}`));
                 Array.from(files).forEach((file) => {
                     const key = `${file.name}-${file.size}-${file.lastModified}`;
-                    if (!existing.has(key) && allowedTypes.includes(file.type) && selectedFiles.length < maxFiles) {
+                    if (!existing.has(key) && isAllowedFile(file) && selectedFiles.length < maxFiles) {
                         selectedFiles.push(file);
                         existing.add(key);
                     }
@@ -1770,12 +1938,12 @@ ob_start();
                 const excludePid = String(form.dataset.excludePid || '').trim();
                 const url = `${recipientSearchEndpoint}?q=${encodeURIComponent(query)}${excludePid !== '' ? `&exclude_pid=${encodeURIComponent(excludePid)}` : ''}`;
                 fetch(url, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    })
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
                     .then((res) => {
                         if (!res.ok) throw new Error();
                         return res.json();
@@ -2055,9 +2223,9 @@ ob_start();
             form.applyRecipientSelection = (selectedPids) => {
                 const selectedSet = new Set(
                     Array.isArray(selectedPids) ?
-                    selectedPids
-                    .map((value) => String(value || '').trim())
-                    .filter((value) => value !== '') : []
+                        selectedPids
+                            .map((value) => String(value || '').trim())
+                            .filter((value) => value !== '') : []
                 );
 
                 memberChecks.forEach((item) => {
@@ -2201,7 +2369,7 @@ ob_start();
         const closeDetailExtBtn = document.getElementById('closeModalNoticeExt');
 
         document.querySelectorAll('.js-open-circular-modal').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 if (this.hasAttribute('data-urgency') && detailModalExt) {
                     detailModalExt.style.display = 'flex';
@@ -2274,7 +2442,10 @@ ob_start();
 
                 const icon = document.createElement('div');
                 icon.className = 'file-icon';
-                icon.innerHTML = mimeType === 'application/pdf' ? '<i class="fa-solid fa-file-pdf"></i>' : '<i class="fa-solid fa-image"></i>';
+                const mimeLower = mimeType.toLowerCase();
+                icon.innerHTML = mimeLower === 'application/pdf' ?
+                    '<i class="fa-solid fa-file-pdf"></i>' :
+                    (mimeLower.startsWith('image/') ? '<i class="fa-solid fa-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                 const text = document.createElement('div');
                 text.className = 'file-text';
@@ -2357,7 +2528,7 @@ ob_start();
         };
 
         document.querySelectorAll('.js-open-circular-send-modal').forEach((btn) => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 openSendModal(this);
             });

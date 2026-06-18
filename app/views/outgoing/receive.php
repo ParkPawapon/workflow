@@ -34,6 +34,48 @@ $priority_options = [
     'ด่วนมาก' => 'ด่วนมาก',
     'ด่วนที่สุด' => 'ด่วนที่สุด',
 ];
+$outgoing_receive_file_accept = implode(',', [
+    'application/pdf',
+    'image/png',
+    'image/jpeg',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-word.document.macroEnabled.12',
+    'application/rtf',
+    'text/rtf',
+    'application/vnd.oasis.opendocument.text',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel.sheet.macroEnabled.12',
+    'text/csv',
+    'application/csv',
+    'application/vnd.oasis.opendocument.spreadsheet',
+    'application/zip',
+    'application/x-zip-compressed',
+    'application/x-rar-compressed',
+    'application/x-rar',
+    'application/vnd.rar',
+    '.pdf',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.doc',
+    '.docx',
+    '.docm',
+    '.dot',
+    '.dotx',
+    '.rtf',
+    '.odt',
+    '.xls',
+    '.xlsx',
+    '.xlsm',
+    '.xlt',
+    '.xltx',
+    '.csv',
+    '.ods',
+    '.zip',
+    '.rar',
+]);
 
 $faction_options = ['' => 'เลือกกลุ่ม/ฝ่าย'];
 
@@ -356,7 +398,6 @@ ob_start();
         min-width: 160px !important;
         max-width: 160px !important;
     }
-    
     .circular-track-modal-host {
         width: 0 !important;
         height: 0 !important;
@@ -2493,7 +2534,7 @@ ob_start();
 
 <div class="form-group row">
     <section class="upload-layout">
-        <input type="file" id="coverFileInput" name="cover_file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" style="display: none;">
+        <input type="file" id="coverFileInput" name="cover_file" accept="<?= h($outgoing_receive_file_accept) ?>" style="display: none;">
         <div class="row form-group">
             <button class="btn btn-upload-small" type="button" id="btnCoverAddFile">
                 <p>เพิ่มไฟล์</p>
@@ -2512,7 +2553,7 @@ ob_start();
     <div class="input-group">
         <p><strong>อัปโหลดไฟล์เอกสาร</strong></p>
         <section class="upload-layout">
-            <input type="file" id="fileInput" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" style="display: none;" />
+            <input type="file" id="fileInput" name="attachments[]" multiple accept="<?= h($outgoing_receive_file_accept) ?>" style="display: none;" />
 
             <div class="upload-box" id="dropzone">
                 <i class="fa-solid fa-upload"></i>
@@ -2529,7 +2570,7 @@ ob_start();
         <p>เพิ่มไฟล์</p>
     </button>
     <div class="file-hint">
-        <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) ถ้ามี *</p>
+        <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PDF, รูปภาพ, Word และ Excel) ถ้ามี *</p>
     </div>
 </div>
 
@@ -2671,8 +2712,19 @@ ob_start();
                         $date_display_parts = $format_thai_datetime_parts((string) ($item['createdAt'] ?? ''));
                         $receive_seq = (int) ($item['extReceiveSeq'] ?? 0);
                         $book_no = trim((string) ($item['extBookNo'] ?? ''));
+                        $doc_heading_parts = [];
+
+                        if ($receive_seq > 0) {
+                            $doc_heading_parts[] = '#' . (string) $receive_seq;
+                        }
+
+                        if ($book_no !== '') {
+                            $doc_heading_parts[] = $book_no;
+                        }
+
+                        $doc_heading = implode(', ', $doc_heading_parts);
                         $priority_key = outgoing_normalize_priority_key((string) ($item['extPriority'] ?? 'ปกติ'));
-                        $is_editable = $status_key === EXTERNAL_STATUS_SUBMITTED;
+                        $is_editable = in_array($status_key, [EXTERNAL_STATUS_SUBMITTED, EXTERNAL_STATUS_PENDING_REVIEW], true);
                         ?>
                         <tr>
                             <td>
@@ -2695,8 +2747,8 @@ ob_start();
                                 </div>
                             </td>
                             <td>
-                                <?php if ($book_no !== '') : ?>
-                                    <div class="outgoing-receive-doc-line">#<?= h((string) $receive_seq) ?>, <?= h($book_no) ?></div>
+                                <?php if ($doc_heading !== '') : ?>
+                                    <div class="outgoing-receive-doc-line"><?= h($doc_heading) ?></div>
                                 <?php endif; ?>
                                 <div class="outgoing-receive-doc-subject"><?= h((string) ($item['subject'] ?? '-')) ?></div>
                             </td>
@@ -4756,7 +4808,7 @@ ob_start();
                             type="file"
                             id="coverFileInput_modal"
                             name="cover_file"
-                            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                            accept="<?= h($outgoing_receive_file_accept) ?>"
                             style="display: none;">
 
                         <div class="row form-group">
@@ -4778,7 +4830,7 @@ ob_start();
                     <div class="input-group">
                         <p><strong>อัปโหลดไฟล์เอกสาร</strong></p>
                         <section class="upload-layout">
-                            <input type="file" id="fileInput_modal" name="attachments[]" multiple accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" style="display: none;" />
+                            <input type="file" id="fileInput_modal" name="attachments[]" multiple accept="<?= h($outgoing_receive_file_accept) ?>" style="display: none;" />
 
                             <div class="upload-box" id="dropzone_modal">
                                 <i class="fa-solid fa-upload"></i>
@@ -4795,7 +4847,7 @@ ob_start();
                         <p>เพิ่มไฟล์</p>
                     </button>
                     <div class="file-hint">
-                        <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PNG และ PDF) ถ้ามี *</p>
+                        <p>* แนบไฟล์ได้สูงสุด 5 ไฟล์ (รวม PDF, รูปภาพ, Word และ Excel) ถ้ามี *</p>
                     </div>
                 </div>
 
@@ -5490,10 +5542,50 @@ ob_start();
             const addFilesBtn = options.addButtonId ? document.getElementById(options.addButtonId) : null;
             const form = fileInput ? fileInput.closest('form') : null;
 
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-            const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
-            const getFileExtension = (file) => String(file?.name || '').split('.').pop().toLowerCase();
-            const isAllowedFile = (file) => allowedTypes.includes(file.type) || allowedExtensions.includes(getFileExtension(file));
+            const allowedTypes = [
+                'application/pdf',
+                'image/jpeg',
+                'image/png',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-word.document.macroEnabled.12',
+                'application/rtf',
+                'text/rtf',
+                'application/vnd.oasis.opendocument.text',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel.sheet.macroEnabled.12',
+                'text/csv',
+                'application/csv',
+                'application/vnd.oasis.opendocument.spreadsheet',
+                'application/zip',
+                'application/x-zip-compressed',
+                'application/x-rar-compressed',
+                'application/x-rar',
+                'application/vnd.rar',
+            ];
+            const allowedExtensions = [
+                'pdf',
+                'jpg',
+                'jpeg',
+                'png',
+                'doc',
+                'docx',
+                'docm',
+                'dot',
+                'dotx',
+                'rtf',
+                'odt',
+                'xls',
+                'xlsx',
+                'xlsm',
+                'xlt',
+                'xltx',
+                'csv',
+                'ods',
+                'zip',
+                'rar',
+            ];
             let selectedFiles = [];
             let existingFiles = [];
             let existingEntityId = '';
@@ -5521,9 +5613,41 @@ ob_start();
                 });
             };
 
-            const buildFileIconMarkup = (mimeType) => {
+            const getFileExtension = (fileName) => {
+                const normalizedName = String(fileName || '').trim().toLowerCase();
+                const dotIndex = normalizedName.lastIndexOf('.');
+
+                return dotIndex >= 0 ? normalizedName.slice(dotIndex + 1) : '';
+            };
+
+            const isAllowedFile = (file) => {
+                const normalizedType = String(file?.type || '').trim().toLowerCase();
+                const extension = getFileExtension(file?.name);
+
+                return allowedTypes.includes(normalizedType) || allowedExtensions.includes(extension);
+            };
+
+            const buildFileIconMarkup = (mimeType, fileName = '') => {
                 const normalizedMime = String(mimeType || '').toLowerCase();
-                return normalizedMime.includes('pdf') ? '<i class="fa-solid fa-file-pdf"></i>' : '<i class="fa-solid fa-file-image"></i>';
+                const extension = getFileExtension(fileName);
+
+                if (normalizedMime.includes('pdf') || extension === 'pdf') {
+                    return '<i class="fa-solid fa-file-pdf"></i>';
+                }
+
+                if (normalizedMime.startsWith('image/') || ['jpg', 'jpeg', 'png'].includes(extension)) {
+                    return '<i class="fa-solid fa-file-image"></i>';
+                }
+
+                if (normalizedMime.includes('word') || ['doc', 'docx', 'docm', 'dot', 'dotx', 'rtf', 'odt'].includes(extension)) {
+                    return '<i class="fa-solid fa-file-word"></i>';
+                }
+
+                if (normalizedMime.includes('excel') || normalizedMime.includes('spreadsheet') || normalizedMime.includes('csv') || ['xls', 'xlsx', 'xlsm', 'xlt', 'xltx', 'csv', 'ods'].includes(extension)) {
+                    return '<i class="fa-solid fa-file-excel"></i>';
+                }
+
+                return '<i class="fa-solid fa-file-lines"></i>';
             };
 
             const buildExistingFileUrl = (file) => {
@@ -5565,7 +5689,7 @@ ob_start();
 
                     const icon = document.createElement('div');
                     icon.className = 'file-icon';
-                    icon.innerHTML = buildFileIconMarkup(file?.mimeType);
+                    icon.innerHTML = buildFileIconMarkup(file?.mimeType, file?.fileName);
 
                     const text = document.createElement('div');
                     text.className = 'file-text';
@@ -5615,7 +5739,7 @@ ob_start();
 
                     const icon = document.createElement('div');
                     icon.className = 'file-icon';
-                    icon.innerHTML = buildFileIconMarkup(file.type);
+                    icon.innerHTML = buildFileIconMarkup(file.type, file.name);
 
                     const text = document.createElement('div');
                     text.className = 'file-text';
@@ -5940,9 +6064,28 @@ ob_start();
                 const mimeType = String(file?.mimeType || '').trim();
                 const typeLabel = escapeHtml(`${mimeType !== '' ? mimeType : 'ไฟล์แนบ'} • ${formatFileSize(file?.fileSize || 0)}`);
                 const viewHref = `public/api/file-download.php?module=circulars&entity_id=${safeCircularId}&file_id=${fileId}`;
-                const iconHtml = mimeType.toLowerCase() === 'application/pdf' ?
-                    '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                    '<i class="fa-solid fa-file-image" aria-hidden="true"></i>';
+                const iconHtml = (() => {
+                    const normalizedMime = mimeType.toLowerCase();
+                    const extension = String(file?.fileName || '').trim().toLowerCase().split('.').pop() || '';
+
+                    if (normalizedMime.includes('pdf') || extension === 'pdf') {
+                        return '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>';
+                    }
+
+                    if (normalizedMime.startsWith('image/') || ['jpg', 'jpeg', 'png'].includes(extension)) {
+                        return '<i class="fa-solid fa-file-image" aria-hidden="true"></i>';
+                    }
+
+                    if (normalizedMime.includes('word') || ['doc', 'docx', 'docm', 'dot', 'dotx', 'rtf', 'odt'].includes(extension)) {
+                        return '<i class="fa-solid fa-file-word" aria-hidden="true"></i>';
+                    }
+
+                    if (normalizedMime.includes('excel') || normalizedMime.includes('spreadsheet') || normalizedMime.includes('csv') || ['xls', 'xlsx', 'xlsm', 'xlt', 'xltx', 'csv', 'ods'].includes(extension)) {
+                        return '<i class="fa-solid fa-file-excel" aria-hidden="true"></i>';
+                    }
+
+                    return '<i class="fa-solid fa-file-lines" aria-hidden="true"></i>';
+                })();
 
                 return `<div class="file-item-wrapper">
                     <div class="file-banner">

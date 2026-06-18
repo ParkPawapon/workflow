@@ -236,92 +236,6 @@ ob_start();
             max-width: 250px;
         }
     }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .table-circular-notice-index table thead th:nth-child(3),
-    .table-circular-notice-index table tbody td:nth-child(1) {
-        text-align: center !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .table-circular-notice-index table tbody td:nth-child(2),
-    .table-circular-notice-index table tbody td:nth-child(4),
-    .circular-my-table thead th:nth-child(4) {
-        text-align: start !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(1),
-    .booking-table td:nth-child(1) {
-        width: 80px !important;
-        min-width: 80px !important;
-        max-width: 80px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(2),
-    .booking-table td:nth-child(2) {
-        width: 600px !important;
-        min-width: 600px !important;
-        max-width: 600px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(3),
-    .booking-table td:nth-child(3) {
-        width: 200px !important;
-        min-width: 200px !important;
-        max-width: 200px !important;
-    }
-
-    .table-circular-notice-index table thead th:nth-child(4),
-    .booking-table td:nth-child(4) {
-        width: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-    }
-
-    @media screen and (max-width: 1024px) {
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .table-circular-notice-index table thead th:nth-child(3),
-        .table-circular-notice-index table tbody td:nth-child(1) {
-            text-align: center !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .table-circular-notice-index table tbody td:nth-child(2),
-        .table-circular-notice-index table tbody td:nth-child(4),
-        .circular-my-table thead th:nth-child(4) {
-            text-align: start !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(1),
-        .booking-table td:nth-child(1) {
-            width: 60px !important;
-            min-width: 60px !important;
-            max-width: 60px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(2),
-        .booking-table td:nth-child(2) {
-            width: 550px !important;
-            min-width: 550px !important;
-            max-width: 550px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(3),
-        .booking-table td:nth-child(3) {
-            width: 180px !important;
-            min-width: 180px !important;
-            max-width: 180px !important;
-        }
-
-        .table-circular-notice-index table thead th:nth-child(4),
-        .booking-table td:nth-child(4) {
-            width: 140px !important;
-            min-width: 140px !important;
-            max-width: 140px !important;
-        }
-
-    }
 </style>
 
 <div class="content-header">
@@ -3580,17 +3494,17 @@ ob_start();
         </div>
     </div>
 
-    <div class="table-responsive table-circular-notice-index circular-my-table-wrap order-create">
+    <div class="table-responsive circular-my-table-wrap order-create">
         <script type="application/json" class="js-order-send-map">
             <?= (string) json_encode($send_modal_payload_map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
         </script>
         <table class="custom-table circular-my-table">
             <thead>
                 <tr>
-                    <th>จัดการ</th>
                     <th>เรื่อง</th>
                     <th>สถานะ</th>
                     <th>วันที่ดำเนินการ</th>
+                    <th>จัดการ</th>
                 </tr>
             </thead>
             <tbody>
@@ -3613,27 +3527,6 @@ ob_start();
                         ?>
                         <tr>
                             <td>
-                                <div class="circular-my-actions">
-                                    <?php if ($is_waiting_attachment): ?>
-                                        <button class="booking-action-btn secondary js-open-order-edit-modal" type="button"
-                                            data-outgoing-id="<?= h((string) $outgoing_id) ?>"
-                                            data-outgoing-priority-key="<?= h($modal_priority_key) ?>" title="ดู/แนบไฟล์"
-                                            aria-label="ดู/แนบไฟล์">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                            <span class="tooltip">ดู/แนบไฟล์</span>
-                                        </button>
-                                    <?php else: ?>
-                                        <button class="booking-action-btn secondary js-open-order-view-modal" type="button"
-                                            data-outgoing-id="<?= h((string) $outgoing_id) ?>"
-                                            data-outgoing-priority-key="<?= h($modal_priority_key) ?>" title="ดูรายละเอียด"
-                                            aria-label="ดูรายละเอียด">
-                                            <i class="fa-solid fa-eye"></i>
-                                            <span class="tooltip">ดูรายละเอียด</span>
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td>
                                 <?php if ($outgoing_no !== ''): ?>
                                     <div class="circular-my-subject">เลขทะเบียนส่ง <?= h($outgoing_no) ?></div>
                                 <?php endif; ?>
@@ -3652,6 +3545,27 @@ ob_start();
                                         class="order-create-datetime-date"><?= h((string) ($date_display_parts['date'] ?? '-')) ?></span>
                                     <span
                                         class="order-create-datetime-time"><?= h((string) ($date_display_parts['time'] ?? '-')) ?></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="circular-my-actions">
+                                    <?php if ($is_waiting_attachment): ?>
+                                        <button class="booking-action-btn secondary js-open-order-edit-modal" type="button"
+                                            data-outgoing-id="<?= h((string) $outgoing_id) ?>"
+                                            data-outgoing-priority-key="<?= h($modal_priority_key) ?>" title="ดู/แนบไฟล์"
+                                            aria-label="ดู/แนบไฟล์">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                            <span class="tooltip">ดู/แนบไฟล์</span>
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="booking-action-btn secondary js-open-order-view-modal" type="button"
+                                            data-outgoing-id="<?= h((string) $outgoing_id) ?>"
+                                            data-outgoing-priority-key="<?= h($modal_priority_key) ?>" title="ดูรายละเอียด"
+                                            aria-label="ดูรายละเอียด">
+                                            <i class="fa-solid fa-eye"></i>
+                                            <span class="tooltip">ดูรายละเอียด</span>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -3727,7 +3641,7 @@ ob_start();
                         <label>อัปโหลดไฟล์หนังสือนำ</label>
                         <section class="upload-layout">
                             <input type="file" id="coverFileInput_modal" name="cover_file"
-                                accept="application/pdf,image/png,image/jpeg" style="display: none;">
+                                accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" style="display: none;">
 
                             <div class="row form-group">
                                 <button class="btn btn-upload-small" type="button" id="btnCoverAddFile_modal">
@@ -3746,7 +3660,7 @@ ob_start();
                         <label>อัปโหลดไฟล์เอกสาร</label>
                         <section class="upload-layout">
                             <input type="file" id="fileInput_modal" name="attachments[]" multiple
-                                accept="application/pdf,image/png,image/jpeg" style="display: none;">
+                                accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,application/pdf,image/png,image/jpeg,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-rar,application/vnd.rar" style="display: none;">
 
                             <div class="upload-box" id="dropzone_modal">
                                 <i class="fa-solid fa-upload"></i>
@@ -3764,7 +3678,7 @@ ob_start();
                                 <p>เพิ่มไฟล์</p>
                             </button>
                             <div class="file-hint">
-                                <p>* แนบไฟล์เอกสารได้สูงสุด 4 ไฟล์ (รวม PNG และ PDF) *</p>
+                                    <p>* แนบไฟล์เอกสารได้สูงสุด 4 ไฟล์ (รวม PDF, PNG, JPG, ZIP, RAR) *</p>
                             </div>
                         </div>
 
@@ -6909,6 +6823,87 @@ ob_start();
     </div>
 </div>
 
+<!-- <div class="content-circular-notice-index circular-track-modal-host">
+    <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
+        <div class="modal-content">
+            <div class="header-modal">
+                <div class="first-header">
+                    <p id="modalOutgoingViewTitle">ดูรายละเอียดออกเลขทะเบียนส่ง</p>
+                </div>
+                <div class="sec-header">
+                    <i class="fa-solid fa-xmark" id="modalOrderViewCloseBtn"></i>
+                </div>
+            </div>
+
+            <div class="content-modal">
+                <div class="type-urgent">
+                    <p>ประเภท</p>
+                    <div class="radio-group-urgent">
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="normal" checked
+                            id="modalOutgoingViewUrgentNormal"><label for="modalOutgoingViewUrgentNormal">ปกติ</label>
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="urgent" disabled
+                            id="modalOutgoingViewUrgentUrgent"><label for="modalOutgoingViewUrgentUrgent">ด่วน</label>
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="high" disabled
+                            id="modalOutgoingViewUrgentHigh"><label for="modalOutgoingViewUrgentHigh">ด่วนมาก</label>
+                        <input type="radio" name="outgoingViewUrgent" data-outgoing-view-urgent="highest" disabled
+                            id="modalOutgoingViewUrgentHighest"><label
+                            for="modalOutgoingViewUrgentHighest">ด่วนที่สุด</label>
+                    </div>
+                </div>
+                <div class="content-topic-sec">
+                    <div class="more-details">
+                        <p><strong>เลขทะเบียน</strong></p>
+                        <input type="text" id="modalOutgoingViewNo" class="order-no-display" value="-" disabled>
+                    </div>
+                    <div class="more-details">
+                        <p><strong>เรื่อง</strong></p>
+                        <input type="text" id="modalOutgoingViewSubject" class="order-no-display" value="-" disabled>
+                    </div>
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details">
+                        <p><strong>ลงวันที่</strong></p>
+                        <input type="date" id="modalOutgoingViewEffectiveDate" class="order-no-display" value=""
+                            disabled>
+                    </div>
+                    <div class="more-details">
+                        <p><strong>ส่งถึง</strong></p>
+                        <input type="text" id="modalOutgoingViewIssuer" class="order-no-display" value="-" disabled>
+                    </div>
+                </div>
+
+                <div class="content-topic-sec">
+                    <div class="more-details">
+                        <p><strong>ผู้ออกเลข</strong></p>
+                        <input type="text" id="modalOutgoingViewIssuerName" class="order-no-display" value="" disabled>
+                    </div>
+                    <div class="more-details" hidden style="display: none;" aria-hidden="true">
+                        <p><strong>เจ้าของเรื่อง</strong></p>
+                        <input type="text" id="modalOutgoingViewOwnerNames" class="order-no-display" value="" disabled>
+                    </div>
+                </div>
+
+                <div class="file-section" id="sectionViewCover">
+                    <p><strong>ไฟล์หนังสือนำ</strong></p>
+                    <div class="file-list" id="containerViewCover" aria-live="polite"></div>
+                </div>
+
+                <div class="file-section" id="sectionViewAttachments">
+                    <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
+                    <div class="file-list" id="containerViewAttachments" aria-live="polite"></div>
+                </div>
+
+
+            </div>
+
+            <div class="footer-modal">
+            </div>
+
+        </div>
+    </div>
+</div> -->
+
 <div class="content-circular-notice-index circular-track-modal-host">
     <div class="modal-overlay-circular-notice-index outside-person" id="modalOrderViewOverlay">
         <div class="modal-content">
@@ -7257,11 +7252,10 @@ ob_start();
                 const mimeType = escapeHtml(String(file?.mimeType || 'ไฟล์แนบ'));
                 const viewHref = `public/api/file-download.php?module=outgoing&entity_id=${safeOutgoingId}&file_id=${fileId}`;
 
-                const isImage = String(file?.mimeType || '').toLowerCase().startsWith('image/');
-
-                const iconHtml = !isImage ?
+                const mimeLower = String(file?.mimeType || '').toLowerCase();
+                const iconHtml = mimeLower === 'application/pdf' ?
                     '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                    '<i class="fa-solid fa-file-image" aria-hidden="true"></i>';
+                    (mimeLower.startsWith('image/') ? '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' : '<i class="fa-solid fa-file" aria-hidden="true"></i>');
 
                 return `<div class="file-item-wrapper">
                     <div class="file-banner">
@@ -7385,9 +7379,10 @@ ob_start();
                 const fileName = escapeHtml(String(file?.fileName || '-'));
                 const mimeType = escapeHtml(String(file?.mimeType || 'ไฟล์แนบ'));
                 const viewHref = `public/api/file-download.php?module=outgoing&entity_id=${safeOutgoingId}&file_id=${fileId}`;
-                const iconHtml = String(file?.mimeType || '').toLowerCase() === 'application/pdf' ?
+                const mimeLower = String(file?.mimeType || '').toLowerCase();
+                const iconHtml = mimeLower === 'application/pdf' ?
                     '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                    '<i class="fa-solid fa-file-image" aria-hidden="true"></i>';
+                    (mimeLower.startsWith('image/') ? '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' : '<i class="fa-solid fa-file" aria-hidden="true"></i>');
 
                 return `<div class="file-banner">
                     <div class="file-info">
@@ -8207,10 +8202,18 @@ ob_start();
             const previewCaption = document.getElementById("previewCaption");
             const closePreviewBtn = document.getElementById("closePreviewBtn");
 
-            const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+            const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "application/zip", "application/x-zip-compressed", "application/x-rar-compressed", "application/x-rar", "application/vnd.rar"];
+            const allowedExtensions = ["pdf", "jpg", "jpeg", "png", "zip", "rar"];
             let selectedFiles = [];
 
             if (!fileInput) return null;
+
+            const isAllowedFile = (file) => {
+                const mimeType = String(file?.type || "").toLowerCase();
+                const extension = String(file?.name || "").toLowerCase().split(".").pop() || "";
+
+                return allowedTypes.includes(mimeType) || allowedExtensions.includes(extension);
+            };
 
             const renderFiles = () => {
                 if (!fileList) return;
@@ -8244,9 +8247,11 @@ ob_start();
 
                     const icon = document.createElement("div");
                     icon.className = "file-icon";
-                    icon.innerHTML = file.type === "application/pdf" ?
+                    const mimeType = String(file.type || "").toLowerCase();
+                    const extension = String(file.name || "").toLowerCase().split(".").pop() || "";
+                    icon.innerHTML = mimeType === "application/pdf" || extension === "pdf" ?
                         '<i class="fa-solid fa-file-pdf"></i>' :
-                        '<i class="fa-solid fa-file-image"></i>';
+                        (mimeType.startsWith("image/") || ["jpg", "jpeg", "png"].includes(extension) ? '<i class="fa-solid fa-file-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                     const text = document.createElement("div");
                     text.className = "file-text";
@@ -8326,7 +8331,7 @@ ob_start();
 
                     const key = `${file.name}-${file.size}-${file.lastModified}`;
                     if (existing.has(key)) return;
-                    if (!allowedTypes.includes(file.type)) return;
+                    if (!isAllowedFile(file)) return;
 
                     selectedFiles.push(file);
                     existing.add(key);
@@ -8431,44 +8436,6 @@ ob_start();
             });
         }
 
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const slider = document.querySelector('.table-circular-notice-index');
-
-        if (!slider) return;
-
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true;
-            slider.classList.add('is-dragging');
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        });
-
-        slider.addEventListener('mouseleave', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mouseup', () => {
-            isDown = false;
-            slider.classList.remove('is-dragging');
-        });
-
-        slider.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-
-            e.preventDefault();
-
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.5;
-
-            slider.scrollLeft = scrollLeft - walk;
-        });
     });
 </script>
 

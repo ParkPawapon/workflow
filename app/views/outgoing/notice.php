@@ -909,7 +909,7 @@ ob_start();
                                                 data-consider="<?= h((string) ($item['consider_class'] ?? 'considering')) ?>"
                                                 data-files="<?= h($file_json) ?>"
                                                 data-read-stats="<?= h($read_stats_json) ?>"
-                                                data-show-read-stats="<?= h($can_deputy_distribute_item ? '1' : '0') ?>"
+                                                data-show-read-stats="<?= h(!empty($item['show_read_stats']) ? '1' : '0') ?>"
                                                 data-review-chain-registry-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['registry_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['director_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
@@ -1078,6 +1078,8 @@ ob_start();
                                                 data-status="<?= h((string) ($item['status_label'] ?? '-')) ?>"
                                                 data-consider="<?= h((string) ($item['consider_class'] ?? 'considering')) ?>"
                                                 data-files="<?= h($file_json) ?>"
+                                                data-read-stats="<?= h($read_stats_json) ?>"
+                                                data-show-read-stats="<?= h(!empty($item['show_read_stats']) ? '1' : '0') ?>"
                                                 data-review-chain-registry-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['registry_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-comment="<?= h((bool) ($item['show_review_chain_comments'] ?? false) ? (string) ($item['director_comment'] ?? '') : '') ?>"
                                                 data-review-chain-director-label="<?= h((string) ($item['director_comment_label'] ?? 'ความคิดเห็นของผู้อำนวยการโรงเรียน')) ?>"
@@ -2246,8 +2248,15 @@ ob_start();
             const isRegistryHandoff = () => String(form.dataset.registryHandoff || '').trim() === '1';
 
             const maxFiles = 5;
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed', 'application/x-rar', 'application/vnd.rar'];
+            const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'zip', 'rar'];
             let selectedFiles = [];
+            const isAllowedFile = (file) => {
+                const mimeType = String(file?.type || '').toLowerCase();
+                const extension = String(file?.name || '').toLowerCase().split('.').pop() || '';
+
+                return allowedTypes.includes(mimeType) || allowedExtensions.includes(extension);
+            };
 
             const renderFiles = () => {
                 if (!fileList) return;
@@ -2276,7 +2285,11 @@ ob_start();
 
                     const icon = document.createElement('div');
                     icon.className = 'file-icon';
-                    icon.innerHTML = file.type === 'application/pdf' ? '<i class="fa-solid fa-file-pdf"></i>' : '<i class="fa-solid fa-image"></i>';
+                    const mimeType = String(file.type || '').toLowerCase();
+                    const extension = String(file.name || '').toLowerCase().split('.').pop() || '';
+                    icon.innerHTML = mimeType === 'application/pdf' || extension === 'pdf' ?
+                        '<i class="fa-solid fa-file-pdf"></i>' :
+                        (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png'].includes(extension) ? '<i class="fa-solid fa-image"></i>' : '<i class="fa-solid fa-file"></i>');
 
                     const text = document.createElement('div');
                     text.className = 'file-text';
@@ -2329,7 +2342,7 @@ ob_start();
                 const existing = new Set(selectedFiles.map((f) => `${f.name}-${f.size}-${f.lastModified}`));
                 Array.from(files).forEach((file) => {
                     const key = `${file.name}-${file.size}-${file.lastModified}`;
-                    if (!existing.has(key) && allowedTypes.includes(file.type) && selectedFiles.length < maxFiles) {
+                    if (!existing.has(key) && isAllowedFile(file) && selectedFiles.length < maxFiles) {
                         selectedFiles.push(file);
                         existing.add(key);
                     }
@@ -3311,9 +3324,10 @@ ob_start();
                 const fileName = escapeHtml(String(file?.fileName || '-'));
                 const mimeType = String(file?.mimeType || '').trim();
                 const typeLabel = escapeHtml(`${mimeType !== '' ? mimeType : 'ไฟล์แนบ'} • ${formatFileSize(file?.fileSize || 0)}`);
-                const iconHtml = mimeType.toLowerCase() === 'application/pdf' ?
+                const mimeLower = mimeType.toLowerCase();
+                const iconHtml = mimeLower === 'application/pdf' ?
                     '<i class="fa-solid fa-file-pdf" aria-hidden="true"></i>' :
-                    '<i class="fa-solid fa-file-image" aria-hidden="true"></i>';
+                    (mimeLower.startsWith('image/') ? '<i class="fa-solid fa-file-image" aria-hidden="true"></i>' : '<i class="fa-solid fa-file" aria-hidden="true"></i>');
                 const viewHref = `public/api/file-download.php?module=circulars&entity_id=${safeCircularId}&file_id=${fileId}`;
 
                 return `<div class="file-item-wrapper">

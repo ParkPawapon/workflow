@@ -246,24 +246,24 @@ ob_start();
                 </div>
 
                 <div class="content-modal">
-                    <div class="content-topic-sec">
+                    <div class="content-topic-sec row-format">
                         <p><strong>หัวเรื่อง :</strong></p>
                         <p id="modalSubject">-</p>
                     </div>
-                    <div class="content-topic-sec">
+                    <div class="content-topic-sec row-format">
                         <p><strong>ผู้ส่ง :</strong></p>
                         <p id="modalSender">-</p>
                     </div>
-                    <div class="content-topic-sec">
+                    <div class="content-topic-sec row-format">
                         <p><strong>วันที่ส่ง :</strong></p>
                         <p id="modalDate">-</p>
                     </div>
 
-                    <div class="content-details-sec">
+                    <div class="content-details-sec column-format">
                         <p><strong>รายละเอียดเพิ่มเติม</strong></p>
                         <p id="modalDetail">-</p>
                     </div>
-                    <div class="content-details-sec">
+                    <div class="content-details-sec column-format">
                         <p><strong>ลิ้งก์แนบจากระบบ</strong></p>
                         <a id="modalLink" href="#" target="_blank" rel="noopener">-</a>
                     </div>
@@ -446,29 +446,29 @@ ob_start();
                             </button>
                         </div>
                         <div class="content-topic-sec">
-                            <div class="more-details">
+                            <div class="more-details row-format">
                                 <p><strong>เลขที่หนังสือ :</strong></p>
                                 <input type="text" id="modalBookNo" placeholder="-" disabled>
                             </div>
-                            <div class="more-details">
+                            <div class="more-details row-format">
                                 <p><strong>ลงวันที่ : </strong></p>
                                 <input type="text" id="modalIssuedDate" placeholder="-" disabled>
                             </div>
-                            <div class="more-details">
+                            <div class="more-details row-format">
                                 <p><strong>จาก : </strong></p>
                                 <input type="text" id="modalFromText" placeholder="-" disabled>
                             </div>
-                            <div class="more-details">
+                            <div class="more-details row-format">
                                 <p><strong>ถึง : </strong></p>
                                 <input type="text" id="modalToText" placeholder="-" disabled>
                             </div>
                         </div>
 
-                        <div class="content-details-sec">
+                        <div class="content-details-sec row-format">
                             <p><strong>หัวเรื่อง :</strong></p>
                             <p id="modalSubject">-</p>
                         </div>
-                        <div class="content-details-sec">
+                        <div class="content-details-sec column-format">
                             <p><strong>รายละเอียดเพิ่มเติม</strong></p>
                             <p id="modalDetail">-</p>
                         </div>
@@ -479,11 +479,13 @@ ob_start();
                         </div>
 
                         <div class="content-time-and-considered-sec">
-                            <div class="more-details">
+                            <div class="more-details row-format">
                                 <p><strong>รับหนังสือเข้าระบบ : </strong></p>
                                 <input type="text" id="modalReceivedTime" placeholder="-" disabled>
                             </div>
-                            <div class="more-details">
+                        </div>
+                        <div class="content-time-and-considered-sec">
+                            <div class="more-details row-format">
                                 <p><strong>สถานะ : </strong></p>
                                 <input type="text" id="modalStatus" placeholder="-" disabled>
                             </div>
