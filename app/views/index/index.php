@@ -6,6 +6,9 @@ $room_booking_events = (array) ($room_booking_events ?? []);
 $calendar_events = (array) ($calendar_events ?? []);
 $dh_year_value = (int) ($dh_year_value ?? 0);
 $dh_version_value = trim((string) ($dh_version_value ?? '1.0.0'));
+$remembered_pid = preg_replace('/\D+/', '', (string) ($_COOKIE['dbsarabun_remember_pid'] ?? '')) ?? '';
+$remembered_pid = substr($remembered_pid, 0, 13);
+$remember_checked = $remembered_pid !== '';
 
 if ($dh_year_value <= 0) {
     $dh_year_value = (int) date('Y') + 543;
@@ -225,7 +228,7 @@ if ($index_announcement_payload_json === false) {
 
 <body>
     <?php require_once __DIR__ . '/../../../public/components/layout/preloader.php'; ?>
-    <?php if (!empty($login_alert)) : ?>
+    <?php if (!empty($login_alert)): ?>
         <?php $alert = $login_alert; ?>
         <?php require __DIR__ . '/../../../public/components/x-alert.php'; ?>
     <?php endif; ?>
@@ -245,20 +248,25 @@ if ($index_announcement_payload_json === false) {
             </header>
 
             <section class="form-login">
-                <form action="<?= htmlspecialchars($_SERVER['PHP_SELF'] ?? 'index.php', ENT_QUOTES, 'UTF-8') ?>" method="POST" enctype="application/x-www-form-urlencoded">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string) ($_SESSION['csrf_token'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                <form action="<?= htmlspecialchars($_SERVER['PHP_SELF'] ?? 'index.php', ENT_QUOTES, 'UTF-8') ?>"
+                    method="POST" enctype="application/x-www-form-urlencoded">
+                    <input type="hidden" name="csrf_token"
+                        value="<?= htmlspecialchars((string) ($_SESSION['csrf_token'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="input-id-login-group">
                         <label for="pID">เลขบัตรประชาชน</label>
-                        <input type="text" name="pID" id="pID" placeholder="เลขบัตรประชาชน" required>
+                        <input type="text" name="pID" id="pID" placeholder="เลขบัตรประชาชน"
+                            value="<?= htmlspecialchars($remembered_pid, ENT_QUOTES, 'UTF-8') ?>"
+                            autocomplete="username" required>
                     </div>
 
                     <div class="input-password-login-group">
                         <label for="password">รหัสผ่าน</label>
-                        <input type="password" name="password" id="password-toggle" placeholder="รหัสผ่าน" required>
+                        <input type="password" name="password" id="password-toggle" placeholder="รหัสผ่าน"
+                            autocomplete="current-password" required>
                     </div>
 
                     <label class="remember-me-group">
-                        <input type="checkbox" name="remember-me" id="remember">
+                        <input type="checkbox" name="remember-me" id="remember" value="1" <?= $remember_checked ? 'checked' : '' ?>>
                         <span class="checkmark"></span>
                         <p>จดจำฉัน</p>
                     </label>
@@ -271,7 +279,8 @@ if ($index_announcement_payload_json === false) {
 
             <footer class="footer-login">
                 <p>ระบบงานสารบรรณออนไลน์ โรงเรียนดีบุกพังงาวิทยายน</p>
-                <p>DB SARABUN <?= htmlspecialchars($dh_version_value, ENT_QUOTES, 'UTF-8') ?> Copyright © 2026 TPH. All rights reserved</p>
+                <p>DB SARABUN <?= htmlspecialchars($dh_version_value, ENT_QUOTES, 'UTF-8') ?> Copyright © 2026 TPH. All
+                    rights reserved</p>
                 <p>Paperless office พ.ศ.<?= htmlspecialchars((string) $dh_year_value, ENT_QUOTES, 'UTF-8') ?></p>
             </footer>
 
@@ -286,7 +295,8 @@ if ($index_announcement_payload_json === false) {
 
             <header class="announcement-bar">
                 <img src="public/assets/img/icon/demostration.png" alt="">
-                <p><?= htmlspecialchars($exec_duty_announcement !== '' ? $exec_duty_announcement : 'วันนี้ยังไม่มีข้อมูลการปฏิบัติราชการ', ENT_QUOTES, 'UTF-8') ?></p>
+                <p><?= htmlspecialchars($exec_duty_announcement !== '' ? $exec_duty_announcement : 'วันนี้ยังไม่มีข้อมูลการปฏิบัติราชการ', ENT_QUOTES, 'UTF-8') ?>
+                </p>
                 <div class="close-news-section">
                     <i class="fa-solid fa-xmark" id="closeNewsBtn"></i>
                 </div>
@@ -303,12 +313,12 @@ if ($index_announcement_payload_json === false) {
 
                 <div class="details-news-bar">
                     <ul>
-                        <?php if (empty($announcement_items)) : ?>
+                        <?php if (empty($announcement_items)): ?>
                             <li>
                                 <p>ยังไม่มีข่าวประชาสัมพันธ์</p>
                             </li>
-                        <?php else : ?>
-                            <?php foreach ($announcement_items as $announcement) : ?>
+                        <?php else: ?>
+                            <?php foreach ($announcement_items as $announcement): ?>
                                 <?php
                                 $announcement_id = (int) ($announcement['announcementID'] ?? 0);
                                 $circular_id = (int) ($announcement['circularID'] ?? 0);
@@ -320,7 +330,8 @@ if ($index_announcement_payload_json === false) {
                                 }
                                 ?>
                                 <li>
-                                    <p class="js-open-order-view-modal" role="button" tabindex="0" data-announcement-id="<?= h($payload_key) ?>"><?= h($announcement_title) ?></p>
+                                    <p class="js-open-order-view-modal" role="button" tabindex="0"
+                                        data-announcement-id="<?= h($payload_key) ?>"><?= h($announcement_title) ?></p>
                                 </li>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -483,63 +494,6 @@ if ($index_announcement_payload_json === false) {
             </div>
         </div>
     </div>
-
-    <!-- <div class="content-circular-notice-index circular-track-modal-host">
-        <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
-            <div class="modal-content">
-                <div class="header-modal">
-                    <div class="first-header">
-                        <p id="modalOutgoingViewTitle">รายละเอียดประชาสัมพันธ์</p>
-                    </div>
-                    <div class="sec-header">
-                        <i class="fa-solid fa-xmark js-modal-close-btn"></i>
-                    </div>
-                </div>
-
-                <div class="content-modal">
-
-                    <div class="content-topic-sec">
-                        <div class="more-details row-format">
-                            <p><strong>เรื่อง</strong></p>
-                            <p id="indexAnnouncementViewSubject">-</p>
-                        </div>
-                    </div>
-
-                    <div class="file-section" id="sectionViewCover">
-                        <p><strong>ไฟล์หนังสือนำ</strong></p>
-                        <div class="file-list" id="indexAnnouncementViewCover" aria-live="polite">
-                            <p>-</p>
-                        </div>
-                    </div>
-
-                    <div class="file-section" id="sectionViewAttachments">
-                        <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
-                        <div class="file-list" id="indexAnnouncementViewAttachments" aria-live="polite">
-                            <p>-</p>
-                        </div>
-                    </div>
-
-
-                    <div class="content-topic-sec">
-                        <div class="more-details column-format" id="indexAnnouncementViewLink">
-                            <p><strong>แนบลิ้งก์</strong></p>
-                            <span>-</span>
-                        </div>
-                    </div>
-
-                    <div class="content-topic-sec">
-                        <div class="more-details column-format">
-                            <p><strong id="indexAnnouncementCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</strong></p>
-                            <p id="indexAnnouncementDirectorComment">-</p>
-                        </div>
-                    </div>
-
-
-                </div>
-
-            </div>
-        </div>
-    </div> -->
 
     <div class="content-circular-notice-index circular-track-modal-host">
         <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">

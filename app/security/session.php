@@ -11,6 +11,14 @@ if (!function_exists('app_session_start')) {
             return;
         }
 
+        $idle_timeout = (int) app_env('SESSION_IDLE_TIMEOUT', 7200);
+        $absolute_timeout = (int) app_env('SESSION_ABSOLUTE_TIMEOUT', 28800);
+        $gc_lifetime = max($idle_timeout, $absolute_timeout, (int) ini_get('session.gc_maxlifetime'));
+
+        if ($gc_lifetime > 0) {
+            ini_set('session.gc_maxlifetime', (string) $gc_lifetime);
+        }
+
         $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
         $params = session_get_cookie_params();
         session_set_cookie_params([
@@ -23,9 +31,6 @@ if (!function_exists('app_session_start')) {
         ]);
 
         session_start();
-
-        $idle_timeout = (int) app_env('SESSION_IDLE_TIMEOUT', 1800);
-        $absolute_timeout = (int) app_env('SESSION_ABSOLUTE_TIMEOUT', 28800);
 
         if (!isset($_SESSION['session_started_at'])) {
             $_SESSION['session_started_at'] = time();

@@ -1,9 +1,28 @@
 <?php
 
+require_once __DIR__ . '/../../../app/helpers.php';
+
 $login_alert = $login_alert ?? null;
+$remember_cookie_name = 'dbsarabun_remember_pid';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+if (!function_exists('auth_remember_cookie_options')) {
+    function auth_remember_cookie_options(int $expires): array
+    {
+        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+
+        return [
+            'expires' => $expires,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ];
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
@@ -33,6 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     $pID = trim($_POST['pID'] ?? '');
     $password = $_POST['password'] ?? '';
+    $remember_requested = isset($_POST['remember-me']) && (string) $_POST['remember-me'] === '1';
+
+    if (!$remember_requested) {
+        setcookie($remember_cookie_name, '', auth_remember_cookie_options(time() - 3600));
+    }
 
     if ($pID === '' || $password === '') {
         http_response_code(400);
@@ -86,6 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $_SESSION['pID'] = (string) $user['pID'];
     $_SESSION['user_name'] = trim((string) ($user['fname'] ?? '') . ' ' . (string) ($user['lname'] ?? ''));
     user_touch_last_login((string) $user['pID']);
+
+    if ($remember_requested) {
+        $remember_days = max(1, (int) app_env('AUTH_REMEMBER_DAYS', 30));
+        setcookie($remember_cookie_name, $pID, auth_remember_cookie_options(time() + ($remember_days * 86400)));
+    } else {
+        setcookie($remember_cookie_name, '', auth_remember_cookie_options(time() - 3600));
+    }
 
     audit_log('auth', 'LOGIN', 'SUCCESS', 'teacher', (string) $user['pID'], null);
 

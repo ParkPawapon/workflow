@@ -123,7 +123,7 @@ if (!function_exists('auth_record_login_failure')) {
             return;
         }
 
-        $max_attempts = (int) app_env('AUTH_MAX_ATTEMPTS', 5);
+        $max_attempts = (int) app_env('AUTH_MAX_ATTEMPTS', 10);
         $lock_minutes = (int) app_env('AUTH_LOCK_MINUTES', 15);
 
         try {
