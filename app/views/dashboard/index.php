@@ -23,6 +23,7 @@ $unread_orders = (int) ($dashboard_counts['unread_orders'] ?? 0);
 $room_notifications = (int) ($dashboard_counts['room_notifications'] ?? 0);
 $vehicle_notifications = (int) ($dashboard_counts['vehicle_notifications'] ?? $dashboard_counts['unread_vehicle_bookings'] ?? 0);
 $repair_notifications = (int) ($dashboard_counts['repair_notifications'] ?? 0);
+$is_track_active = (bool) ($is_track_active ?? false);
 
 if ($dashboard_is_admin) {
     $room_notifications = 0;
@@ -216,6 +217,28 @@ uasort($dashboard_vehicle_schedule, static function (array $left, array $right):
 
 $dashboard_vehicle_schedule = array_values($dashboard_vehicle_schedule);
 
+$present_schedule = [];
+for ($mock_p = 1; $mock_p <= 22; $mock_p++) {
+    $present_schedule[] = [
+        'title'      => 'กข-' . $mock_p . ' นนทบุรี',
+        'start_date' => '2026-06-30',
+        'end_date'   => '2026-06-30',
+        'time'       => '09:00 - 12:00 น.',
+        'owner'      => 'ฝ่ายไอที รายการที่ ' . $mock_p
+    ];
+}
+
+$history_schedule = [];
+for ($mock_i = 1; $mock_i <= 35; $mock_i++) {
+    $history_schedule[] = [
+        'title'      => 'กจ-' . $mock_i . ' กรุงเทพฯ',
+        'start_date' => '2026-06-' . sprintf('%02d', $mock_i),
+        'end_date'   => '2026-06-' . sprintf('%02d', $mock_i),
+        'time'       => '08:30 - 16:30 น.',
+        'owner'      => 'ผู้จำลองคนที่ ' . $mock_i
+    ];
+}
+
 ob_start();
 ?>
 
@@ -273,83 +296,21 @@ ob_start();
     .tox-tinymce {
         width: 100%;
     }
-
-    .circular-track-modal-host {
-        width: 0;
-        height: 0;
-        padding: 0;
+    
+    #vehicle-driving-section .custom-table th:nth-child(4) {
+        border-right: none;
+    }
+    
+    #vehicle-driving-section-present .custom-table th:nth-child(4) {
+        border-right: none;
+    }
+    
+    .tabs-container.setting-page, .tabs-container.setting-page .button-container.vehicle {
         margin: 0;
-        border: 0;
-        background: transparent;
     }
-
-    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person {
-        padding: 20px;
-    }
-
-    .content-circular-notice-index .modal-overlay-circular-notice-index.outside-person .modal-content {
-        width: 90%;
-        max-width: 90%;
-        height: 90%;
-    }
-
-    #newsModalOverlay {
-        z-index: 111;
-    }
-
-    #newsModalOverlay .modal-body {
-        padding: 0 40px;
-    }
-
-    #newsModalOverlay ul {
-        padding: 0;
-    }
-
-    #newsModalOverlay ul li {
-        font-size: var(--font-size-body-1);
-        color: var(--color-secondary);
-        text-decoration: none;
-        list-style: none;
-        padding: 10px 0;
-        margin: 0;
-        width: 100%;
-        cursor: pointer;
-        /* border-bottom: 1px solid var(--color-secondary); */
-    }
-
-    #newsModalOverlay ul li:nth-child(even) {
-        background-color: rgba(var(--rgb-secondary-light), 0.05);
-    }
-
-    .teacher-phone-footer-control {
-        height: 80px;
-        padding: 20px 40px;
-        box-shadow: 0px -12px 12px -2px rgba(var(--rgb-neutral-dark), 0.05)
-    }
-
-    @media screen and (max-width: 1024px) {
-        #newsModalOverlay .modal-body {
-            padding: 0 20px;
-        }
-
-        #newsModalOverlay ul {
-            margin: 0;
-        }
-
-        #newsModalOverlay modal-body {
-            padding: 20px 10px;
-        }
-
-        #newsModalOverlay ul li {
-            font-size: var(--font-size-desc-1);
-            padding: 5px 0;
-            margin: 0;
-        }
-
-        .teacher-phone-footer-control {
-            height: 60px;
-            padding: 10px 20px;
-        }
+    
+    .tabs-container.setting-page {
+        margin-bottom: 20px;
     }
 
     @media screen and (max-width: 768px) {
@@ -361,27 +322,19 @@ ob_start();
             max-width: 250px;
             min-width: 250px;
         }
-
-        #newsModalOverlay .modal-body {
-            padding: 0 10px;
-        }
-
-        #newsModalOverlay ul li {
-            font-size: var(--font-size-desc-3);
-            padding: 0;
-            margin: 0;
-        }
-
-        .teacher-phone-footer-control {
-            height: 40px;
-            padding: 0 10px;
-        }
     }
 
     @media (max-width: 1023px) {
         .modal-header {
             margin: 0;
         }
+    }
+    
+    .booking-section.tab-content {
+        display: none;
+    }
+    .booking-section.tab-content.active {
+        display: block;
     }
 </style>
 
@@ -531,15 +484,11 @@ ob_start();
 
         <section>
             <div class="dashboard-header" id="news-paper">
-                <div>
-                    <img src="public/assets/img/icon/news-paper.png" alt="">
-                    <p><strong>ข่าวประชาสัมพันธ์ และตารางนัดหมาย</strong></p>
-                </div>
-                <a href="#" id="newsButton">ดูข่าวทั้งหมด</a>
+                <img src="public/assets/img/icon/news-paper.png" alt="">
+                <p><strong>ข่าวประชาสัมพันธ์ และตารางนัดหมาย</strong></p>
             </div>
 
-            <aside class="container-notification-section dashboard" style="z-index: 1">
-
+            <aside class="container-notification-section dashboard">
                 <div class="news-bar">
                     <div class="details-news-bar">
                         <ul>
@@ -592,81 +541,11 @@ ob_start();
                         </div>
 
                         <div class="dates-calendar" id="dates-calendar"></div>
-
                     </div>
                 </div>
-                <textarea id="roomBookingEventsData" class="hidden"
-                    aria-hidden="true"><?= h($dashboard_calendar_events_json) ?></textarea>
-
+                <textarea id="roomBookingEventsData" class="hidden" aria-hidden="true"><?= h($dashboard_calendar_events_json) ?></textarea>
             </aside>
         </section>
-
-        <div id="newsModalOverlay" class="modal-overlay hidden">
-            <div class="modal-content">
-                <header class="modal-header">
-                    <div class="modal-title">
-                        <!-- <i class="fa-regular fa-calendar-days"></i> -->
-                        <span>ข่าวประชาสัมพันธ์ทั้งหมด</span>
-                    </div>
-                    <div class="close-modal-btn">
-                        <i class="fa-solid fa-xmark" id="newsCloseBtn" aria-hidden="true"></i>
-                    </div>
-                </header>
-
-                <div class="modal-body">
-                    <div class="booking-section">
-                        <ul>
-                            <?php for ($x = 1; $x <= 220; $x++) { ?>
-                                <li class="js-open-order-view-modal">Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit, suscipit <?= $x ?></li>
-                            <?php } ?>
-                        </ul>
-                    </div>
-
-
-                </div>
-
-                <div class="teacher-phone-footer-control">
-                    <div class="count-text" id="count-text">
-                        <p>จำนวน <? //= h((string) number_format($teacher_directory_total)) 
-                                    ?> รายชื่อ</p>
-                    </div>
-                    <div class="teacher-phone-pagination" id="pagination">
-
-                        <button type="button" data-page="<? //= h((string) $prev_page) 
-                                                            ?>" <? //= $current_page <= 1 ? 'disabled' : '' 
-                                                                ?> aria-label="Previous page">
-                            <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                        </button>
-
-                        <button type="button" data-page="1" <? //= $current_page === 1 ? 'class="active"' : '' 
-                                                            ?>>1</button>
-                        <span class="enterprise-ellipsis">...</span>
-
-                        <button type="button" data-page="<? //= h((string) $i) 
-                                                            ?>" <? //= $i === $current_page ? 'class="active"' : '' 
-                                                                ?>><? //= h((string) $i) 
-                                                                    ?></button>
-
-
-                        <span class="enterprise-ellipsis">...</span>
-
-                        <button type="button" data-page="<? //= h((string) $total_pages) 
-                                                            ?>" <? //= $current_page === $total_pages ? 'class="active"' : '' 
-                                                                ?>><? //= h((string) $total_pages) 
-                                                                    ?></button>
-
-                        <button type="button" data-page="<? //= h((string) $next_page) 
-                                                            ?>" <? //= $current_page >= $total_pages ? 'disabled' : '' 
-                                                                ?> aria-label="Next page">
-                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                        </button>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </main>
 
     <div id="event-modal-overlay" class="modal-overlay hidden">
@@ -736,7 +615,15 @@ ob_start();
         </header>
 
         <div class="modal-body modal-overlay-vehicle-edit">
-            <div id="vehicle-driving-section" class="booking-section">
+            
+            <div class="tabs-container setting-page">
+                <div class="button-container vehicle">
+                    <button type="button" class="tab-btn active" onclick="switchVehicleTab('present', event)">การจองรถปัจจุบัน</button>
+                    <button type="button" class="tab-btn" onclick="switchVehicleTab('history', event)">ประวัติการจอง</button>
+                </div>
+            </div>
+            
+            <div id="vehicle-driving-section-present" class="booking-section tab-content active">
                 <div class="table-responsive">
                     <table class="custom-table">
                         <thead>
@@ -744,17 +631,17 @@ ob_start();
                                 <th>ทะเบียนรถ</th>
                                 <th>วันที่เริ่มต้น</th>
                                 <th>วันที่สิ้นสุด</th>
-                                <th>เวลา</th>
+                                <th>สถานที่</th>
                                 <th>ผู้จองรถ</th>
                             </tr>
                         </thead>
-                        <tbody id="vehicle-driving-table-body">
-                            <?php if ($dashboard_vehicle_schedule === []): ?>
+                        <tbody>
+                            <?php if ($present_schedule === []): ?>
                                 <tr>
-                                    <td colspan="5" class="enterprise-empty">ไม่มีรายการขับรถ</td>
+                                    <td colspan="5" class="enterprise-empty">ไม่มีรายการขับรถปัจจุบัน</td>
                                 </tr>
                             <?php else: ?>
-                                <?php foreach ($dashboard_vehicle_schedule as $schedule): ?>
+                                <?php foreach ($present_schedule as $schedule): ?>
                                     <tr>
                                         <td><?= h((string) ($schedule['title'] ?? '-')) ?></td>
                                         <td><?= h((string) ($schedule['start_date'] ?? '-')) ?></td>
@@ -769,70 +656,53 @@ ob_start();
                 </div>
             </div>
 
+            <div id="vehicle-driving-section-history" class="booking-section tab-content">
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>ทะเบียนรถ</th>
+                                <th>วันที่เริ่มต้น</th>
+                                <th>วันที่สิ้นสุด</th>
+                                <th>สถานที่</th>
+                                <th>ผู้จองรถ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($history_schedule === []): ?>
+                                <tr>
+                                    <td colspan="5" class="enterprise-empty">ไม่มีรายการประวัติการขับรถ</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($history_schedule as $schedule): ?>
+                                    <tr class="history-row">
+                                        <td><?= h((string) ($schedule['title'] ?? '-')) ?></td>
+                                        <td><?= h((string) ($schedule['start_date'] ?? '-')) ?></td>
+                                        <td><?= h((string) ($schedule['end_date'] ?? '-')) ?></td>
+                                        <td><?= h((string) ($schedule['time'] ?? '-')) ?></td>
+                                        <td><?= h((string) ($schedule['owner'] ?? '-')) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="teacher-phone-footer-control">
+                <div class="count-text" id="count-text">
+                    <p>จำนวน 0 รายการ</p>
+                </div>
+                <div class="teacher-phone-pagination" id="pagination">
+                </div>
+            </div>
+
             <div id="vehicle-driving-empty-message" class="hidden">
                 ไม่มีรายการจองในวันนี้
             </div>
-
         </div>
     </div>
 </div>
-
-<!-- <div class="content-circular-notice-index circular-track-modal-host">
-    <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
-        <div class="modal-content">
-            <div class="header-modal">
-                <div class="first-header">
-                    <p id="modalOutgoingViewTitle">รายละเอียดประชาสัมพันธ์</p>
-                </div>
-                <div class="sec-header">
-                    <i class="fa-solid fa-xmark js-modal-close-btn"></i>
-                </div>
-            </div>
-
-            <div class="content-modal">
-
-                <div class="content-topic-sec">
-                    <div class="more-details row-format">
-                        <p><strong>เรื่อง</strong></p>
-                        <p id="dashboardAnnouncementViewSubject">-</p>
-                    </div>
-                </div>
-
-                <div class="file-section" id="sectionViewCover">
-                    <p><strong>ไฟล์หนังสือนำ</strong></p>
-                    <div class="file-list" id="dashboardAnnouncementViewCover" aria-live="polite">
-                        <p>-</p>
-                    </div>
-                </div>
-
-                <div class="file-section" id="sectionViewAttachments">
-                    <p><strong>ไฟล์เอกสารเพิ่มเติม</strong></p>
-                    <div class="file-list" id="dashboardAnnouncementViewAttachments" aria-live="polite">
-                        <p>-</p>
-                    </div>
-                </div>
-
-
-                <div class="content-topic-sec">
-                    <div class="more-details column-format" id="dashboardAnnouncementViewLink">
-                        <p><strong>แนบลิ้งก์</strong></p>
-                        <span>-</span>
-                    </div>
-                </div>
-
-                <div class="content-topic-sec">
-                    <div class="more-details column-format">
-                        <p><strong id="dashboardAnnouncementCommentLabel">ความคิดเห็นของรองผู้อำนวยการ</strong></p>
-                        <p id="dashboardAnnouncementDirectorComment">-</p>
-                    </div>
-                </div>
-
-
-            </div>
-
-        </div>
-    </div>
-</div> -->
 
 <div class="content-circular-notice-index circular-track-modal-host">
     <div class="modal-overlay-circular-notice-index outside-person js-modal-overlay">
@@ -847,7 +717,6 @@ ob_start();
             </div>
 
             <div class="formal-form">
-
                 <div class="header">
                     <p><span>เรื่อง: </span><span id="dashboardAnnouncementViewSubject">-</span></p>
                 </div>
@@ -887,7 +756,6 @@ ob_start();
                         </table>
                     </div>
                 </section>
-
             </div>
         </div>
     </div>
@@ -1171,16 +1039,21 @@ ob_start();
     });
 </script>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const vehicleModal = document.getElementById('vehicleBookingDetailModal');
-
         const closeBtn = document.querySelector('[data-vehicle-modal-close="vehicleBookingDetailModal"]');
 
         window.openVehicleDetail = function() {
             if (vehicleModal) {
                 vehicleModal.classList.remove('hidden');
+                vehicleCurrentPage = 1; 
+                
+                initVehiclePagination();
+                
+                setTimeout(() => {
+                    initVehiclePagination();
+                }, 80);
             }
         };
 
@@ -1240,201 +1113,151 @@ ob_start();
             slider.scrollLeft = scrollLeft - walk;
         });
     });
+        
+    let vehicleCurrentPage = 1;
+    const vehicleRowsPerPage = 15;
+    let activeTabMode = 'present';
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const modalOverlay = document.getElementById('newsModalOverlay');
-        const openBtn = document.getElementById('newsButton');
-        const closeBtn = document.getElementById('newsCloseBtn');
+    window.switchVehicleTab = function(mode, event) {
+        if (event) event.preventDefault();
+        activeTabMode = mode;
+        
+        const container = document.querySelector('.button-container.vehicle');
+        container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        if (event) {
+            event.target.classList.add('active');
+        } else {
+            const btns = container.querySelectorAll('.tab-btn');
+            if (mode === 'present') btns[0].classList.add('active');
+            if (mode === 'history') btns[1].classList.add('active');
+        }
 
-        const list = modalOverlay?.querySelector('.booking-section ul');
-        const rows = list ? Array.from(list.querySelectorAll('li')) : [];
+        document.getElementById('vehicle-driving-section-present').classList.remove('active');
+        document.getElementById('vehicle-driving-section-history').classList.remove('active');
+        
+        if (mode === 'present') {
+            document.getElementById('vehicle-driving-section-present').classList.add('active');
+        } else {
+            document.getElementById('vehicle-driving-section-history').classList.add('active');
+        }
 
-        const pagination = document.getElementById('pagination');
+        vehicleCurrentPage = 1;
+        initVehiclePagination();
+    };
+
+    function initVehiclePagination() {
+        const activeSectionId = activeTabMode === 'present' ? 'vehicle-driving-section-present' : 'vehicle-driving-section-history';
+        const targetTableBody = document.querySelector(`#${activeSectionId} tbody`);
+        if (!targetTableBody) return;
+
+        const rows = Array.from(targetTableBody.querySelectorAll('tr:not(.enterprise-empty)'));
         const countText = document.getElementById('count-text');
+        const paginationContainer = document.getElementById('pagination');
 
-        const rowsPerPage = 20;
-        let currentPage = 1;
-        const totalPages = Math.ceil(rows.length / rowsPerPage);
+        if (countText) {
+            countText.innerHTML = `<p>จำนวน ${rows.length} รายการ</p>`;
+        }
 
-        const getPaginationRange = () => {
-            let startPage = 1;
-            let endPage = totalPages;
+        if (rows.length === 0) {
+            if (paginationContainer) paginationContainer.innerHTML = '';
+            return;
+        }
 
+        const totalPages = Math.ceil(rows.length / vehicleRowsPerPage);
+        
+        const startIndex = (vehicleCurrentPage - 1) * vehicleRowsPerPage;
+        const endIndex = startIndex + vehicleRowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+        });
+
+        const getRange = () => {
+            let start = 1;
+            let end = totalPages;
             if (totalPages > 7) {
-                if (currentPage <= 4) {
-                    endPage = 5;
-                } else if (currentPage >= totalPages - 3) {
-                    startPage = totalPages - 4;
+                if (vehicleCurrentPage <= 4) {
+                    end = 5;
+                } else if (vehicleCurrentPage >= totalPages - 3) {
+                    start = totalPages - 4;
                 } else {
-                    startPage = currentPage - 2;
-                    endPage = currentPage + 2;
+                    start = vehicleCurrentPage - 2;
+                    end = vehicleCurrentPage + 2;
                 }
             }
-
-            return {
-                startPage,
-                endPage,
-            };
+            return { start, end };
         };
 
-        const createPageButton = (page) => {
-            const button = document.createElement('button');
+        if (!paginationContainer) return;
+        paginationContainer.innerHTML = '';
 
-            button.type = 'button';
-            button.dataset.page = String(page);
-            button.textContent = page;
+        if (totalPages <= 1) return;
 
-            if (page === currentPage) {
-                button.classList.add('active');
-            }
-
-            button.addEventListener('click', () => {
-                currentPage = page;
-                renderPage();
-            });
-
-            return button;
-        };
-
-        const createEllipsis = () => {
-            const span = document.createElement('span');
-
-            span.className = 'enterprise-ellipsis';
-            span.textContent = '...';
-
-            return span;
-        };
-
-        const renderPagination = () => {
-            if (!pagination) return;
-
-            pagination.innerHTML = '';
-
-            if (totalPages <= 1) {
-                return;
-            }
-
-            const prevPage = Math.max(1, currentPage - 1);
-            const nextPage = Math.min(totalPages, currentPage + 1);
-
-            const prevBtn = document.createElement('button');
-            prevBtn.type = 'button';
-            prevBtn.dataset.page = String(prevPage);
-            prevBtn.setAttribute('aria-label', 'Previous page');
-            prevBtn.innerHTML = '<i class="fas fa-chevron-left" aria-hidden="true"></i>';
-            prevBtn.disabled = currentPage <= 1;
-
-            prevBtn.addEventListener('click', () => {
-                if (currentPage <= 1) return;
-
-                currentPage = prevPage;
-                renderPage();
-            });
-
-            pagination.appendChild(prevBtn);
-
-            const {
-                startPage,
-                endPage
-            } = getPaginationRange();
-
-            if (startPage > 1) {
-                pagination.appendChild(createPageButton(1));
-
-                if (startPage > 2) {
-                    pagination.appendChild(createEllipsis());
-                }
-            }
-
-            for (let page = startPage; page <= endPage; page++) {
-                pagination.appendChild(createPageButton(page));
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    pagination.appendChild(createEllipsis());
-                }
-
-                pagination.appendChild(createPageButton(totalPages));
-            }
-
-            const nextBtn = document.createElement('button');
-            nextBtn.type = 'button';
-            nextBtn.dataset.page = String(nextPage);
-            nextBtn.setAttribute('aria-label', 'Next page');
-            nextBtn.innerHTML = '<i class="fas fa-chevron-right" aria-hidden="true"></i>';
-            nextBtn.disabled = currentPage >= totalPages;
-
-            nextBtn.addEventListener('click', () => {
-                if (currentPage >= totalPages) return;
-
-                currentPage = nextPage;
-                renderPage();
-            });
-
-            pagination.appendChild(nextBtn);
-        };
-
-        const renderPage = () => {
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-
-            rows.forEach((row, index) => {
-                row.style.display = index >= startIndex && index < endIndex ? '' : 'none';
-            });
-
-            if (countText) {
-                const startNumber = rows.length === 0 ? 0 : startIndex + 1;
-                const endNumber = Math.min(endIndex, rows.length);
-
-                countText.innerHTML = `
-                <p style="line-height: 1.2;">จำนวน ${rows.length} รายการ</p>
-            `;
-            }
-
-            renderPagination();
-        };
-
-        const openModal = (event) => {
-            event?.preventDefault();
-
-            if (!modalOverlay) return;
-
-            modalOverlay.classList.remove('hidden');
-            modalOverlay.style.display = 'flex';
-
-            currentPage = 1;
-            renderPage();
-        };
-
-        const closeModal = () => {
-            if (!modalOverlay) return;
-
-            modalOverlay.classList.add('hidden');
-            modalOverlay.style.display = 'none';
-        };
-
-        openBtn?.addEventListener('click', openModal);
-        closeBtn?.addEventListener('click', closeModal);
-
-        modalOverlay?.addEventListener('click', (event) => {
-            if (event.target === modalOverlay) {
-                closeModal();
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.disabled = vehicleCurrentPage === 1;
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left" aria-hidden="true"></i>';
+        prevBtn.addEventListener('click', () => {
+            if (vehicleCurrentPage > 1) {
+                vehicleCurrentPage--;
+                initVehiclePagination();
             }
         });
+        paginationContainer.appendChild(prevBtn);
 
-        document.addEventListener('keydown', (event) => {
-            if (
-                event.key === 'Escape' &&
-                modalOverlay &&
-                !modalOverlay.classList.contains('hidden')
-            ) {
-                closeModal();
+        const { start, end } = getRange();
+
+        if (start > 1) {
+            paginationContainer.appendChild(createNumBtn(1));
+            if (start > 2) {
+                const dot = document.createElement('span');
+                dot.className = 'enterprise-ellipsis';
+                dot.textContent = '...';
+                paginationContainer.appendChild(dot);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            paginationContainer.appendChild(createNumBtn(i));
+        }
+
+        if (end < totalPages) {
+            if (end < totalPages - 1) {
+                const dot = document.createElement('span');
+                dot.className = 'enterprise-ellipsis';
+                dot.textContent = '...';
+                paginationContainer.appendChild(dot);
+            }
+            paginationContainer.appendChild(createNumBtn(totalPages));
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.disabled = vehicleCurrentPage === totalPages;
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right" aria-hidden="true"></i>';
+        nextBtn.addEventListener('click', () => {
+            if (vehicleCurrentPage < totalPages) {
+                vehicleCurrentPage++;
+                initVehiclePagination();
             }
         });
+        paginationContainer.appendChild(nextBtn);
+    }
 
-        renderPage();
-    });
+    function createNumBtn(page) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = page;
+        if (page === vehicleCurrentPage) {
+            btn.classList.add('active');
+        }
+        btn.addEventListener('click', () => {
+            vehicleCurrentPage = page;
+            initVehiclePagination();
+        });
+        return btn;
+    }
+    initVehiclePagination();
 </script>
 <?php
 $content = ob_get_clean();
